@@ -80,6 +80,10 @@ android {
 		abortOnError false
 	}
 
+	dataBinding {
+		enabled = true
+	}
+
 	packagingOptions {
 		exclude 'META-INF/LICENSE'
 		exclude 'META-INF/LICENSE.txt'

@@ -46,7 +46,7 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.SERVE
 
 public class LoginPresenter extends BasePresenter implements LoginContract.Presenter {
 
-	private LoginContract.View loginView;
+	private LoginContract.ViewModel loginView;
 	private OpenMRS openMRS;
 	private boolean wipeRequired;
 	private AuthorizationManager authorizationManager;
@@ -58,7 +58,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	private int startIndex = 0;//Old API, works with indexes not pages
 	private int limit = 100;
 
-	public LoginPresenter(LoginContract.View view, OpenMRS openMRS) {
+	public LoginPresenter(LoginContract.ViewModel view, OpenMRS openMRS) {
 		this.loginView = view;
 		this.loginView.setPresenter(this);
 		this.openMRS = openMRS;
@@ -78,7 +78,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 
 	@Override
 	public void login(String username, String password, String url, String oldUrl) {
-		loginView.hideSoftKeys();
+//		loginView.hideSoftKeys();
 		String storedUserName = openMRS.getUsername();
 		String storedServerUrl = openMRS.getServerUrl();
 
@@ -89,7 +89,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		boolean oldUrlIsEmpty = oldUrl.equals(ApplicationConstants.EMPTY_STRING);
 
 		if (wipeRequired) {
-			loginView.showWarningDialog();
+//			loginView.showWarningDialog();
 		} else if ((userNameIsNotStored || enteredUserNameMatchesWhatIsStored)
 				&& (serverUrlIsNotStored || oldUrlMatchesWhatIsStored || oldUrlIsEmpty)) {
 			if (!oldUrlMatchesWhatIsStored || userNameIsNotStored || serverUrlIsNotStored) {
@@ -97,14 +97,14 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 			}
 			authenticateUser(username, password, url, wipeRequired);
 		} else {
-			loginView.showWarningDialog();
+//			loginView.showWarningDialog();
 		}
 	}
 
 	@Override
 	public void authenticateUser(final String username, final String password, final String url,
 			final boolean wipeDatabase) {
-		loginView.setProgressBarVisibility(true);
+//		loginView.setProgressBarVisibility(true);
 		RestServiceBuilder.setloginUrl(url);
 
 		if (openMRS.getNetworkUtils().isOnline()) {
@@ -133,21 +133,21 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 						openMRS.setLoginUserUuid(session.getUser().getUuid());
 
 						fetchFullUserInformation(session.getUser().getUuid());
-						loginView.userAuthenticated(isFirstAccessOfNewUrl);
-						loginView.finishLoginActivity();
+//						loginView.userAuthenticated(isFirstAccessOfNewUrl);
+//						loginView.finishLoginActivity();
 
 					} else {
-						loginView.showMessage(INVALID_USERNAME_PASSWORD);
+//						loginView.showMessage(INVALID_USERNAME_PASSWORD);
 					}
-					loginView.setProgressBarVisibility(false);
+//					loginView.setProgressBarVisibility(false);
 
 				}
 
 				@Override
 				public void onError(Throwable t) {
 					t.printStackTrace();
-					loginView.setProgressBarVisibility(false);
-					loginView.showMessage(SERVER_ERROR);
+//					loginView.setProgressBarVisibility(false);
+//					loginView.showMessage(SERVER_ERROR);
 				}
 			};
 
@@ -155,22 +155,22 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		} else {
 			if (openMRS.isUserLoggedOnline() && url.equals(openMRS.getLastLoginServerUrl())) {
 				RestServiceBuilder.setBaseUrl(openMRS.getServerUrl());
-				loginView.setProgressBarVisibility(false);
+//				loginView.setProgressBarVisibility(false);
 				if (openMRS.getUsername().equals(username) && openMRS.getPassword().equals(password)) {
 					openMRS.setSessionToken(openMRS.getLastSessionToken());
-					loginView.showMessage(OFFLINE_LOGIN);
-					loginView.userAuthenticated(isFirstAccessOfNewUrl);
-					loginView.finishLoginActivity();
+//					loginView.showMessage(OFFLINE_LOGIN);
+//					loginView.userAuthenticated(isFirstAccessOfNewUrl);
+//					loginView.finishLoginActivity();
 				} else {
-					loginView.showMessage(AUTH_FAILED);
+//					loginView.showMessage(AUTH_FAILED);
 				}
 			} else if (openMRS.getNetworkUtils().hasNetwork()) {
-				loginView.showMessage(OFFLINE_LOGIN_UNSUPPORTED);
-				loginView.setProgressBarVisibility(false);
+//				loginView.showMessage(OFFLINE_LOGIN_UNSUPPORTED);
+//				loginView.setProgressBarVisibility(false);
 
 			} else {
-				loginView.showMessage(NO_INTERNET);
-				loginView.setProgressBarVisibility(false);
+//				loginView.showMessage(NO_INTERNET);
+//				loginView.setProgressBarVisibility(false);
 
 			}
 		}
@@ -192,7 +192,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 
 			@Override
 			public void onError(Throwable t) {
-				loginView.showMessage(SERVER_ERROR);
+//				loginView.showMessage(SERVER_ERROR);
 			}
 		};
 
@@ -217,27 +217,27 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 
 	@Override
 	public void loadLocations(String url) {
-		loginView.setProgressBarVisibility(true);
+//		loginView.setProgressBarVisibility(true);
 		RestServiceBuilder.setBaseUrl(url);
 		DataService.GetCallback<List<Location>> locationDataServiceCallback =
 				new DataService.GetCallback<List<Location>>() {
 					@Override
 					public void onCompleted(List<Location> locations) {
 						openMRS.setServerUrl(url);
-						loginView.updateLoginFormLocations(locations, url);
+//						loginView.updateLoginFormLocations(locations, url);
 					}
 
 					@Override
 					public void onError(Throwable t) {
-						loginView.showMessage(SERVER_ERROR);
+//						loginView.showMessage(SERVER_ERROR);
 					}
 				};
 
 		try {
 			locationDataService.getLoginLocations(locationDataServiceCallback);
 		} catch (IllegalArgumentException ex) {
-			loginView.setProgressBarVisibility(false);
-			loginView.showMessage(SERVER_ERROR);
+//			loginView.setProgressBarVisibility(false);
+//			loginView.showMessage(SERVER_ERROR);
 		}
 	}
 
@@ -254,6 +254,6 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	}
 
 	public void userWasLoggedOutDueToInactivity() {
-		loginView.showMessage(LOGOUT_DUE_TO_INACTIVITY);
+//		loginView.showMessage(LOGOUT_DUE_TO_INACTIVITY);
 	}
 }

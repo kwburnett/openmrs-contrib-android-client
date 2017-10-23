@@ -385,9 +385,9 @@ public class CustomFragmentDialog extends DialogFragment {
 						dismiss();
 						break;
 					case LOGIN:
-						LoginContract.View view = (LoginContract.View) getActivity().getSupportFragmentManager()
-								.findFragmentById(R.id.loginContentFrame);
-						view.login(true);
+//						LoginContract.View view = (LoginContract.View) getActivity().getSupportFragmentManager()
+//								.findFragmentById(R.id.loginContentFrame);
+//						view.login(true);
 						dismiss();
 						break;
 					case LOGOUT:

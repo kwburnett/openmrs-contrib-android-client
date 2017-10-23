@@ -14,6 +14,8 @@
 
 package org.openmrs.mobile.activities.login;
 
+//import android.databinding.ObservableBoolean;
+//import android.databinding.ObservableField;
 import org.openmrs.mobile.activities.BasePresenterContract;
 import org.openmrs.mobile.activities.BaseView;
 import org.openmrs.mobile.models.Location;
@@ -23,24 +25,28 @@ import java.util.List;
 
 public interface LoginContract {
 
+	interface ViewModel extends BaseView<Presenter> {
+		String password = "test";
+//		ObservableField<String> loginUrl = new ObservableField<>();
+//		ObservableField<String> username = new ObservableField<>();
+//		ObservableField<String> password = new ObservableField<>();
+//
+//		ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
+//		ObservableBoolean showPassword = new ObservableBoolean(false);
+
+//		void showHideLoginUrlField(CompoundButton buttonView, boolean isChecked);
+	}
+
 	interface View extends BaseView<Presenter> {
 
 		void hideSoftKeys();
-
 		void showWarningDialog();
-
 		void userAuthenticated(boolean isFirstAccessOfNewUrl);
-
 		void finishLoginActivity();
-
 		void setProgressBarVisibility(boolean visible);
-
 		void updateLoginFormLocations(List<Location> locations, String url);
-
 		void showMessage(String message);
-
 		void showMessage(int errorCode);
-
 		void login(boolean wipeDatabase);
 	}
 
