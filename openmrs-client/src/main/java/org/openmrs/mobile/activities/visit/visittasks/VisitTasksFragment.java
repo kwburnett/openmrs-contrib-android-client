@@ -96,8 +96,6 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		openViewTasksRecyclerView.setLayoutManager(layoutManager);
 
 		addListeners();
-		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
 		return mRootView;
 	}
 
