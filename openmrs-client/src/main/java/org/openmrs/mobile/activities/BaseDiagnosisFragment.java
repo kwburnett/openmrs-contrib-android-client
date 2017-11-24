@@ -48,7 +48,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	protected TextInputEditText clinicalNoteView;
 	protected BaseDiagnosisPresenter diagnosisPresenter = new BaseDiagnosisPresenter();
 	private Timer timer;
-	private String observationUuid;
+	private Observation observation;
 	private Visit visit;
 	private boolean firstTimeEdit;
 	private long lastTextEdit = 0;
@@ -165,13 +165,13 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 		clinicalNoteView.setText(updatedPatientSummary);
 	}
 
-	public void createPatientSummaryMergeDialog(String mergePatientSummaryText) {
+	public void createPatientSummaryMergeDialog(String patientSummaryText) {
 		removeClinicalNoteListener();
 		// This condition will be changed. It's just a way of detecting a conflict that needs to be resolved.
-		if (mergePatientSummaryText.contains(ApplicationConstants.PatientSummary.SEARCH_PATIENT_SUMMARY_CONFLICT)) {
+		if (patientSummaryText.contains(ApplicationConstants.PatientSummary.SEARCH_PATIENT_SUMMARY_CONFLICT)) {
 			CustomDialogBundle bundle = new CustomDialogBundle();
 			bundle.setTitleViewMessage(getString(R.string.merge_patient_summary));
-			bundle.setEditNoteTextViewMessage(mergePatientSummaryText);
+			bundle.setEditNoteTextViewMessage(patientSummaryText);
 			bundle.setRightButtonAction(CustomFragmentDialog.OnClickAction.MERGE_PATIENT_SUMMARY);
 			bundle.setRightButtonText(getString(R.string.dialog_button_confirm));
 
@@ -179,6 +179,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 			mergePatientSummaryDialog.show(
 					getActivity().getSupportFragmentManager(), ApplicationConstants.DialogTAG.MERGE_PATIENT_SUMMARY_TAG);
 		} else {
+			clinicalNoteView.setText(patientSummaryText);
 			addClinicalNoteListener();
 		}
 	}
@@ -297,7 +298,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 
 				encounterDiagnosis.setExistingObs(observation.getUuid());
 			} else if (observation.getDisplay().startsWith(ApplicationConstants.ObservationLocators.CLINICAL_NOTE)) {
-				setObservationUuid(observation.getUuid());
+				setObservation(observation);
 			}
 		} else {
 			encounterDiagnosis.setCertainty(ApplicationConstants.DiagnosisStrings.PRESUMED);
@@ -437,8 +438,8 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 		visitNote.setW10(clinicalNote == null ? ApplicationConstants.EMPTY_STRING : clinicalNote);
 		visitNote.setW12(clinicalNote == null ? ApplicationConstants.EMPTY_STRING : clinicalNote);
 
-		if (getObservationUuid() != null) {
-			visitNote.setObservationUuid(getObservationUuid());
+		if (getObservation() != null) {
+			visitNote.setObservation(getObservation());
 		}
 
 		encounterDiagnoses.addAll(primaryDiagnoses);
@@ -572,12 +573,12 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	}
 
 	@Override
-	public String getObservationUuid() {
-		return observationUuid;
+	public Observation getObservation() {
+		return observation;
 	}
 
 	@Override
-	public void setObservationUuid(String uuid) {
-		this.observationUuid = uuid;
+	public void setObservation(Observation observation) {
+		this.observation = observation;
 	}
 }

@@ -30,6 +30,7 @@ import org.openmrs.mobile.utilities.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
@@ -64,7 +65,7 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 	private TextView secondaryDiagnosis, noPatientVisits;
 	private View initialDiagnosesView;
 
-	public PatientVisitsRecyclerAdapter(RecyclerView visitsRecyclerView, List<Visit> visits,
+	public PatientVisitsRecyclerAdapter(RecyclerView visitsRecyclerView, LinkedList<Visit> visits,
 			Context context, IBaseDiagnosisFragment baseDiagnosisFragment) {
 		this.visits = visits;
 		this.context = context;

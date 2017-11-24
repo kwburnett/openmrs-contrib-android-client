@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -33,6 +34,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -314,5 +316,34 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 			inputMethodManager.hideSoftInputFromWindow(
 					windowToken.getWindowToken(), 0);
 		}
+	}
+
+	public static void showSoftKeyboard(Activity activity) {
+		if (activity == null) {
+			return;
+		}
+		InputMethodManager inputMethodManager =
+				(InputMethodManager)activity.getSystemService(
+						Activity.INPUT_METHOD_SERVICE);
+		View windowToken = activity.getCurrentFocus();
+
+		if (windowToken != null) {
+			inputMethodManager.toggleSoftInputFromWindow(windowToken.getWindowToken(),
+					inputMethodManager.SHOW_FORCED, 0);
+		}
+	}
+
+	protected void runAfterPageDisplayedToUser(View view, Runnable runnable) {
+
+		view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+			@Override
+			public void onGlobalLayout() {
+				// At this point, the layout is complete and has been drawn. Put it in a handler to ensure the UI thread
+				// is not slowed by this runnable's execution
+				new Handler().post(runnable);
+				view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+			}
+		});
 	}
 }

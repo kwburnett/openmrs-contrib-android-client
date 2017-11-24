@@ -15,7 +15,7 @@ tests/*.iml
 .gradle/
 .idea/
 local.properties
-gradle.properties
+#gradle.properties
 tests/bin/*
 bin/*
 tests/gen/*
@@ -23,6 +23,7 @@ gen/*
 tests/out/*
 out/*
 /openmrs-client/build
+/openmrs-client/release
 /odkcollect/build
 
 *.DS_Store
@@ -45,6 +46,6 @@ modules/odk.collect/android/*
 *.classpath
 .settings/
 /.java-version
-/gradle.properties
+#/gradle.properties
 /openmrs-client/src/main/java/org/openmrs/mobile/activities/auditdata/send-update.json
 /openmrs-client/src/main/java/org/openmrs/mobile/activities/auditdata/create.json

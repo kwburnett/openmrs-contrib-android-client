@@ -46,6 +46,7 @@ import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.ToastUtil;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.openmrs.mobile.utilities.ApplicationConstants.BundleKeys.LOCATION_UUID_BUNDLE;
@@ -211,7 +212,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	}
 
 	@Override
-	public void patientVisits(List<Visit> visits) {
+	public void patientVisits(LinkedList<Visit> visits) {
 		//hasActiveVisit = false;
 		for (Visit visit : visits) {
 			if (visit.getStopDatetime() == null) {

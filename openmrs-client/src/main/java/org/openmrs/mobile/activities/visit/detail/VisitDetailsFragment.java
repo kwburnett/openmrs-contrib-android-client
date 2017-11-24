@@ -60,7 +60,12 @@ import org.openmrs.mobile.utilities.ToastUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.VisitDetailsMainPresenter>
 		implements VisitContract.VisitDetailsView {
@@ -87,6 +92,8 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	private RelativeLayout visitNoteAuditInfo, visitVitalsAuditInfo, auditDataMetadata, visitDetailsProgressBar;
 	private ScrollView visitDetailsScrollView;
 
+	private Map<String, Integer> auditDataSortOrder;
+
 	public static VisitDetailsFragment newInstance() {
 		return new VisitDetailsFragment();
 	}
@@ -102,6 +109,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_visit_details, container, false);
 		initializeViewFields(root);
+		initializeAuditDataSortOrder();
 		addListeners();
 		primaryDiagnosisLayoutManager = new LinearLayoutManager(this.getActivity());
 		secondaryDiagnosisLayoutManager = new LinearLayoutManager(this.getActivity());
@@ -116,6 +124,36 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		//buildMarginLayout();
 		initializeListeners();
 		return root;
+	}
+
+	private void initializeAuditDataSortOrder() {
+		// This matches what is coded on the Fragment XML
+		// TODO
+		auditDataSortOrder = new HashMap<>();
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.TYPE_OF_INPATIENT_SERVICE, 0);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.HOSPITAL_DEATH, 1);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.PREOP_RISK_ASSESSMENT, 2);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.PALLIATIVE_CARE_CONSULT, 3);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.HIV_INFECTED, 4);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.CD4_COUNT, 5);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.PATIENT_DIABETIC, 6);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.GLYCOSYLATED_HEMOGLOBIN, 7);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.WARD_STAY_DURING_ADMISSION, 8);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.HDU_STAY_DURING_ADMISSION, 9);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.HDU_COMGMT, 10);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.ICU_STAY_DURING_ADMISSION, 11);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.MECHANICAL_VENTILATION, 12);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.RECEIVED_VAOSPRESSORS, 13);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.INFECTION_CONFIRMED_SUSPECTED, 14);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.FIRST_SBP_ICU, 15);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.FIRST_MAP, 16);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.SURGERY_DURING_HOSPITAL_STAY, 17);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.FIRST_HEART_RATE, 18);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.FIRST_RESPIRATORY_RATE, 19);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.FIRST_GCS_SCORE, 20);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.INTUBATION_ON_FIRST_GCS, 21);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.SEDETION_PRIOR_FIRST_GCS_SCORE_ICU, 22);
+		auditDataSortOrder.put(ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE, 23);
 	}
 
 	@Override
@@ -433,6 +471,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 					auditInfoTableLayout.setVisibility(View.VISIBLE);
 					auditInfoTableLayout.removeAllViews();
 					loadObservationFields(encounter.getObs(), EncounterTypeData.AUDIT_DATA);
+
 				}
 			}
 		}
@@ -478,6 +517,8 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	}
 
 	public void loadObservationFields(List<Observation> observations, EncounterTypeData type) {
+		List<TableRow> rowsToDisplay = new ArrayList<>();
+
 		for (Observation observation : observations) {
 			TableRow row = new TableRow(getContext());
 			row.setPadding(0, 5, 0, 5);
@@ -515,17 +556,39 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 			value.setLayoutParams(labelParams);
 			row.addView(value, 1);
 
-			if (type == EncounterTypeData.VITALS) {
-				visitVitalsTableLayout.addView(row);
-			} else {
-				if (observation.getDisplay().contains(ApplicationConstants.EncounterTypeDisplays
-						.AUDIT_DATA_COMPLETENESS)
-						&& (observation.getDisplay().contains("No") || observation.getDisplay() == null)) {
-					auditDataCompleteness.setVisibility(View.VISIBLE);
+			rowsToDisplay.add(row);
+
+			if (type == EncounterTypeData.AUDIT_DATA &&
+					observation.getDisplay().contains(ApplicationConstants.EncounterTypeDisplays.AUDIT_DATA_COMPLETENESS)
+					&& (observation.getDisplay().contains("No") || observation.getDisplay() == null)) {
+				auditDataCompleteness.setVisibility(View.VISIBLE);
+			}
+		}
+
+		TableLayout layoutThatWillDisplayRows = visitVitalsTableLayout;
+		if (type == EncounterTypeData.AUDIT_DATA) {
+			layoutThatWillDisplayRows = auditInfoTableLayout;
+
+			// Sort rows according to hard-coded sort order (matching what is on the fragment XML)
+			Collections.sort(rowsToDisplay, new Comparator<TableRow>() {
+
+				@Override
+				public int compare(TableRow o1, TableRow o2) {
+					return getObservationSortOrderFromTableRow(o1) - getObservationSortOrderFromTableRow(o2);
 				}
 
-				auditInfoTableLayout.addView(row);
-			}
+				private int getObservationSortOrderFromTableRow(TableRow tableRow) {
+					String labelMatchingConstants = ((TextView) tableRow.getVirtualChildAt(0)).getText() + ": ";
+					if (!auditDataSortOrder.containsKey(labelMatchingConstants)) {
+						return 0;
+					}
+					return auditDataSortOrder.get(labelMatchingConstants);
+				}
+			});
+		}
+
+		for (TableRow rowToDisplay : rowsToDisplay) {
+			layoutThatWillDisplayRows.addView(rowToDisplay);
 		}
 	}
 

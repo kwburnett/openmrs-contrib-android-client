@@ -382,6 +382,7 @@
 	<string name="no_visits_recorded_for_this_patient">No visits recorded for this patient</string>
 	<string name="search_query_label">for search query: %1$s</string>
 	<string name="first_heart_rate">1st heart rate in ICU:</string>
+	<string name="first_respiratory_rate">1st respiratory rate in ICU:</string>
 	<string name="first_gcs_score">1st GCS score at ICU admission (#):</string>
 	<string name="mechanical_ventilation">Mechanical ventilation?</string>
 	<string name="vaospressors_during_hospital_stay">Received vaospressors during hospital stay?</string>
@@ -399,8 +400,14 @@
 	<string name="ward_stay_admission">Ward stay during admission</string>
 	<string name="merge_clinical_note_template">%1$s [created by %2$s on %3$s]</string>
 	<string name="merge_patient_summary">Merge Patient Summary</string>
+	<string name="intubation_at_first_gcs">Patient intubated at time of 1st GCS?</string>
+	<string name="intubation_yes">Yes</string>
+	<string name="intubation_no">No</string>
+	<string name="intubation_unknown">Unknown</string>
 	<string name="no_patient_data">You are offline and cannot view patient information that is not synced.</string>
 	<string name="error_gcs_score">Invalid GCS value (should be between %1$d and %2$d)</string>
+	<string name="error_first_respiratory_rate">Invalid Respiratory Rate (should be between %1$d and %2$d)</string>
+	<string name="error_hba1c">Invalid HbA1c value (should be between %1$d and %2$d)</string>
 	<!-- Login Sync Activity -->
 	<string name="download_upload_speed_is_fast">This should take less than a minute&#8230;</string>
 	<string name="download_upload_speed_is_slow">This could take a few minutes&#8230;</string>

@@ -72,9 +72,9 @@ public class VisitNote extends BaseOpenmrsEntity {
 	@Column
 	private String w12;
 
-	@Column
 	@Expose
-	private String observationUuid;
+	@ForeignKey(stubbedRelationship = true)
+	private Observation observation;
 
 	@OneToMany(methods = { OneToMany.Method.ALL}, variableName = "encounterDiagnoses", isVariablePrivate = true)
 	List<EncounterDiagnosis> loadEncounterDiagnoses() {
@@ -219,11 +219,11 @@ public class VisitNote extends BaseOpenmrsEntity {
 		encounterDiagnoses.add(encounterDiagnosis);
 	}
 
-	public String getObservationUuid() {
-		return observationUuid;
+	public Observation getObservation() {
+		return observation;
 	}
 
-	public void setObservationUuid(String observationUuid) {
-		this.observationUuid = observationUuid;
+	public void setObservation(Observation observation) {
+		this.observation = observation;
 	}
 }

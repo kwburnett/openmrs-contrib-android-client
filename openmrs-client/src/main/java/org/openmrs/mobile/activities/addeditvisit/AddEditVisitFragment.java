@@ -375,8 +375,10 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 
 	@Override
 	public void showPatientDashboard() {
+		getActivity().finish();
 		Intent intent = new Intent(getContext(), PatientDashboardActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		getContext().startActivity(intent);
 	}
 

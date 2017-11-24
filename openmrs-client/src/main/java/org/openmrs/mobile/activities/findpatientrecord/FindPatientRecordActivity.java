@@ -49,6 +49,8 @@ public class FindPatientRecordActivity extends ACBaseActivity {
 	private EditText searchPatientsView;
 	private Timer timer;
 
+	private boolean userClickedSearchButton = true;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -151,6 +153,24 @@ public class FindPatientRecordActivity extends ACBaseActivity {
 			}
 		});
 
+		FindPatientRecordActivity self = this;
+		MenuItemCompat.setOnActionExpandListener(mFindPatientMenuItem, new MenuItemCompat.OnActionExpandListener() {
+
+			@Override
+			public boolean onMenuItemActionExpand(MenuItem item) {
+				if (userClickedSearchButton) {
+					searchPatientsView.requestFocusFromTouch();
+					showSoftKeyboard(self);
+				}
+				return true;
+			}
+
+			@Override
+			public boolean onMenuItemActionCollapse(MenuItem item) {
+				return true;
+			}
+		});
+
 		return true;
 	}
 	
@@ -159,8 +179,10 @@ public class FindPatientRecordActivity extends ACBaseActivity {
 		super.onPrepareOptionsMenu(menu);
 		MenuItem actionSearchMenuItem = menu.findItem(R.id.action_search);
 		if (StringUtils.notEmpty(query)) {
+			userClickedSearchButton = false;
 			actionSearchMenuItem.expandActionView();
 		}
+		userClickedSearchButton = true;
 		return true;
 	}
 

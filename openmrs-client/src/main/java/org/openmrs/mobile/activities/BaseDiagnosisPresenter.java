@@ -83,8 +83,8 @@ public class BaseDiagnosisPresenter {
 			public void onCompleted(VisitNote entity) {
 				base.setEncounter(entity.getEncounter());
 
-				if (entity.getObservationUuid() != null) {
-					base.setObservationUuid(entity.getObservationUuid());
+				if (entity.getObservation() != null) {
+					base.setObservation(entity.getObservation());
 				}
 
 				if (entity.getW12() != null) {

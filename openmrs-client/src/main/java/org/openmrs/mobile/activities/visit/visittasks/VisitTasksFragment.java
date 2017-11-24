@@ -88,8 +88,6 @@ public class VisitTasksFragment extends VisitFragment implements VisitContract.V
 		openViewTasksRecyclerView.setLayoutManager(layoutManager);
 
 		addListeners();
-		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
 		return mRootView;
 	}
 

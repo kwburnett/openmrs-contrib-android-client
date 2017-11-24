@@ -194,9 +194,12 @@ public class VisitPhotoPresenter extends VisitPresenterImpl implements VisitCont
 		visitPhotoView.showTabSpinner(true);
 		Observation obs = visitPhoto.getObservation();
 		obs.setVoided(true);
+
 		obsDataService.purge(obs, new DataService.VoidCallback() {
 			@Override
 			public void onCompleted() {
+				// delete locally saved instance if any (visitphoto not stored online)
+				visitPhotoDataService.purgeLocalInstance(visitPhoto);
 				visitPhotoView.showTabSpinner(false);
 				visitPhotoView.refresh();
 			}

@@ -49,11 +49,12 @@ public class VisitNoteRestServiceImpl extends BaseRestService<VisitNote, VisitNo
 		params.put("w1", visitNote.getW1());
 		params.put("w3", visitNote.getW3());
 		params.put("w5", visitNote.getW5());
-		params.put("w10", visitNote.getW10());
-		params.put("w12", visitNote.getW12());
+		params.put("w10", visitNote.getW10() != null ? visitNote.getW10() : ApplicationConstants.EMPTY_STRING);
+		params.put("w12", visitNote.getW12() != null ? visitNote.getW12() : ApplicationConstants.EMPTY_STRING);
 
-		if (visitNote.getObservationUuid() != null) {
-			params.put("obs", visitNote.getObservationUuid());
+		if (visitNote.getObservation() != null) {
+			params.put("obs", visitNote.getObservation().getUuid());
+			params.put("basePatientSummary", visitNote.getObservation().getDiagnosisNote());
 		}
 
 		return restService.save(buildRestRequestPath(), params);

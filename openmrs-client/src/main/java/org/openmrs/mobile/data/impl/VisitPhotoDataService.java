@@ -75,4 +75,8 @@ public class VisitPhotoDataService
 
 		return dbService.getByVisit(visit);
 	}
+
+	public void purgeLocalInstance(@NonNull VisitPhoto entity) {
+		dbService.delete(entity.getUuid());
+	}
 }

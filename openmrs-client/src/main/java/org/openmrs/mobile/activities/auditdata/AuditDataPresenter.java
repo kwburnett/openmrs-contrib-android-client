@@ -37,6 +37,8 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 
 	private EncounterDataService encounterDataService;
 
+	private Encounter currentEncounter = null;
+
 	public AuditDataPresenter(AuditDataContract.View view, String visitUuid) {
 		this.auditDataView = view;
 		this.auditDataView.setPresenter(this);
@@ -107,6 +109,7 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 		DataService.GetCallback<Encounter> fetchEncountercallback = new DataService.GetCallback<Encounter>() {
 			@Override
 			public void onCompleted(Encounter encounter) {
+				currentEncounter = encounter;
 				auditDataView.showPageSpinner(false);
 				auditDataView.setEncounterUuid(encounter.getUuid());
 				auditDataView.updateFormFields(encounter);
@@ -149,6 +152,20 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 		} else {
 			encounterDataService.update(encounter, serverResponceCallback);
 		}
+	}
+
+	@Override
+	public boolean isObservationExistingForCurrentEncounter(Observation observation) {
+		if (currentEncounter == null) {
+			return false;
+		}
+		String obsUuid = observation.getUuid();
+		for (Observation oldObservation : currentEncounter.getObs()) {
+			if (oldObservation.getUuid().equalsIgnoreCase(obsUuid)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
