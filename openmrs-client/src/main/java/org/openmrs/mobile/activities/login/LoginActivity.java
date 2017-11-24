@@ -21,29 +21,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 //import android.databinding.ObservableBoolean;
 //import android.databinding.ObservableField;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
-import android.text.InputType;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 
-import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,17 +41,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
-import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.activities.loginsync.LoginSyncActivity;
 import org.openmrs.mobile.activities.syncselection.SyncSelectionActivity;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.databinding.ActivityLoginBinding;
 import org.openmrs.mobile.listeners.watcher.LoginValidatorWatcher;
 import org.openmrs.mobile.models.Location;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
-import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.ImageUtils;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.URLValidator;
@@ -84,7 +71,7 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
 		presenter = new LoginPresenter(this, openMRS);
-//		binding.setViewModel(this);
+		binding.setViewModel(this);
 
 //		loginUrl.set(OpenMRS.getInstance().getServerUrl());
 //
@@ -110,7 +97,7 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 
 	private static List<HashMap<String, String>> locationsList;
 	protected OpenMRS openMRS = OpenMRS.getInstance();
-	private View rootView;
+	private android.view.View rootView;
 	private TextInputEditText url;
 	private Button loginButton;
 	private ProgressBar loadingProgressBar;
@@ -119,10 +106,10 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 	private LoginValidatorWatcher loginValidatorWatcher;
 	private TextView changeUrlIcon;
 	private TextInputLayout loginUrlTextLayout;
-	private View viewsContainer;
+	private android.view.View viewsContainer;
 	private AuthorizationManager authorizationManager;
 
-	private void initViewFields(View mRootView) {
+	private void initViewFields(android.view.View mRootView) {
 		viewsContainer = mRootView.findViewById(R.id.viewsContainer);
 		url = (TextInputEditText)mRootView.findViewById(R.id.loginUrlField);
 		dropdownLocation = (Spinner)mRootView.findViewById(R.id.locationSpinner);
@@ -162,7 +149,7 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 
 	private void initListeners() {
 		changeUrlIcon.setOnClickListener(view -> {
-			if (loginUrlTextLayout.getVisibility() == View.VISIBLE) {
+			if (loginUrlTextLayout.getVisibility() == android.view.View.VISIBLE) {
 				showEditUrlEditField(false);
 			} else {
 				showEditUrlEditField(true);
@@ -206,9 +193,9 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 
 	private void showEditUrlEditField(boolean visibility) {
 		if (!visibility) {
-			loginUrlTextLayout.setVisibility(View.GONE);
+			loginUrlTextLayout.setVisibility(android.view.View.GONE);
 		} else {
-			loginUrlTextLayout.setVisibility(View.VISIBLE);
+			loginUrlTextLayout.setVisibility(android.view.View.VISIBLE);
 		}
 	}
 
