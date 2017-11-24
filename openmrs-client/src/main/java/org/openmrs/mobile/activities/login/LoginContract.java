@@ -15,7 +15,7 @@
 package org.openmrs.mobile.activities.login;
 
 //import android.databinding.ObservableBoolean;
-//import android.databinding.ObservableField;
+import android.databinding.ObservableField;
 import org.openmrs.mobile.activities.BasePresenterContract;
 import org.openmrs.mobile.activities.BaseView;
 import org.openmrs.mobile.models.Location;
@@ -26,10 +26,9 @@ import java.util.List;
 public interface LoginContract {
 
 	interface ViewModel extends BaseView<Presenter> {
-		String password = "test";
 //		ObservableField<String> loginUrl = new ObservableField<>();
 //		ObservableField<String> username = new ObservableField<>();
-//		ObservableField<String> password = new ObservableField<>();
+		ObservableField<String> password = new ObservableField<>("test1");
 //
 //		ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
 //		ObservableBoolean showPassword = new ObservableBoolean(false);

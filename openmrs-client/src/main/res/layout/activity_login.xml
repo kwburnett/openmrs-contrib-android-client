@@ -16,7 +16,7 @@
 	<data>
 		<variable
 				name="viewModel"
-				type="org.openmrs.mobile.activities.login.LoginContract.ViewModel"/>
+				type="org.openmrs.mobile.activities.login.LoginActivity"/>
 	</data>
 	<RelativeLayout
 			android:layout_width="match_parent"
@@ -75,7 +75,7 @@
 							android:layout_height="wrap_content"
 							android:hint="@string/login_url_hint"
 							android:inputType="text|textUri"
-							android:text="@{viewModel.password}"/>
+							android:text="@{viewModel.loginUrl}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<android.support.design.widget.TextInputLayout
@@ -90,7 +90,8 @@
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:hint="@string/username"
-							android:inputType="text"/>
+							android:inputType="text"
+							android:text="@{viewModel.username}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<RelativeLayout
@@ -110,7 +111,9 @@
 								android:imeOptions="actionDone"
 								android:id="@+id/loginPasswordField"
 								android:hint="@string/password"
-								android:maxLines="1"/>
+								android:maxLines="1"
+								android:text="@{viewModel.password}"
+								android:inputType="@{viewModel.passwordInputType}"/>
 
 					</android.support.design.widget.TextInputLayout>
 
@@ -124,7 +127,8 @@
 							android:button="@drawable/showpassword_button_selector"
 							android:gravity="bottom"
 							android:paddingLeft="10dp"
-							android:paddingRight="10dp"/>
+							android:paddingRight="10dp"
+							android:checked="@{viewModel.showPassword}"/>
 				</RelativeLayout>
 
 				<android.support.v7.widget.AppCompatSpinner

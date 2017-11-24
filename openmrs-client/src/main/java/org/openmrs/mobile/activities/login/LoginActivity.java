@@ -23,12 +23,16 @@ import java.util.List;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-//import android.databinding.ObservableBoolean;
-//import android.databinding.ObservableField;
+import android.databinding.Observable;
+import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
+import android.databinding.ObservableInt;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.text.InputType;
 import android.util.SparseArray;
 import android.view.Menu;
 
@@ -53,17 +57,19 @@ import org.openmrs.mobile.utilities.ImageUtils;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.URLValidator;
 
-public class LoginActivity extends ACBaseActivity implements LoginContract.ViewModel, LoginContract.View {
+public class LoginActivity extends ACBaseActivity implements LoginContract.View {
 
 	private LoginContract.Presenter presenter;
 	private ActivityLoginBinding binding;
 
-//	public ObservableField<String> loginUrl = new ObservableField<>("http://test.com");
-//	public ObservableField<String> username = new ObservableField<>();
-//	public ObservableField<String> password = new ObservableField<>();
-//
-//	public ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
-//	public ObservableBoolean showPassword = new ObservableBoolean(false);
+	public final ObservableField<String> loginUrl = new ObservableField<>("http://test.com");
+	public final ObservableField<String> username = new ObservableField<>();
+	public final ObservableField<String> password = new ObservableField<>();
+	public final ObservableInt passwordInputType = new ObservableInt(InputType.TYPE_CLASS_TEXT |
+			InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+	public final ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
+	public final ObservableBoolean showPassword = new ObservableBoolean(false);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +77,14 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
 		presenter = new LoginPresenter(this, openMRS);
+		password.set("test");
 		binding.setViewModel(this);
+		new Handler().postDelayed(() -> showPassword.set(true), 2000);
 
 //		loginUrl.set(OpenMRS.getInstance().getServerUrl());
 //
 //		initViewFields(rootView);
-//		initListeners();
+		initListeners();
 //		loadLocations();
 //		authorizationManager = openMRS.getAuthorizationManager();
 		// Font config
@@ -148,40 +156,44 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.ViewM
 	}
 
 	private void initListeners() {
-		changeUrlIcon.setOnClickListener(view -> {
-			if (loginUrlTextLayout.getVisibility() == android.view.View.VISIBLE) {
-				showEditUrlEditField(false);
-			} else {
-				showEditUrlEditField(true);
-			}
-		});
+//		changeUrlIcon.setOnClickListener(view -> {
+//			if (loginUrlTextLayout.getVisibility() == android.view.View.VISIBLE) {
+//				showEditUrlEditField(false);
+//			} else {
+//				showEditUrlEditField(true);
+//			}
+//		});
 
 //		loginValidatorWatcher = new LoginValidatorWatcher(url, username, password, dropdownLocation, loginButton);
 
-		url.setOnFocusChangeListener((view, b1) -> {
-			boolean isViewFocused = view.isFocused();
-			boolean isUrlEntered = StringUtils.notEmpty(url.getText().toString());
-			boolean isUrlChanged = loginValidatorWatcher.isUrlChanged();
-			boolean isLocationErrorOccurred = loginValidatorWatcher.isLocationErrorOccurred();
-
-			if (!isViewFocused && (!isUrlChanged || isUrlChanged && (isUrlEntered || isLocationErrorOccurred))) {
-				setUrl(url.getText().toString());
-				loginValidatorWatcher.setUrlChanged(false);
-			}
-		});
+//		url.setOnFocusChangeListener((view, b1) -> {
+//			boolean isViewFocused = view.isFocused();
+//			boolean isUrlEntered = StringUtils.notEmpty(url.getText().toString());
+//			boolean isUrlChanged = loginValidatorWatcher.isUrlChanged();
+//			boolean isLocationErrorOccurred = loginValidatorWatcher.isLocationErrorOccurred();
+//
+//			if (!isViewFocused && (!isUrlChanged || isUrlChanged && (isUrlEntered || isLocationErrorOccurred))) {
+//				setUrl(url.getText().toString());
+//				loginValidatorWatcher.setUrlChanged(false);
+//			}
+//		});
 
 //		loginButton.setOnClickListener(v -> mPresenter.login(username.getText().toString(),
 //				password.getText().toString(),
 //				url.getText().toString(),
 //				openMRS.getLastLoginServerUrl()));
 
-//		showPassword.setOnCheckedChangeListener((buttonView, isChecked) -> {
-//			if (isChecked) {
-//				password.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-//			} else {
-//				password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-//			}
-//		});
+		showPassword.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+
+			@Override
+			public void onPropertyChanged(Observable observable, int i) {
+				if (((ObservableBoolean) observable).get() == true) {
+					passwordInputType.set(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+				} else {
+					passwordInputType.set(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+				}
+			}
+		});
 	}
 
 	@Override

@@ -52,7 +52,7 @@ public class AuthorizationManager {
 	}
 
 	public boolean isUserLoggedIn() {
-		return openMRS.isUserLoggedOnline();
+		return false;// openMRS.isUserLoggedOnline();
 	}
 
 	public void moveToLoginActivity() {

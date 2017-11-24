@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class LoginPresenter extends BasePresenter implements LoginContract.Presenter {
 
-	private LoginContract.ViewModel loginView;
+	private LoginContract.View loginView;
 	private OpenMRS openMRS;
 	private boolean wipeRequired;
 	private AuthorizationManager authorizationManager;
@@ -50,7 +50,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	private int startIndex = 0;//Old API, works with indexes not pages
 	private int limit = 100;
 
-	public LoginPresenter(LoginContract.ViewModel view, OpenMRS openMRS) {
+	public LoginPresenter(LoginContract.View view, OpenMRS openMRS) {
 		this.loginView = view;
 		this.loginView.setPresenter(this);
 		this.openMRS = openMRS;
