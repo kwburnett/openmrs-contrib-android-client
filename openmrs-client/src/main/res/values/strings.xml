@@ -14,7 +14,10 @@
 
 <resources>
 	<!-- binding -->
-	<item name="bound_observable" type="id" />
+	<item name="bound_observable_checked_changed" type="id" />
+	<item name="bound_observable_text" type="id" />
+	<item name="bound_observable_onAfterTextChanged" type="id" />
+	<item name="bound_observable_onFocusChange" type="id" />
 
 	<!-- Navigation Panel -->
 	<string name="nav_patient_list">Patient List</string>

@@ -35,7 +35,7 @@ public class CustomDataBindings {
 
 	@BindingAdapter("app:text")
 	public static void bindEditText(EditText view, final ObservableString observableString) {
-		Pair<ObservableString, TextWatcher> pair = (Pair) view.getTag(R.id.bound_observable);
+		Pair<ObservableString, TextWatcher> pair = (Pair) view.getTag(R.id.bound_observable_text);
 		if (pair == null || pair.first != observableString) {
 			if (pair != null) {
 				view.removeTextChangedListener(pair.second);
@@ -57,7 +57,7 @@ public class CustomDataBindings {
 
 				}
 			};
-			view.setTag(R.id.bound_observable, new Pair<>(observableString, watcher));
+			view.setTag(R.id.bound_observable_text, new Pair<>(observableString, watcher));
 			view.addTextChangedListener(watcher);
 		}
 		String newValue = observableString.get();
@@ -66,10 +66,55 @@ public class CustomDataBindings {
 		}
 	}
 
-	@BindingAdapter("app:checkedz")
+	@BindingAdapter("app:onAfterTextChanged")
+	public static void bindAfterTextChanged(EditText view, final Runnable runnable) {
+		Pair<Runnable, TextWatcher> pair = (Pair) view.getTag(R.id.bound_observable_onAfterTextChanged);
+		if (pair == null || pair.first != runnable) {
+			if (pair != null) {
+				view.removeTextChangedListener(pair.second);
+			}
+			TextWatcher watcher = new TextWatcher() {
+
+				@Override
+				public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+				}
+
+				@Override
+				public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+				}
+
+				@Override
+				public void afterTextChanged(Editable s) {
+					runnable.run();
+				}
+			};
+			view.setTag(R.id.bound_observable_onAfterTextChanged, new Pair<>(runnable, watcher));
+			view.addTextChangedListener(watcher);
+		}
+	}
+
+	@BindingAdapter("app:onFocusChange")
+	public static void bindFocusChange(EditText view, final Runnable runnable) {
+		Pair<Runnable, View.OnFocusChangeListener> pair = (Pair) view.getTag(R.id.bound_observable_onFocusChange);
+		if (view.getTag(R.id.bound_observable_onFocusChange) == null) {
+			View.OnFocusChangeListener onFocusChangeListener = new View.OnFocusChangeListener() {
+
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					runnable.run();
+				}
+			};
+			view.setTag(R.id.bound_observable_onFocusChange, runnable);
+			view.setOnFocusChangeListener(onFocusChangeListener);
+		}
+	}
+
+	@BindingAdapter("app:checked_changed")
 	public static void bindRadioGroup(RadioGroup view, final ObservableString observableString) {
-		if (view.getTag(R.id.bound_observable) != observableString) {
-			view.setTag(R.id.bound_observable, observableString);
+		if (view.getTag(R.id.bound_observable_checked_changed) != observableString) {
+			view.setTag(R.id.bound_observable_checked_changed, observableString);
 			view.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 				@Override public void onCheckedChanged(RadioGroup group, int checkedId) {
 					for (int i = 0; i < group.getChildCount(); i++) {
@@ -95,9 +140,10 @@ public class CustomDataBindings {
 	@BindingAdapter("app:checked_changed")
 	public static void bindCheckBox(CheckBox view, final ObservableBoolean observableBoolean) {
 		if (observableBoolean != null) {
-			if (view.getTag(R.id.bound_observable) != observableBoolean) {
-				view.setTag(R.id.bound_observable, observableBoolean);
+			if (view.getTag(R.id.bound_observable_checked_changed) != observableBoolean) {
+				view.setTag(R.id.bound_observable_checked_changed, observableBoolean);
 				view.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
 					@Override public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 						observableBoolean.set(isChecked);
 					}
@@ -136,5 +182,10 @@ public class CustomDataBindings {
 	@BindingAdapter("app:visible")
 	public static void bindVisible(View view, boolean b) {
 		view.setVisibility(b ? View.VISIBLE : View.INVISIBLE);
+	}
+
+	@BindingAdapter("app:enabled")
+	public static void bindEnabled(View view, boolean b) {
+		view.setEnabled(b);
 	}
 }

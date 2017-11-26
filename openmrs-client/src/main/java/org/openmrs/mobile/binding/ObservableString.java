@@ -54,7 +54,7 @@ public class ObservableString extends BaseObservable implements Parcelable, Seri
 	 * Set the stored value.
 	 */
 	public void set(String value) {
-		if (value.equals(this.value)) {
+		if (!value.equals(this.value)) {
 			this.value = value;
 			notifyChange();
 		}

@@ -53,13 +53,13 @@ public interface LoginContract {
 
 		void login(String username, String password, String url, String oldUrl);
 
-		void loadLocations(String url);
+//		void loadLocations(String url);
 
 		void authenticateUser(final String username, final String password, final String url, boolean wipeDatabase);
 
 		void saveLocationsInPreferences(List<HashMap<String, String>> locationList, int selectedItemPosition);
 
-		void userWasLoggedOutDueToInactivity();
+//		void userWasLoggedOutDueToInactivity();
 	}
 
 }

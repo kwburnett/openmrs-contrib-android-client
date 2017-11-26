@@ -54,23 +54,15 @@ import org.openmrs.mobile.listeners.watcher.LoginValidatorWatcher;
 import org.openmrs.mobile.models.Location;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.ImageUtils;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.URLValidator;
 
 public class LoginActivity extends ACBaseActivity implements LoginContract.View {
 
-	private LoginContract.Presenter presenter;
+	private LoginPresenter presenter;
 	private ActivityLoginBinding binding;
-
-	public final ObservableString loginUrl = new ObservableString("http://test.com");
-	public final ObservableString username = new ObservableString();
-	public final ObservableString password = new ObservableString();
-	public final ObservableInt passwordInputType = new ObservableInt(InputType.TYPE_CLASS_TEXT |
-			InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
-	public final ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
-	public final ObservableBoolean showPassword = new ObservableBoolean(false);
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -78,34 +70,14 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 		binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
 
 		presenter = new LoginPresenter(this, openMRS);
-		password.set("test");
-		binding.setViewModel(this);
-		new Handler().postDelayed(() -> showPassword.set(true), 2000);
-		new Handler().postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				String test = loginUrl.get();
-				String no = username.get();
-				String pass = password.get();
-				int what = 1;
-			}
-		}, 20000);
-
-//		loginUrl.set(OpenMRS.getInstance().getServerUrl());
+		binding.setViewModel(presenter);
 //
 //		initViewFields(rootView);
 		initListeners();
 //		loadLocations();
-//		authorizationManager = openMRS.getAuthorizationManager();
+
 		// Font config
-//		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
-//
-//		if (authorizationManager.hasUserSessionExpiredDueToInactivity()) {
-//			mPresenter.userWasLoggedOutDueToInactivity();
-//		}
-//
-//		return rootView;
+		FontsUtil.setFont((ViewGroup) findViewById(android.R.id.content));
 	}
 
 	@Override
@@ -128,24 +100,24 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 	private android.view.View viewsContainer;
 	private AuthorizationManager authorizationManager;
 
-	private void initViewFields(android.view.View mRootView) {
-		viewsContainer = mRootView.findViewById(R.id.viewsContainer);
-		url = (TextInputEditText)mRootView.findViewById(R.id.loginUrlField);
-		dropdownLocation = (Spinner)mRootView.findViewById(R.id.locationSpinner);
-//		username = (TextInputEditText)mRootView.findViewById(R.id.loginUsernameField);
-//		username.setText(OpenMRS.getInstance().getUsername());
-//		password = (TextInputEditText)mRootView.findViewById(R.id.loginPasswordField);
-		loginButton = (Button)mRootView.findViewById(R.id.loginButton);
-		loadingProgressBar = (ProgressBar)mRootView.findViewById(R.id.locationLoadingProgressBar);
-		changeUrlIcon = (TextView)mRootView.findViewById(R.id.changeUrlIcon);
-		loginUrlTextLayout = (TextInputLayout)mRootView.findViewById(R.id.loginUrlTextLayout);
-//		showPassword = (CheckBox)mRootView.findViewById(R.id.checkboxShowPassword);
-//		url.setText(loginUrl);
-
-//		if (StringUtils.isNullOrEmpty(loginUrl)) {
-//			showEditUrlEditField(true);
-//		}
-	}
+//	private void initViewFields(android.view.View mRootView) {
+//		viewsContainer = mRootView.findViewById(R.id.viewsContainer);
+//		url = (TextInputEditText)mRootView.findViewById(R.id.loginUrlField);
+//		dropdownLocation = (Spinner)mRootView.findViewById(R.id.locationSpinner);
+////		username = (TextInputEditText)mRootView.findViewById(R.id.loginUsernameField);
+////		username.setText(OpenMRS.getInstance().getUsername());
+////		password = (TextInputEditText)mRootView.findViewById(R.id.loginPasswordField);
+//		loginButton = (Button)mRootView.findViewById(R.id.loginButton);
+//		loadingProgressBar = (ProgressBar)mRootView.findViewById(R.id.locationLoadingProgressBar);
+//		changeUrlIcon = (TextView)mRootView.findViewById(R.id.changeUrlIcon);
+//		loginUrlTextLayout = (TextInputLayout)mRootView.findViewById(R.id.loginUrlTextLayout);
+////		showPassword = (CheckBox)mRootView.findViewById(R.id.checkboxShowPassword);
+////		url.setText(loginUrl);
+//
+////		if (StringUtils.isNullOrEmpty(loginUrl)) {
+////			showEditUrlEditField(true);
+////		}
+//	}
 
 	private void loadLocations() {
 
@@ -222,30 +194,9 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 		}
 	}
 
-	private void setUrl(String url) {
-		URLValidator.ValidationResult result = URLValidator.validate(url);
-		if (result.isURLValid()) {
-			//Append forward slash. Retrofit throws a serious error if a base url does not end with a forward slash
-			url = result.getUrl();
-			if (!url.endsWith("/")) {
-				url += "/";
-			}
-//			mPresenter.loadLocations(url);
-
-		} else if (!StringUtils.isNullOrEmpty(url)) {
-			showMessage(INVALID_URL);
-		}
-	}
-
 	@Override
 	public void hideSoftKeys() {
-//		View view = this.getActivity().getCurrentFocus();
-//		if (view == null) {
-//			view = new View(this.getActivity());
-//		}
-//		InputMethodManager inputMethodManager =
-//				(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//		inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+		hideSoftKeyboard(this);
 	}
 
 	@Override
@@ -354,12 +305,12 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 
 	@Override
 	public void showMessage(String message) {
-//		super.showError(message);
+		super.showError(message);
 	}
 
 	@Override
 	public void showMessage(int errorCode) {
-//		super.showError(errorCode);
+		super.showError(errorCode);
 	}
 
 //	@Override

@@ -13,10 +13,17 @@
  */
 package org.openmrs.mobile.activities.login;
 
+import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.INVALID_URL;
+import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.LOGOUT_DUE_TO_INACTIVITY;
+import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.SERVER_ERROR;
+
+import android.databinding.Observable;
+import android.databinding.ObservableBoolean;
 import com.google.gson.Gson;
 
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;
+import org.openmrs.mobile.binding.ObservableString;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.RequestStrategy;
@@ -31,6 +38,8 @@ import org.openmrs.mobile.models.Session;
 import org.openmrs.mobile.models.User;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.StringUtils;
+import org.openmrs.mobile.utilities.URLValidator;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,21 +47,31 @@ import java.util.Map;
 
 public class LoginPresenter extends BasePresenter implements LoginContract.Presenter {
 
-	private LoginContract.View loginView;
+	private LoginContract.View view;
 	private OpenMRS openMRS;
 	private boolean wipeRequired;
 	private AuthorizationManager authorizationManager;
 	private SessionDataService loginDataService;
 	private LocationDataService locationDataService;
 	private UserDataService userService;
+
 	private boolean isFirstAccessOfNewUrl;
+	private String initialLoginUrl;
+	private String urlLocationsAreLoadedFor;
 
 	private int startIndex = 0;//Old API, works with indexes not pages
 	private int limit = 100;
 
+	public final ObservableString loginUrl = new ObservableString();
+	public final ObservableString username = new ObservableString();
+	public final ObservableString password = new ObservableString();
+	public final ObservableBoolean showLoginUrlField = new ObservableBoolean(false);
+	public final ObservableBoolean showPassword = new ObservableBoolean(false);
+	public final ObservableBoolean loginButtonIsEnabled = new ObservableBoolean(false);
+	public final ObservableBoolean isProgressBarVisible = new ObservableBoolean(false);
+
 	public LoginPresenter(LoginContract.View view, OpenMRS openMRS) {
-		this.loginView = view;
-		this.loginView.setPresenter(this);
+		this.view = view;
 		this.openMRS = openMRS;
 		this.authorizationManager = openMRS.getAuthorizationManager();
 
@@ -61,6 +80,59 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		// the user service requires to be authenticated before it can be used to retrieve user information.
 		// it cannot be initialized here since no user/password has been set in the OpenMRS instance
 		//this.userService = dataAccess().user();
+
+		initializeViewAndObservables();
+
+		if (authorizationManager.hasUserSessionExpiredDueToInactivity()) {
+			userWasLoggedOutDueToInactivity();
+		}
+	}
+
+	private void initializeViewAndObservables() {
+		initialLoginUrl = openMRS.getServerUrl();
+		loginUrl.set(initialLoginUrl);
+
+		isProgressBarVisible.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+
+			@Override
+			public void onPropertyChanged(Observable observable, int i) {
+				if (((ObservableBoolean) observable).get()) {
+					// Debatable about whether this is needed
+					view.hideSoftKeys();
+				}
+			}
+		});
+
+		if (StringUtils.isNullOrEmpty(loginUrl.get())) {
+			showLoginUrlField.set(true);
+		}
+	}
+
+	public void toggleUrlEntry() {
+		showLoginUrlField.set(!showLoginUrlField.get());
+	}
+
+	public void validateLoginFields() {
+		if (!loginUrl.get().equalsIgnoreCase(initialLoginUrl)) {
+
+		}
+	}
+
+	public void validateUrl() {
+		URLValidator.ValidationResult result = URLValidator.validate(loginUrl.get());
+		if (result.isURLValid()) {
+			//Append forward slash. Retrofit throws a serious error if a base url does not end with a forward slash
+			String validUrl = result.getUrl();
+			if (!validUrl.endsWith("/")) {
+				validUrl += "/";
+			}
+			loginUrl.set(validUrl);
+			if (!loginUrl.get().equalsIgnoreCase(urlLocationsAreLoadedFor)) {
+				loadLocations();
+			}
+		} else if (!StringUtils.isNullOrEmpty(loginUrl.get())) {
+			view.showMessage(INVALID_URL);
+		}
 	}
 
 	@Override
@@ -147,6 +219,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		} else {
 			if (openMRS.isUserLoggedOnline() && url.equals(openMRS.getLastLoginServerUrl())) {
 				RestServiceBuilder.setBaseUrl(openMRS.getServerUrl());
+
 //				loginView.setProgressBarVisibility(false);
 				if (openMRS.getUsername().equals(username) && openMRS.getPassword().equals(password)) {
 					openMRS.setSessionToken(openMRS.getLastSessionToken());
@@ -207,29 +280,30 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 
 	}
 
-	@Override
-	public void loadLocations(String url) {
-//		loginView.setProgressBarVisibility(true);
-		RestServiceBuilder.setBaseUrl(url);
+	private void loadLocations() {
+		isProgressBarVisible.set(true);
+		RestServiceBuilder.setBaseUrl(loginUrl.get());
 		DataService.GetCallback<List<Location>> locationDataServiceCallback =
 				new DataService.GetCallback<List<Location>>() {
 					@Override
 					public void onCompleted(List<Location> locations) {
-						openMRS.setServerUrl(url);
+						isProgressBarVisible.set(false);
+						urlLocationsAreLoadedFor = loginUrl.get();
+//						openMRS.setServerUrl(loginUrl.get());
 //						loginView.updateLoginFormLocations(locations, url);
 					}
 
 					@Override
 					public void onError(Throwable t) {
-//						loginView.showMessage(SERVER_ERROR);
+						view.showMessage(SERVER_ERROR);
 					}
 				};
 
 		try {
 			locationDataService.getLoginLocations(locationDataServiceCallback);
 		} catch (IllegalArgumentException ex) {
-//			loginView.setProgressBarVisibility(false);
-//			loginView.showMessage(SERVER_ERROR);
+			isProgressBarVisible.set(false);
+			view.showMessage(SERVER_ERROR);
 		}
 	}
 
@@ -245,7 +319,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		openMRS.setLastLoginServerUrl(serverUrl);
 	}
 
-	public void userWasLoggedOutDueToInactivity() {
-//		loginView.showMessage(LOGOUT_DUE_TO_INACTIVITY);
+	private void userWasLoggedOutDueToInactivity() {
+		view.showMessage(LOGOUT_DUE_TO_INACTIVITY);
 	}
 }

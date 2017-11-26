@@ -346,4 +346,45 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 			}
 		});
 	}
+
+	public void showError(int errorCode) {
+
+		String message = "";
+
+		switch (errorCode) {
+			case ApplicationConstants.ErrorCodes.INVALID_URL:
+				message = getString(R.string.invalid_url_dialog_message);
+				break;
+			case ApplicationConstants.ErrorCodes.INVALID_USERNAME_PASSWORD:
+				message = getString(R.string.invalid_login_or_password_message);
+				break;
+			case ApplicationConstants.ErrorCodes.SERVER_ERROR:
+				message = getString(R.string.server_error_dialog_message);
+				break;
+			case ApplicationConstants.ErrorCodes.OFFLINE_LOGIN:
+				message = getString(R.string.logged_in_in_offline_mode);
+				break;
+			case ApplicationConstants.ErrorCodes.AUTH_FAILED:
+				message = getString(R.string.auth_failed_dialog_message);
+				break;
+			case ApplicationConstants.ErrorCodes.OFFLINE_LOGIN_UNSUPPORTED:
+				message = getString(R.string.auth_failed_dialog_message);
+				break;
+			case ApplicationConstants.ErrorCodes.NO_INTERNET:
+				message = getString(R.string.no_internet_conn_dialog_message);
+				break;
+			case ApplicationConstants.ErrorCodes.USER_NOT_FOUND:
+				message = getString(R.string.err_fetching_user_data);
+				break;
+			case ApplicationConstants.ErrorCodes.LOGOUT_DUE_TO_INACTIVITY:
+				message = getString(R.string.logout_due_to_inactivity);
+				break;
+		}
+
+		createSnackbar(message);
+	}
+
+	public void showError(String message) {
+		createSnackbar(message);
+	}
 }

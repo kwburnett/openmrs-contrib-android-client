@@ -17,7 +17,7 @@
 	<data>
 		<variable
 				name="viewModel"
-				type="org.openmrs.mobile.activities.login.LoginActivity"/>
+				type="org.openmrs.mobile.activities.login.LoginPresenter"/>
 	</data>
 	<RelativeLayout
 			android:layout_width="match_parent"
@@ -34,7 +34,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="30dp"
 				android:layout_marginTop="-20dp"
-				android:indeterminate="true" />
+				android:indeterminate="true"
+				app:visibleOrGone="@{viewModel.isProgressBarVisible}"/>
 
 		<ScrollView
 				android:id="@+id/viewsContainer"
@@ -67,7 +68,8 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginBottom="8dp"
-						android:layout_marginTop="8dp">
+						android:layout_marginTop="8dp"
+						app:visibleOrGone="@{viewModel.showLoginUrlField}">
 
 					<android.support.design.widget.TextInputEditText
 							android:imeOptions="actionDone"
@@ -76,7 +78,9 @@
 							android:layout_height="wrap_content"
 							android:hint="@string/login_url_hint"
 							android:inputType="text|textUri"
-							app:text="@{viewModel.loginUrl}"/>
+							app:text="@{viewModel.loginUrl}"
+							app:onAfterTextChanged="@{() -> viewModel.validateLoginFields()}"
+							app:onFocusChange="@{() -> viewModel.validateUrl()}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<android.support.design.widget.TextInputLayout
@@ -153,7 +157,8 @@
 						android:textColor="@color/color_white"
 						android:background="@drawable/button_submit"
 						android:text="@string/login"
-						style="@style/Widget.AppCompat.Button.Borderless" />
+						style="@style/Widget.AppCompat.Button.Borderless"
+						app:enabled="@{viewModel.loginButtonIsEnabled}"/>
 
 				<TextView
 						android:id="@+id/changeUrlIcon"
@@ -162,7 +167,8 @@
 						android:text="@string/change_server_url"
 						android:textColor="@color/primary_dark"
 						android:layout_gravity="center_horizontal"
-						android:gravity="center_horizontal"/>
+						android:gravity="center_horizontal"
+						android:onClick="@{(v) -> viewModel.toggleUrlEntry()}"/>
 
 			</LinearLayout>
 		</ScrollView>
