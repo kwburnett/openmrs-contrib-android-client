@@ -12,7 +12,8 @@
   ~ Copyright (C) OpenMRS, LLC.  All Rights Reserved.
   -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 	<data>
 		<variable
 				name="viewModel"
@@ -75,7 +76,7 @@
 							android:layout_height="wrap_content"
 							android:hint="@string/login_url_hint"
 							android:inputType="text|textUri"
-							android:text="@{viewModel.loginUrl}"/>
+							app:text="@{viewModel.loginUrl}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<android.support.design.widget.TextInputLayout
@@ -91,7 +92,7 @@
 							android:layout_height="wrap_content"
 							android:hint="@string/username"
 							android:inputType="text"
-							android:text="@{viewModel.username}"/>
+							app:text="@{viewModel.username}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<RelativeLayout
@@ -112,8 +113,8 @@
 								android:id="@+id/loginPasswordField"
 								android:hint="@string/password"
 								android:maxLines="1"
-								android:text="@{viewModel.password}"
-								android:inputType="@{viewModel.passwordInputType}"/>
+								app:text="@{viewModel.password}"
+								app:showHidePassword="@{viewModel.showPassword}"/>
 
 					</android.support.design.widget.TextInputLayout>
 
@@ -128,7 +129,7 @@
 							android:gravity="bottom"
 							android:paddingLeft="10dp"
 							android:paddingRight="10dp"
-							android:checked="@{viewModel.showPassword}"/>
+							app:checked_changed="@{viewModel.showPassword}"/>
 				</RelativeLayout>
 
 				<android.support.v7.widget.AppCompatSpinner

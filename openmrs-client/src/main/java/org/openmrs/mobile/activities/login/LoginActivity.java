@@ -48,6 +48,7 @@ import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.loginsync.LoginSyncActivity;
 import org.openmrs.mobile.activities.syncselection.SyncSelectionActivity;
 import org.openmrs.mobile.application.OpenMRS;
+import org.openmrs.mobile.binding.ObservableString;
 import org.openmrs.mobile.databinding.ActivityLoginBinding;
 import org.openmrs.mobile.listeners.watcher.LoginValidatorWatcher;
 import org.openmrs.mobile.models.Location;
@@ -62,9 +63,9 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 	private LoginContract.Presenter presenter;
 	private ActivityLoginBinding binding;
 
-	public final ObservableField<String> loginUrl = new ObservableField<>("http://test.com");
-	public final ObservableField<String> username = new ObservableField<>();
-	public final ObservableField<String> password = new ObservableField<>();
+	public final ObservableString loginUrl = new ObservableString("http://test.com");
+	public final ObservableString username = new ObservableString();
+	public final ObservableString password = new ObservableString();
 	public final ObservableInt passwordInputType = new ObservableInt(InputType.TYPE_CLASS_TEXT |
 			InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
@@ -80,6 +81,16 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 		password.set("test");
 		binding.setViewModel(this);
 		new Handler().postDelayed(() -> showPassword.set(true), 2000);
+		new Handler().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				String test = loginUrl.get();
+				String no = username.get();
+				String pass = password.get();
+				int what = 1;
+			}
+		}, 20000);
 
 //		loginUrl.set(OpenMRS.getInstance().getServerUrl());
 //
@@ -183,17 +194,17 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 //				url.getText().toString(),
 //				openMRS.getLastLoginServerUrl()));
 
-		showPassword.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-
-			@Override
-			public void onPropertyChanged(Observable observable, int i) {
-				if (((ObservableBoolean) observable).get() == true) {
-					passwordInputType.set(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-				} else {
-					passwordInputType.set(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-				}
-			}
-		});
+//		showPassword.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
+//
+//			@Override
+//			public void onPropertyChanged(Observable observable, int i) {
+//				if (((ObservableBoolean) observable).get() == true) {
+//					passwordInputType.set(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+//				} else {
+//					passwordInputType.set(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+//				}
+//			}
+//		});
 	}
 
 	@Override
