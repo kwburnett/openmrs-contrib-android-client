@@ -80,7 +80,7 @@
 							android:inputType="text|textUri"
 							app:text="@{viewModel.loginUrl}"
 							app:onAfterTextChanged="@{() -> viewModel.validateLoginFields()}"
-							app:onFocusChange="@{() -> viewModel.validateUrl()}"/>
+							app:onFocusLeave="@{() -> viewModel.validateUrl()}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<android.support.design.widget.TextInputLayout
@@ -96,7 +96,8 @@
 							android:layout_height="wrap_content"
 							android:hint="@string/username"
 							android:inputType="text"
-							app:text="@{viewModel.username}"/>
+							app:text="@{viewModel.username}"
+							app:onAfterTextChanged="@{() -> viewModel.validateLoginFields()}"/>
 				</android.support.design.widget.TextInputLayout>
 
 				<RelativeLayout
@@ -118,7 +119,8 @@
 								android:hint="@string/password"
 								android:maxLines="1"
 								app:text="@{viewModel.password}"
-								app:showHidePassword="@{viewModel.showPassword}"/>
+								app:showHidePassword="@{viewModel.showPassword}"
+								app:onAfterTextChanged="@{() -> viewModel.validateLoginFields()}"/>
 
 					</android.support.design.widget.TextInputLayout>
 
@@ -143,7 +145,10 @@
 						android:layout_height="wrap_content"
 						android:spinnerMode="dialog"
 						style="@style/Widget.AppCompat.Spinner.Underlined"
-						android:layout_marginTop="20dp" />
+						android:layout_marginTop="20dp"
+						app:entries="@{viewModel.locations}"
+						app:selectedItem="@{viewModel.selectedLocation}"
+						android:onItemSelected="@{() -> viewModel.validateLoginFields()}"/>
 
 
 				<android.support.v7.widget.AppCompatButton

@@ -139,13 +139,6 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 	}
 
 	private void initListeners() {
-//		changeUrlIcon.setOnClickListener(view -> {
-//			if (loginUrlTextLayout.getVisibility() == android.view.View.VISIBLE) {
-//				showEditUrlEditField(false);
-//			} else {
-//				showEditUrlEditField(true);
-//			}
-//		});
 
 //		loginValidatorWatcher = new LoginValidatorWatcher(url, username, password, dropdownLocation, loginButton);
 
@@ -165,18 +158,6 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 //				password.getText().toString(),
 //				url.getText().toString(),
 //				openMRS.getLastLoginServerUrl()));
-
-//		showPassword.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() {
-//
-//			@Override
-//			public void onPropertyChanged(Observable observable, int i) {
-//				if (((ObservableBoolean) observable).get() == true) {
-//					passwordInputType.set(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-//				} else {
-//					passwordInputType.set(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-//				}
-//			}
-//		});
 	}
 
 	@Override
@@ -184,14 +165,6 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 //		mPresenter.authenticateUser(username.getText().toString(),
 //				password.getText().toString(),
 //				url.getText().toString(), wipeDatabase);
-	}
-
-	private void showEditUrlEditField(boolean visibility) {
-		if (!visibility) {
-			loginUrlTextLayout.setVisibility(android.view.View.GONE);
-		} else {
-			loginUrlTextLayout.setVisibility(android.view.View.VISIBLE);
-		}
 	}
 
 	@Override
@@ -251,56 +224,6 @@ public class LoginActivity extends ACBaseActivity implements LoginContract.View 
 			bitmapCache.put(key, ImageUtils.decodeBitmapFromResource(getResources(), key,
 					layoutParams.width, layoutParams.height));
 		}
-	}
-
-	private void unbindDrawableResources() {
-		if (null != bitmapCache) {
-			for (int i = 0; i < bitmapCache.size(); i++) {
-				Bitmap bitmap = bitmapCache.valueAt(i);
-				bitmap.recycle();
-			}
-		}
-	}
-
-	@Override
-	public void updateLoginFormLocations(List<Location> locationsList, String serverURL) {
-//		loginUrl = serverURL;
-		url.setText(serverURL);
-		List<HashMap<String, String>> items = null;
-		if (locationsList != null) {
-			items = getLocationStringList(locationsList);
-			updateLocationsSpinner(items, serverURL);
-		} else {
-
-		}
-
-	}
-
-	private void updateLocationsSpinner(List<HashMap<String, String>> locations, String serverURL) {
-		locationsList = locations;
-		setProgressBarVisibility(true);
-//		loginUrl = serverURL;
-		url.setText(serverURL);
-		int selectedLocation = 0;
-		int locationsSize = 0;
-		if (locations != null) {
-			locationsSize = locations.size();
-		}
-		String[] spinnerArray = new String[locationsSize];
-		for (int i = 0; i < locationsSize; i++) {
-			spinnerArray[i] = locations.get(i).get("display");
-			if (locations.get(i).get("uuid").contains(OpenMRS.getInstance().getLocation())) {
-				selectedLocation = i;
-			}
-		}
-
-//		ArrayAdapter<String> adapter =
-//				new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, spinnerArray);
-//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//		dropdownLocation.setAdapter(adapter);
-//		dropdownLocation.setSelection(selectedLocation);
-//		setProgressBarVisibility(false);
-
 	}
 
 	@Override

@@ -18,7 +18,9 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.LOGOU
 import static org.openmrs.mobile.utilities.ApplicationConstants.ErrorCodes.SERVER_ERROR;
 
 import android.databinding.Observable;
+import android.databinding.ObservableArrayList;
 import android.databinding.ObservableBoolean;
+import android.databinding.ObservableInt;
 import com.google.gson.Gson;
 
 import org.openmrs.mobile.activities.BasePresenter;
@@ -70,6 +72,11 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	public final ObservableBoolean loginButtonIsEnabled = new ObservableBoolean(false);
 	public final ObservableBoolean isProgressBarVisible = new ObservableBoolean(false);
 
+	public final ObservableArrayList<String> locations = new ObservableArrayList<>();
+	public final ObservableString selectedLocation = new ObservableString();
+
+	private Map<String, String> locationUuidsAndDisplays = new HashMap<>();
+
 	public LoginPresenter(LoginContract.View view, OpenMRS openMRS) {
 		this.view = view;
 		this.openMRS = openMRS;
@@ -113,9 +120,9 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	}
 
 	public void validateLoginFields() {
-		if (!loginUrl.get().equalsIgnoreCase(initialLoginUrl)) {
-
-		}
+		boolean isUsernameEmpty = StringUtils.isNullOrEmpty(username.get());
+		boolean isPasswordEmpty = StringUtils.isNullOrEmpty(password.get());
+		boolean isLocationSelected = StringUtils
 	}
 
 	public void validateUrl() {
@@ -286,9 +293,20 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		DataService.GetCallback<List<Location>> locationDataServiceCallback =
 				new DataService.GetCallback<List<Location>>() {
 					@Override
-					public void onCompleted(List<Location> locations) {
+					public void onCompleted(List<Location> serverLocations) {
 						isProgressBarVisible.set(false);
 						urlLocationsAreLoadedFor = loginUrl.get();
+
+						locationUuidsAndDisplays.clear();
+						for (Location location : serverLocations) {
+							locationUuidsAndDisplays.put(location.getUuid(), location.getDisplay());
+							if (location.getUuid().contains(openMRS.getLocation())) {
+								selectedLocation.set(location.getDisplay());
+							}
+						}
+						locations.clear();
+						locations.addAll(locationUuidsAndDisplays.values());
+
 //						openMRS.setServerUrl(loginUrl.get());
 //						loginView.updateLoginFormLocations(locations, url);
 					}
@@ -296,6 +314,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 					@Override
 					public void onError(Throwable t) {
 						view.showMessage(SERVER_ERROR);
+						isProgressBarVisible.set(false);
 					}
 				};
 

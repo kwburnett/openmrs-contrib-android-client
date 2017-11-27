@@ -16,18 +16,23 @@
 package org.openmrs.mobile.binding;
 
 import android.databinding.BindingAdapter;
+import android.databinding.ObservableArrayList;
 import android.databinding.ObservableBoolean;
+import android.databinding.ObservableInt;
 import android.support.v4.util.Pair;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 import org.openmrs.mobile.R;
 
@@ -95,7 +100,7 @@ public class CustomDataBindings {
 		}
 	}
 
-	@BindingAdapter("app:onFocusChange")
+	@BindingAdapter("app:onFocusLeave")
 	public static void bindFocusChange(EditText view, final Runnable runnable) {
 		Pair<Runnable, View.OnFocusChangeListener> pair = (Pair) view.getTag(R.id.bound_observable_onFocusChange);
 		if (view.getTag(R.id.bound_observable_onFocusChange) == null) {
@@ -103,7 +108,9 @@ public class CustomDataBindings {
 
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
-					runnable.run();
+					if (!hasFocus) {
+						runnable.run();
+					}
 				}
 			};
 			view.setTag(R.id.bound_observable_onFocusChange, runnable);
@@ -163,6 +170,38 @@ public class CustomDataBindings {
 		} else {
 			view.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 		}
+	}
+
+	@BindingAdapter(value = {"app:entries", "app:selectedItem"})
+	public static void bindSpinner(Spinner view, ObservableArrayList<String> entries,
+			ObservableString selectedItem) {
+		ArrayAdapter<String> adapter =  new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_spinner_item,
+				entries);
+		if (view.getTag(R.id.bound_observable_spinner) == null) {
+			view.setTag(R.id.bound_observable_spinner, entries);
+			view.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					selectedItem.set(adapter.getItem(position));
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+
+				}
+			});
+		}
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		view.setAdapter(adapter);
+		int selectedItemPosition = 0;
+		for (int i = 0; i < entries.size(); i++) {
+			if (entries.get(i).equals(selectedItem.get())) {
+				selectedItemPosition = i;
+				break;
+			}
+		}
+		view.setSelection(selectedItemPosition);
 	}
 
 	@BindingAdapter("app:textHtml")

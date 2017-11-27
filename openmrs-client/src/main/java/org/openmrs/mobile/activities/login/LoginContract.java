@@ -43,7 +43,7 @@ public interface LoginContract {
 		void userAuthenticated(boolean isFirstAccessOfNewUrl);
 		void finishLoginActivity();
 		void setProgressBarVisibility(boolean visible);
-		void updateLoginFormLocations(List<Location> locations, String url);
+//		void updateLoginFormLocations(List<Location> locations, String url);
 		void showMessage(String message);
 		void showMessage(int errorCode);
 		void login(boolean wipeDatabase);
