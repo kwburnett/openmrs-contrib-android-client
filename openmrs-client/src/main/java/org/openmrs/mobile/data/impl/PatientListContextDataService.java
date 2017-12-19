@@ -46,8 +46,12 @@ public class PatientListContextDataService
 				(patientListContextsFromServer) -> {
 					dbService.saveAll(patientListContextsFromServer);
 
-					databaseHelper.diffDelete(PatientListContext.class,
-							PatientListContext_Table.patientList_uuid.eq(patientListUuid), patientListContextsFromServer);
+					// Only trim from the DB if we've fetched all the data
+					if (pagingInfo == null || pagingInfo.equals(PagingInfo.ALL.getInstance())) {
+						databaseHelper.diffDelete(PatientListContext.class,
+								PatientListContext_Table.patientList_uuid.eq(patientListUuid),
+								patientListContextsFromServer);
+					}
 				});
 	}
 }

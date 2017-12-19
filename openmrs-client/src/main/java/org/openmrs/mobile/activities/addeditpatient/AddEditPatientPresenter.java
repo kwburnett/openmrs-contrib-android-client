@@ -263,7 +263,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 	}
 
 	public void findSimilarPatients(Patient patient) {
-		PagingInfo pagingInfo = PagingInfo.DEFAULT;
+		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
 		DataService.GetCallback<List<Patient>> callback = new DataService.GetCallback<List<Patient>>() {
 			@Override
 			public void onCompleted(List<Patient> patients) {

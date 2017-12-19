@@ -223,8 +223,7 @@ public abstract class BaseDbService<E extends BaseOpenmrsObject> implements DbSe
 			// Set up paging logic
 			query = (query instanceof From<?> ? (From<M>) query : (Where<M>) query).limit(pagingInfo.getPageSize());
 			if (pagingInfo.getPage() > 1) {
-				query = (query instanceof From<?> ? (From<M>) query : (Where<M>) query)
-						.offset(pagingInfo.getStartIndex() - 1);
+				query = (query instanceof From<?> ? (From<M>) query : (Where<M>) query).offset(pagingInfo.getStartIndex());
 			}
 		}
 

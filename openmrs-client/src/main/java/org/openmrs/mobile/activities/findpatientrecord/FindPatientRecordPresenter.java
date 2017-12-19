@@ -33,7 +33,7 @@ public class FindPatientRecordPresenter extends BasePresenter implements FindPat
 
 	@NonNull
 	private FindPatientRecordContract.View findPatientView;
-	private int page = PagingInfo.DEFAULT.getPage();
+	private int page = PagingInfo.DEFAULT.getInstance().getPage();
 	private PatientDataService patientDataService;
 	private boolean loading;
 
@@ -62,7 +62,7 @@ public class FindPatientRecordPresenter extends BasePresenter implements FindPat
 
 	public void findPatient(String query) {
 		findPatientView.setProgressBarVisibility(true);
-		PagingInfo pagingInfo = PagingInfo.ALL;
+		PagingInfo pagingInfo = PagingInfo.ALL.getInstance();
 		DataService.GetCallback<List<Patient>> getMultipleCallback = new DataService.GetCallback<List<Patient>>() {
 			@Override
 			public void onCompleted(List<Patient> patients) {
@@ -95,7 +95,7 @@ public class FindPatientRecordPresenter extends BasePresenter implements FindPat
 	public void getLastViewed() {
 		findPatientView.setProgressBarVisibility(true);
 		setLoading(true);
-		PagingInfo pagingInfo = PagingInfo.DEFAULT;
+		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
 		patientDataService.getLastViewed(ApplicationConstants.EMPTY_STRING, QueryOptions.FULL_REP, pagingInfo,
 				new DataService.GetCallback<List<Patient>>() {
 					@Override

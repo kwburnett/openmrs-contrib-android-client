@@ -25,7 +25,6 @@ import org.openmrs.mobile.data.impl.ConceptDataService;
 import org.openmrs.mobile.data.impl.VisitAttributeTypeDataService;
 import org.openmrs.mobile.data.impl.VisitDataService;
 import org.openmrs.mobile.data.rest.RestConstants;
-import org.openmrs.mobile.event.VisitDashboardDataRefreshEvent;
 import org.openmrs.mobile.models.ConceptAnswer;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitAttributeType;
@@ -124,7 +123,7 @@ public class VisitDetailsPresenter extends BaseVisitPresenter implements VisitCo
 				.build();
 
 		visitAttributeTypeDataService
-				.getAll(options, PagingInfo.ALL,
+				.getAll(options, PagingInfo.ALL.getInstance(),
 						new DataService.GetCallback<List<VisitAttributeType>>() {
 							@Override
 							public void onCompleted(List<VisitAttributeType> entities) {
@@ -161,7 +160,7 @@ public class VisitDetailsPresenter extends BaseVisitPresenter implements VisitCo
 
 	@Override
 	protected void refreshDependentData() {
-		// No dependent data
+		getVisit();
 		visitDetailsView.displayRefreshingData(false);
 	}
 }

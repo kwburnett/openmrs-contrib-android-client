@@ -65,7 +65,7 @@ public class VisitTasksPresenter extends BaseVisitPresenter implements VisitCont
 		if (!forceRefresh) {
 			visitTasksView.showTabSpinner(true);
 		}
-		PagingInfo pagingInfo = PagingInfo.ALL;
+		PagingInfo pagingInfo = PagingInfo.ALL.getInstance();
 		DataService.GetCallback<List<VisitPredefinedTask>> callback = new DataService
 				.GetCallback<List<VisitPredefinedTask>>() {
 			@Override
@@ -102,7 +102,7 @@ public class VisitTasksPresenter extends BaseVisitPresenter implements VisitCont
 		}
 		final QueryOptions options = optionsTemp;
 
-		PagingInfo pagingInfo = PagingInfo.DEFAULT;
+		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
 		// get open tasks
 		visitTaskDataService.getAll("OPEN", patientUUID, visitUuid, options,
 				pagingInfo,
@@ -152,7 +152,7 @@ public class VisitTasksPresenter extends BaseVisitPresenter implements VisitCont
 					@Override
 					public void onCompleted(VisitTask entity) {
 						if (entity != null) {
-							subscribe();
+							getVisitTasks(false);
 						}
 					}
 
@@ -173,7 +173,7 @@ public class VisitTasksPresenter extends BaseVisitPresenter implements VisitCont
 			@Override
 			public void onCompleted(VisitTask entity) {
 				if (entity != null) {
-					subscribe();
+					getVisitTasks(false);
 				}
 			}
 

@@ -97,7 +97,7 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 	@Override
 	protected void postProcess(Visit originalEntity, Visit restEntity, SyncLog syncLog) {
 		if (restEntity != null) {
-			Visit tmpEntity = dbService.getByUuid(syncLog.getKey(), QueryOptions.FULL_REP);
+			originalEntity = dbService.getByUuid(syncLog.getKey(), QueryOptions.FULL_REP);
 			// Delete any related records with local uuids, records with the server-generated uuids will be saved when
 			// saving the entity below
 			deleteLocalRelatedRecords(originalEntity, restEntity);
@@ -108,11 +108,11 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 				dbService.update(originalEntity.getUuid(), restEntity);
 			}
 
-			if (tmpEntity.getAttributes().size() != originalEntity.getAttributes().size()) {
+			if (originalEntity.getAttributes().size() != restEntity.getAttributes().size()) {
 				// void existing attributes
-				dbService.voidExistingVisitAttributes(originalEntity);
+				dbService.voidExistingVisitAttributes(restEntity);
 
-				dbService.save(originalEntity);
+				dbService.save(restEntity);
 			}
 		}
 	}

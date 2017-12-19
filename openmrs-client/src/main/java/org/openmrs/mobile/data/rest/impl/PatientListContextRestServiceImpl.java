@@ -31,7 +31,7 @@ public class PatientListContextRestServiceImpl extends BaseRestService<PatientLi
 	public Call<Results<PatientListContext>> getListPatients(String patientListUuid, QueryOptions options, PagingInfo pagingInfo) {
 		// If no paging is specified then override the server defaults to return all records
 		if (pagingInfo == null) {
-			pagingInfo = PagingInfo.ALL;
+			pagingInfo = PagingInfo.ALL.getInstance();
 		}
 		String representation = QueryOptions.getRepresentation(options);
 		if (options == null) {

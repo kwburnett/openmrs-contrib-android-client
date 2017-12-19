@@ -1251,11 +1251,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 						intubationObservation = setObservationFields(observation, CONCEPT_INTUBATION_AT_GCS,
 								CONCEPT_ANSWER_YES);
 					} else if (displayValue.equalsIgnoreCase(ANSWER_NO)) {
-						intubatedYes.setChecked(false);
+						intubatedNo.setChecked(true);
 						intubationObservation = setObservationFields(observation, CONCEPT_INTUBATION_AT_GCS,
 								CONCEPT_ANSWER_NO);
 					} else {
-						intubatedYes.setChecked(false);
+						intubatedUnknown.setChecked(true);
 						intubationObservation = setObservationFields(observation, CONCEPT_INTUBATION_AT_GCS,
 								CONCEPT_ANSWER_UNKNOWN);
 					}

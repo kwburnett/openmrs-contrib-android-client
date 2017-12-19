@@ -256,7 +256,7 @@ public abstract class AdaptiveSubscriptionProvider<E extends BaseOpenmrsAuditabl
 	 * @return The entities
 	 */
 	protected List<E> getAllRest() {
-		return RestHelper.getCallListValue(restService.getAll(QueryOptions.FULL_REP, PagingInfo.ALL));
+		return RestHelper.getCallListValue(restService.getAll(QueryOptions.FULL_REP, PagingInfo.ALL.getInstance()));
 	}
 
 	/**

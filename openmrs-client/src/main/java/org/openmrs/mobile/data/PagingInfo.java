@@ -10,12 +10,22 @@ public class PagingInfo {
 	/**
 	 * Sets the page size to 10,000 so that all results will be included and the server-defined default limit won't be used.
 	 */
-	public static final PagingInfo ALL = new PagingInfo(1, 10000);
+	public static class ALL {
+
+		public static PagingInfo getInstance() {
+			return new PagingInfo(1, 10000);
+		}
+	}
 
 	/**
 	 * Sets the page size to 10, matching the default page size for most entities.
 	 */
-	public static final PagingInfo DEFAULT = new PagingInfo(1, 10);
+	public static class DEFAULT {
+
+		public static PagingInfo getInstance() {
+			return new PagingInfo(1, 10);
+		}
+	}
 
 	private int page;
 	private int pageSize;
@@ -106,5 +116,14 @@ public class PagingInfo {
 
 	public Boolean hasMoreResults() {
 		return (page * pageSize) < totalRecordCount;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (object.getClass() == PagingInfo.class) {
+			PagingInfo pagingInfo = (PagingInfo) object;
+			return pagingInfo.getPage() == this.getPage() && pagingInfo.getLimit() == this.getLimit();
+		}
+		return false;
 	}
 }

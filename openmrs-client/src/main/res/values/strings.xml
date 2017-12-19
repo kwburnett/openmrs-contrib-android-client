@@ -160,12 +160,14 @@
 	<!--Snackbar strings-->
 	<string name="snackbar_action_open">Open</string>
 	<string name="snackbar_info_patient_downloaded">Patient downloaded</string>
+	<string name="external_storage_not_available">Unable to take photos</string>
 	
 	
 	<!--permissions-->
 	<string name="permission_camera_rationale">Camera permission is needed to capture photo.</string>
 	<string name="permission_camera_denied">Camera permission was denied. Please consider granting it in order to access the camera</string>
 	<string name="permission_camera_neverask">Camera permission was denied with never ask again</string>
+	<string name="permission_write_external_storage_denied">Writing extneral storage permission was denied. Please consider granting it in order to take pictures</string>
 	<string name="button_allow">Allow</string>
 	<string name="button_deny">Deny</string>
 	
@@ -332,7 +334,7 @@
 	<string name="no_vitals">No vitals recorded for this visit</string>
 	<string name="no_visit_tasks">No tasks for this visit</string>
 	<string name="add_diagnosis">Enter Diagnosis</string>
-	<string name="visit_image_description">Description: %1$s \r\nUploaded: %2$s \r\nUploaded By: %3$s</string>
+	<string name="visit_image_description">Description: %1$s \nUploaded: %2$s \nUploaded By: %3$s</string>
 	<string name="add_patient">Add Patient</string>
 	<string name="telephone">Telephone:</string>
 	<string name="no_primary_diagnosis">No Primary Diagnosis</string>

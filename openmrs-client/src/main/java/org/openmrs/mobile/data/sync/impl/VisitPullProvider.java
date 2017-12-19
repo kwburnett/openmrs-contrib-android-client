@@ -104,7 +104,7 @@ public class VisitPullProvider {
 		// Get record info for patient visits
 		List<RecordInfo> visitInfo = RestHelper.getCallListValue(
 				visitRestService.getRecordInfoByPatient(patientRecord.getUuid(),
-						new QueryOptions.Builder().includeInactive(true).build(), PagingInfo.ALL));
+						new QueryOptions.Builder().includeInactive(true).build(), PagingInfo.ALL.getInstance()));
 
 		// Delete any missing visits
 		databaseHelper.diffDelete(Visit.class, Visit_Table.patient_uuid.eq(patientRecord.getUuid()), visitInfo);
@@ -118,6 +118,7 @@ public class VisitPullProvider {
 				Visit visit = RestHelper.getCallValue(
 						visitRestService.getByUuid(visitRecord.getUuid(), QueryOptions.INCLUDE_ALL_FULL_REP));
 
+				visitDbService.voidExistingVisitAttributes(visit);
 				visit.processRelationships();
 				visits.add(visit);
 			}
@@ -141,7 +142,7 @@ public class VisitPullProvider {
 
 		for (RecordInfo visitRecord : visitInfo) {
 			List<RecordInfo> visitTasks = RestHelper.getCallListValue(visitTaskRestService.getRecordInfoByVisit
-					(visitRecord.getUuid(), null, PagingInfo.ALL));
+					(visitRecord.getUuid(), null, PagingInfo.ALL.getInstance()));
 
 			Visit visit = visitDbService.getByUuid(visitRecord.getUuid(), null);
 
@@ -236,7 +237,7 @@ public class VisitPullProvider {
 		for (RecordInfo visitRecord : visitInfo) {
 			// Get record info for visit encounters
 			List<RecordInfo> encounterInfo = RestHelper.getCallListValue(
-					encounterRestService.getRecordInfoByVisit(visitRecord.getUuid(), null, PagingInfo.ALL));
+					encounterRestService.getRecordInfoByVisit(visitRecord.getUuid(), null, PagingInfo.ALL.getInstance()));
 
 			// Delete any missing encounters
 			databaseHelper.diffDelete(Encounter.class, Encounter_Table.visit_uuid.eq(visitRecord.getUuid()), encounterInfo);

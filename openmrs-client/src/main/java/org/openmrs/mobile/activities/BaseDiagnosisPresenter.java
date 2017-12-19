@@ -30,8 +30,8 @@ public class BaseDiagnosisPresenter {
 	private ConceptDataService conceptDataService;
 	private ObsDataService obsDataService;
 	private VisitNoteDataService visitNoteDataService;
-	private int page = PagingInfo.DEFAULT.getPage();
-	private int limit = PagingInfo.DEFAULT.getLimit() * 2;
+	private int page = PagingInfo.DEFAULT.getInstance().getPage();
+	private int limit = PagingInfo.DEFAULT.getInstance().getLimit() * 2;
 	private List<String> obsUuids = new ArrayList<>();
 	private DataAccessComponent dataAccess;
 	private Timer diagnosisTimer;

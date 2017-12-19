@@ -29,7 +29,6 @@ public class RestServiceBuilder {
 	private static final String BASE_URL_WHEN_API_IS_EMPTY = "http://localhost/";
 
 	private static Retrofit.Builder builder;
-	private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 	private static String API_BASE_URL = OpenMRS.getInstance().getServerUrl();
 
 	static {
@@ -55,6 +54,7 @@ public class RestServiceBuilder {
 
 		String credentials = username + ":" + password;
 		final String basic = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+		OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 		httpClient.addInterceptor(chain -> {
 			Request original = chain.request();
 

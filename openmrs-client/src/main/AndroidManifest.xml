@@ -3,7 +3,8 @@
 		package="org.openmrs.mobile">
 
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+			android:maxSdkVersion="18"/>
 	<uses-permission android:name="android.permission.READ_LOGS" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -75,6 +76,16 @@
 		</activity>
 		<activity android:name=".activities.fullscreenview.FullScreenViewActivity"
 		          android:screenOrientation="portrait"/>
+
+		<provider
+			android:name="android.support.v4.content.FileProvider"
+		    android:authorities="org.openmrs.mobile.bandahealth.im.fileprovider"
+		    android:exported="false"
+		    android:grantUriPermissions="true">
+			<meta-data
+				android:name="android.support.FILE_PROVIDER_PATHS"
+			    android:resource="@xml/file_paths"></meta-data>
+		</provider>
 
 	</application>
 

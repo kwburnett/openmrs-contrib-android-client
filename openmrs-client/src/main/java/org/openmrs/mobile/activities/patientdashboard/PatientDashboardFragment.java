@@ -81,7 +81,9 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	public void onDestroyView() {
 		super.onDestroyView();
 		patientVisitsRecyclerView.removeOnScrollListener(patientVisitsOnScrollListener);
-		patientVisitsRecyclerAdapter.destroy();
+		if (patientVisitsRecyclerAdapter != null) {
+			patientVisitsRecyclerAdapter.destroy();
+		}
 	}
 
 	@Override

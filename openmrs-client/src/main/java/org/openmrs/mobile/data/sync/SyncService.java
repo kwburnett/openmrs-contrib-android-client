@@ -15,6 +15,7 @@ import org.openmrs.mobile.event.SyncEvent;
 import org.openmrs.mobile.event.SyncPullEvent;
 import org.openmrs.mobile.event.SyncPushEvent;
 import org.openmrs.mobile.models.PullSubscription;
+import org.openmrs.mobile.models.Resource;
 import org.openmrs.mobile.models.SyncLog;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.NetworkUtils;
@@ -113,13 +114,15 @@ public class SyncService {
 				try {
 
 					if (StringUtils.notNull(openmrs.getPatientUuid()) &&
-							openmrs.getPatientUuid().equalsIgnoreCase(record.getKey())) {
+							openmrs.getPatientUuid().equalsIgnoreCase(record.getKey()) &&
+							!Resource.isLocalUuid(record.getKey())) {
 						Log.i(TAG, "Skip. The Patient with uuid '" + record.getKey() + "' is currently being viewed");
 						continue;
 					}
 
 					if (StringUtils.notNull(openmrs.getVisitUuid()) &&
-							openmrs.getVisitUuid().equalsIgnoreCase(record.getKey())) {
+							openmrs.getVisitUuid().equalsIgnoreCase(record.getKey()) &&
+							!Resource.isLocalUuid(record.getKey())) {
 						Log.i(TAG, "Skip. The Visit with uuid '" + record.getKey() + "' is currently being viewed");
 						continue;
 					}

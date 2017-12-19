@@ -15,11 +15,13 @@
 package org.openmrs.mobile.application;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
+import android.support.multidex.MultiDex;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -65,6 +67,13 @@ public class OpenMRS extends Application {
 	private DatabaseHelper databaseHelper;
 	private NetworkManager networkManager;
 	private EventBus eventBus;
+
+	// TODO: Remove this method when min SDK version > 20
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
+	}
 
 	@Override
 	public void onCreate() {

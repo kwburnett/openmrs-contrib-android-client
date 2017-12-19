@@ -120,7 +120,7 @@ public class PatientListSyncSelectionDialogPresenter implements PatientListSyncS
 	}
 
 	private void getPatientLists() {
-		patientListDataService.getAll(null, PagingInfo.ALL,
+		patientListDataService.getAll(null, PagingInfo.ALL.getInstance(),
 				new DataService.GetCallback<List<PatientList>>() {
 					@Override
 					public void onCompleted(List<PatientList> entities) {

@@ -123,12 +123,14 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		primaryDiagnosesRecycler.setLayoutManager(primaryDiagnosisLayoutManager);
 		secondaryDiagnosesRecycler.setLayoutManager(secondaryDiagnosisLayoutManager);
 
+		// Disabling swipe refresh on this fragment due to issues
+		visitDetailsSwipeRefreshLayout.setEnabled(false);
+
 		((VisitDetailsPresenter)mPresenter).getVisit();
 		((VisitDetailsPresenter)mPresenter).getPatientUUID();
 		((VisitDetailsPresenter)mPresenter).getVisitUUID();
 		((VisitDetailsPresenter)mPresenter).getProviderUUID();
 		//buildMarginLayout();
-		initializeListeners();
 		return root;
 	}
 
@@ -219,6 +221,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 
 	@Override
 	public void setVisit(Visit visit) {
+		initializeListeners();
 		this.visit = visit;
 		visitDetailsSwipeRefreshLayout.setRefreshing(false);
 		if (visit != null) {

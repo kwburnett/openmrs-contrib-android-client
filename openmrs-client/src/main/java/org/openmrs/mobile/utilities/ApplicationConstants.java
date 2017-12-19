@@ -38,6 +38,10 @@ public abstract class ApplicationConstants {
 		public static final String LAST_TRIM_DATE = "last_trim_date";
 	}
 
+	public abstract static class Authorities {
+		public static final String FILE_PROVIDER = "org.openmrs.mobile.bandahealth.im.fileprovider";
+	}
+
 	public abstract static class API {
 		public static final String REST_ENDPOINT_V1 = "ws/rest/v1/";
 		public static final String REST_ENDPOINT_V2 = "ws/rest/v2/";
@@ -222,7 +226,7 @@ public abstract class ApplicationConstants {
 		public static final String LOCATION = "Location(s)";
 		public static final String COUNTY = "county";
 		public static final String SUBCOUNTY = "sub-county";
-		public static final String TELEPHONE = "telephonenumber";
+		public static final String TELEPHONE = "telephone";
 	}
 
 	public static class unwantedPersonAttributes {

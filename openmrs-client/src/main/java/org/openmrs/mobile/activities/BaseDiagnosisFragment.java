@@ -133,7 +133,9 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 				@Override
 				public void afterTextChanged(final Editable s) {
 					if (s.length() > 0 && !firstTimeEdit) {
-						saveVisitNote(getEncounter(), getClinicalNoteView().getText().toString(), visit, true);
+						if (visit != null) {
+							saveVisitNote(getEncounter(), getClinicalNoteView().getText().toString(), visit, true);
+						}
 					} else {
 						firstTimeEdit = false;
 					}

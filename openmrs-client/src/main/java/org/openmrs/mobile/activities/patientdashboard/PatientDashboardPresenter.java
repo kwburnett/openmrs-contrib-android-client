@@ -44,7 +44,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 
 	private NetworkUtils networkUtils;
 
-	private final int INITIAL_PAGING_INDEX = PagingInfo.DEFAULT.getPage();
+	private final int INITIAL_PAGING_INDEX = PagingInfo.DEFAULT.getInstance().getPage();
 
 	private PatientDashboardContract.View patientDashboardView;
 	private PatientDataService patientDataService;

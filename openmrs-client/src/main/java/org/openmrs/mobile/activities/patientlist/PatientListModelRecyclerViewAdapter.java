@@ -58,11 +58,12 @@ public class PatientListModelRecyclerViewAdapter
 		holder.headerContent.setText(StringUtils.stripHtmlTags(patientListContext.getHeaderContent()));
 		holder.bodyContent.setText(StringUtils.stripHtmlTags(patientListContext.getBodyContent()));
 		holder.rowLayout.setOnClickListener(v -> {
-			Intent intent = new Intent(context, PatientDashboardActivity.class);
-			intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE,
-					patientListContext.getPatient().getUuid());
-			context.startActivity(intent);
-
+			if (patientListContext.getPatient() != null) {
+				Intent intent = new Intent(context, PatientDashboardActivity.class);
+				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE,
+						patientListContext.getPatient().getUuid());
+				context.startActivity(intent);
+			}
 		});
 	}
 

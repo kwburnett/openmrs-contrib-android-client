@@ -14,12 +14,12 @@ import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.models.SyncAction;
 import org.openmrs.mobile.models.Visit;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.Date;
-import java.util.List;
 
 public class VisitDataService extends BaseEntityDataService<Visit, VisitDbService, VisitRestServiceImpl>
 		implements EntityDataService<Visit> {
@@ -77,6 +77,21 @@ public class VisitDataService extends BaseEntityDataService<Visit, VisitDbServic
 
 					// We determine a patient's sync is updated based on a successful pull of visits from the REST service
 					entitySyncInfoDbService.saveLastSyncInfo(patient, new Date());
+				});
+	}
+
+	@Override
+	public void getByUuid(@NonNull String uuid, @Nullable QueryOptions options,
+			@NonNull GetCallback<Visit> callback) {
+		checkNotNull(uuid);
+		checkNotNull(callback);
+
+		executeSingleCallback(callback, options,
+				() -> dbService.getByUuid(uuid, options),
+				() -> restService.getByUuid(uuid, options),
+				(e) -> {
+					dbService.voidExistingVisitAttributes(e);
+					dbService.save(e);
 				});
 	}
 }
