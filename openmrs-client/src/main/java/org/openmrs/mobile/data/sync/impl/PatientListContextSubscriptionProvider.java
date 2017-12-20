@@ -84,6 +84,11 @@ public class PatientListContextSubscriptionProvider extends BaseSubscriptionProv
 		List<PatientListContext> patientListContexts = RestHelper.getCallListValue(
 				listPatientRestService.getListPatients(patientListUuid, options, null));
 
+		// If we got a null result back from the server (no results should be an empty list), then exit the pull
+		if (patientListContexts == null) {
+			return;
+		}
+
 		// Create record info records
 		int size = patientListContexts == null ? 0 : patientListContexts.size();
 		List<RecordInfo> patientRecordInfoList = new ArrayList<>(size);
@@ -98,7 +103,7 @@ public class PatientListContextSubscriptionProvider extends BaseSubscriptionProv
 		databaseHelper.diffDelete(PatientListContext.class, PatientListContext_Table.patientList_uuid.eq(patientListUuid),
 				patientRecordInfoList);
 
-		if (patientListContexts == null || patientListContexts.isEmpty()) {
+		if (patientListContexts.isEmpty()) {
 			return;
 		}
 

@@ -44,6 +44,10 @@ public class PatientListContextDataService
 				() -> dbService.getListPatients(patientListUuid, options, pagingInfo),
 				() -> restService.getListPatients(patientListUuid, options, pagingInfo),
 				(patientListContextsFromServer) -> {
+					if (patientListContextsFromServer == null) {
+						return;
+					}
+
 					dbService.saveAll(patientListContextsFromServer);
 
 					// Only trim from the DB if we've fetched all the data

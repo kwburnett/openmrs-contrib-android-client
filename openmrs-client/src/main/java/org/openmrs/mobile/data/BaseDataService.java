@@ -123,7 +123,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 		checkNotNull(entity);
 		checkNotNull(callback);
 
-		executeVoidCallback(entity, callback, null,
+		executeVoidCallback(entity, callback, QueryOptions.REMOTE,
 				() -> dbService.delete(entity.getUuid()),
 				() -> restService.purge(entity.getUuid()));
 	}

@@ -18,6 +18,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.openmrs.mobile.utilities.StringUtils;
+
+import java.util.concurrent.TimeUnit;
+
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -30,6 +33,7 @@ public class RestServiceBuilder {
 
 	private static Retrofit.Builder builder;
 	private static String API_BASE_URL = OpenMRS.getInstance().getServerUrl();
+	private static long TIMEOUT = 10000;
 
 	static {
 		initializeBuilder();
@@ -86,6 +90,10 @@ public class RestServiceBuilder {
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 		logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 		httpClient.addInterceptor(logging);
+		// set timeouts
+		httpClient.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+		httpClient.readTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+		httpClient.connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
 
 		OkHttpClient client = httpClient.build();
 
