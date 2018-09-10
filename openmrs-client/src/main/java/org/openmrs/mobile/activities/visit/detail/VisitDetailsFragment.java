@@ -475,7 +475,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 					continue;
 				}
 
-				if ((encounter.getEncounterType().getUuid().equalsIgnoreCase(
+				if (encounter.getEncounterType() != null && (encounter.getEncounterType().getUuid().equalsIgnoreCase(
 						ApplicationConstants.EncounterTypeEntity.AUDIT_DATA_UUID) ||
 						encounter.getEncounterType().getDisplay().equalsIgnoreCase(
 								ApplicationConstants.EncounterTypeDisplays.AUDITDATA))) {
@@ -510,7 +510,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 				if (encounter.getVoided() != null && encounter.getVoided())
 					continue;
 
-				if (encounter.getEncounterType().getDisplay()
+				if (encounter.getEncounterType() != null && encounter.getEncounterType().getDisplay()
 						.equalsIgnoreCase(ApplicationConstants.EncounterTypeDisplays.VISIT_NOTE)) {
 					if (visit.getEncounters().get(i).getObs().size() != 0) {
 						setEncounter(encounter);
