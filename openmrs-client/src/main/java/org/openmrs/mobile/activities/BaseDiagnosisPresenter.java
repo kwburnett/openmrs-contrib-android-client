@@ -90,6 +90,7 @@ public class BaseDiagnosisPresenter {
 	 */
 	public void saveVisitNote(VisitNote visitNote, IBaseDiagnosisFragment base, boolean scheduleTask) {
 		cancelRunningRequest(true);
+		base.setLoading(true);
 		if (scheduleTask) {
 			diagnosisTimer = new Timer();
 			diagnosisTimer.schedule(new TimerTask() {
@@ -108,6 +109,7 @@ public class BaseDiagnosisPresenter {
 			@Override
 			public void onCompleted(VisitNote entity) {
 				cancelRunningRequest(false);
+				base.setLoading(false);
 				base.setEncounter(entity.getEncounter());
 
 				if (entity.getObservation() != null) {
@@ -124,6 +126,7 @@ public class BaseDiagnosisPresenter {
 				Log.e(TAG, "Error saving visit note: " + t.getLocalizedMessage(), t);
 				base.getBaseDiagnosisView().showTabSpinner(false);
 				cancelRunningRequest(false);
+				base.setLoading(false);
 			}
 		});
 	}

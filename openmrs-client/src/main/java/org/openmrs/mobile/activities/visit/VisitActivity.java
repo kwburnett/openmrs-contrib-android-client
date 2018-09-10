@@ -206,10 +206,15 @@ public class VisitActivity extends ACBaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (drawer.isDrawerOpen(GravityCompat.START)) {
-			drawer.closeDrawer(GravityCompat.START);
+		if (!isLoading()) {
+			if (drawer.isDrawerOpen(GravityCompat.START)) {
+				drawer.closeDrawer(GravityCompat.START);
+			}
+
+			goToDashboard();
+		} else {
+			createToast(getString(R.string.pending_save));
 		}
-		goToDashboard();
 	}
 
 	@Override
@@ -217,7 +222,7 @@ public class VisitActivity extends ACBaseActivity {
 		// Handle item selection
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				goToDashboard();
+				onBackPressed();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);

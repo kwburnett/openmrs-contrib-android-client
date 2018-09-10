@@ -1,6 +1,7 @@
 package org.openmrs.mobile.data.sync;
 
 import org.openmrs.mobile.data.DataOperationException;
+import org.openmrs.mobile.data.EntityNotFoundException;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.db.DbService;
 import org.openmrs.mobile.data.rest.RestHelper;
@@ -34,7 +35,7 @@ public abstract class BasePushProvider<E extends BaseOpenmrsAuditableObject,
 
 		E entity = dbService.getByUuid(syncLog.getKey(), QueryOptions.FULL_REP);
 		if (entity == null) {
-			throw new DataOperationException("Entity not found");
+			throw new EntityNotFoundException("Entity not found");
 		}
 
 		preProcess(entity);

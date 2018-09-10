@@ -1,4 +1,4 @@
-[![Logo](http://i.imgur.com/fpVkTZk.png)](http://www.openmrs.org)
+[![Logo](https://i.imgur.com/fpVkTZk.png)](http://www.openmrs.org)
 
 OpenMRS Android Client
 ==============================
@@ -38,7 +38,7 @@ For more information on the client, visit https://wiki.openmrs.org/display/proje
 - Offline access
 
 # Screenshots
-![Login](http://i.imgur.com/zinrnCK.png) ![Dashboard](http://i.imgur.com/TLIwMoy.png) ![Register Patient](http://i.imgur.com/n7LaeKS.png)
+![Login](https://i.imgur.com/zinrnCK.png) ![Dashboard](https://i.imgur.com/TLIwMoy.png) ![Register Patient](https://i.imgur.com/n7LaeKS.png)
 
 # GSoC 2016
 

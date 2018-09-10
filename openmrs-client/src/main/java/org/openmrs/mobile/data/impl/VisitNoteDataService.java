@@ -50,10 +50,10 @@ public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDb
 					return result;
 				}, () -> restService.save(visitNote),
 				(e) -> {
-					// void existing obs
-					if (visitNote.getEncounter() != null) {
-						obsDbService.voidExistingObs(visitNote.getEncounter());
+					if (e.getEncounter() != null) {
+						obsDbService.removeLocalObservationsNotFoundInREST(e.getEncounter());
 					}
+
 					// save new obs
 					e.getEncounter().processRelationships();
 					encounterDbService.save(e.getEncounter());

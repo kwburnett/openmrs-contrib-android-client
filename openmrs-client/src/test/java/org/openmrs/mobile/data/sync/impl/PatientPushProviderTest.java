@@ -3,7 +3,7 @@ package org.openmrs.mobile.data.sync.impl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
-import org.openmrs.mobile.data.DataOperationException;
+import org.openmrs.mobile.data.EntityNotFoundException;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.db.impl.PatientDbService;
 import org.openmrs.mobile.data.rest.impl.PatientRestServiceImpl;
@@ -41,7 +41,7 @@ public class PatientPushProviderTest extends BasePushProviderTest<Patient, Patie
 		verify(restService).create(any(Patient.class));
 	}
 
-	@Test(expected = DataOperationException.class)
+	@Test(expected = EntityNotFoundException.class)
 	public void push_shouldFailFetchingEntity() throws Exception {
 		mockErrorDbCalls();
 		SyncLog log = new SyncLog();

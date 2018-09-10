@@ -80,7 +80,7 @@ public class PatientDashboardActivity extends ACBaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (!mPresenter.isLoading()) {
+		if (!isLoading()) {
 			if (drawer.isDrawerOpen(GravityCompat.START)) {
 				drawer.closeDrawer(GravityCompat.START);
 			} else {

@@ -35,6 +35,6 @@ public class RestConstants {
 		public static final String VISIT_TASKS = "custom:(uuid,status,name,closedOn)";
 		public static final String VISIT = "custom:(uuid,display,patient,visitType,startDatetime,stopDatetime,encounters:"
 				+ "(uuid,display,encounterDatetime,patient,location,encounterType,voided,obs:" + OBSERVATION_FIELDS + "),"
-				+ "voided)";
+				+ "voided,attributes:(uuid,display))";
 	}
 }

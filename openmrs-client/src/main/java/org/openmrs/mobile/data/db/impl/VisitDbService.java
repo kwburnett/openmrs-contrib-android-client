@@ -18,7 +18,6 @@ import org.openmrs.mobile.models.VisitAttribute_Table;
 import org.openmrs.mobile.models.Visit_Table;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -64,7 +63,14 @@ public class VisitDbService extends BaseEntityDbService<Visit> implements Entity
 				new Method("LENGTH", Encounter_Table.uuid).lessThanOrEq(Resource.LOCAL_UUID_LENGTH));
 	}
 
-	public void voidExistingVisitAttributes(@NonNull Visit visit) {
+	public void deleteAllVisitAttributes(@NonNull Visit visit) {
 		repository.deleteAll(visitAttributeTable, VisitAttribute_Table.visit_uuid.eq(visit.getUuid()));
+	}
+
+	public void saveVisitAttributes(@NonNull Visit visit) {
+		checkNotNull(visit);
+
+		deleteAllVisitAttributes(visit);
+		repository.saveAll(visitAttributeTable, visit.getAttributes());
 	}
 }

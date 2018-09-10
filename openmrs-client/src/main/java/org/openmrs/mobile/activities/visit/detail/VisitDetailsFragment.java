@@ -604,7 +604,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 				}
 
 				private int getObservationSortOrderFromTableRow(TableRow tableRow) {
-					String labelMatchingConstants = ((TextView) tableRow.getVirtualChildAt(0)).getText() + ": ";
+					String labelMatchingConstants = ((TextView)tableRow.getVirtualChildAt(0)).getText() + ": ";
 					if (!auditDataSortOrder.containsKey(labelMatchingConstants)) {
 						return 0;
 					}
@@ -681,5 +681,12 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onVisitDashboardRefreshEvent(VisitDashboardDataRefreshEvent event) {
 		mPresenter.dataRefreshEventOccurred(event);
+	}
+
+	@Override
+	public void setLoading(boolean loading) {
+		if (getActivity() != null) {
+			((VisitActivity)getActivity()).setLoading(loading);
+		}
 	}
 }

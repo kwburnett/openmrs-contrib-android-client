@@ -18,6 +18,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -74,8 +76,7 @@ import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter>
-		implements VisitContract.VisitPhotoView {
+public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter> implements VisitContract.VisitPhotoView {
 
 	//Upload Visit photo
 	private final static int IMAGE_REQUEST = 1;
@@ -87,7 +88,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private Bitmap visitPhoto = null;
 	private AppCompatButton uploadVisitPhotoButton;
 	private RelativeLayout visitPhotoProgressBar;
-	private SwipeRefreshLayout visitPhotoSwipRefreshLayout;
+	private SwipeRefreshLayout visitPhotoSwipeRefreshLayout;
 
 	private File output;
 	private EditText fileCaption;
@@ -123,12 +124,12 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		noVisitImage = (TextView)root.findViewById(R.id.noVisitImage);
 
 		visitPhotoProgressBar = (RelativeLayout)root.findViewById(R.id.visitPhotoProgressBar);
-		visitPhotoSwipRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.visitPhotoTab);
-
-		addListeners();
+		visitPhotoSwipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.visitPhotoTab);
 
 		// Disabling swipe refresh on this fragment due to issues
-		visitPhotoSwipRefreshLayout.setEnabled(false);
+		visitPhotoSwipeRefreshLayout.setEnabled(false);
+
+		addListeners();
 
 		return root;
 	}
@@ -139,18 +140,6 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 		adapter = new VisitPhotoRecyclerViewAdapter(this.getActivity(), this);
 		recyclerView.setAdapter(adapter);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		OpenMRS.getInstance().getEventBus().register(this);
-	}
-
-	@Override
-	public void onStop() {
-		OpenMRS.getInstance().getEventBus().unregister(this);
-		super.onStop();
 	}
 
 	@Override
@@ -168,6 +157,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		fileCaption.setText(ApplicationConstants.EMPTY_STRING);
 		FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 		fragmentTransaction.detach(this).attach(this).commit();
+		mPresenter.subscribe();
 	}
 
 	@Override
@@ -184,10 +174,10 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public void showTabSpinner(boolean visibility) {
 		if (visibility) {
-			visitPhotoSwipRefreshLayout.setVisibility(View.GONE);
+			visitPhotoSwipeRefreshLayout.setVisibility(View.GONE);
 			visitPhotoProgressBar.setVisibility(View.VISIBLE);
 		} else {
-			visitPhotoSwipRefreshLayout.setVisibility(View.VISIBLE);
+			visitPhotoSwipeRefreshLayout.setVisibility(View.VISIBLE);
 			visitPhotoProgressBar.setVisibility(View.GONE);
 		}
 	}
@@ -196,16 +186,32 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void capturePhoto() {
 		VisitPhotoFragmentPermissionsDispatcher.externalStorageWithCheck(VisitPhotoFragment.this);
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
+		Context context = getContext();
+		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
 			OpenMRS openMRS = OpenMRS.getInstance();
 			File dir = openMRS.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 			output = new File(dir, getUniqueImageFileName());
 			if (output != null) {
 				Uri photoURI = FileProvider.getUriForFile(openMRS, ApplicationConstants.Authorities.FILE_PROVIDER, output);
 				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+				grantUriPermissions(context, takePictureIntent, photoURI);
 				startActivityForResult(takePictureIntent, IMAGE_REQUEST);
 			} else {
 				createSnackbar(getString(R.string.external_storage_not_available));
+			}
+		}
+	}
+
+	private void grantUriPermissions(Context context, Intent takePictureIntent, Uri photoURI) {
+		if (OpenMRS.getInstance().isRunningLollipopVersionOrHigher()) {
+			takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		} else {
+			List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(takePictureIntent,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			for (ResolveInfo resolveInfo : resInfoList) {
+				String packageName = resolveInfo.activityInfo.packageName;
+				context.grantUriPermission(packageName, photoURI,
+						Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			}
 		}
 	}
@@ -310,14 +316,6 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 				((VisitPhotoPresenter)mPresenter).uploadImage();
 			}
 		});
-
-		visitPhotoSwipRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-			@Override
-			public void onRefresh() {
-				mPresenter.dataRefreshWasRequested();
-			}
-		});
 	}
 
 	@Override
@@ -360,7 +358,6 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@Override
 	public void displayRefreshingData(boolean visible) {
-		visitPhotoSwipRefreshLayout.setRefreshing(visible);
 	}
 
 	@Override

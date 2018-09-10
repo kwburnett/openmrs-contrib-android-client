@@ -6,6 +6,7 @@ import org.openmrs.mobile.data.ModelAsserters;
 import org.openmrs.mobile.data.ModelGenerators;
 import org.openmrs.mobile.data.db.BaseAuditableDbServiceTest;
 import org.openmrs.mobile.data.db.BaseDbService;
+import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 
@@ -83,5 +84,43 @@ public class ObservationDbServiceTest  extends BaseAuditableDbServiceTest<Observ
 
 		List<Observation> results = obsDbService.getVisitPhotoObservations(obs.getEncounter().getVisit().getUuid(), null);
 		Assert.assertEquals(0, results.size());
+	}
+
+	@Test
+	public void should_removeLocalObservationsNotFoundInREST() throws Exception {
+		// create obs already existing in the db
+		List<Observation> observations = new ArrayList<>();
+		Observation obs1 = generator.generate(true);
+		Encounter encounter = obs1.getEncounter();
+
+		Observation obs2 = generator.generate(true);
+		obs2.setEncounter(encounter);
+
+		Observation obs3 = generator.generate(true);
+		obs3.setEncounter(encounter);
+
+		Observation obs4 = generator.generate(true);
+		obs4.setEncounter(encounter);
+
+		observations.add(obs1);
+		observations.add(obs2);
+		observations.add(obs3);
+		observations.add(obs4);
+		observations = dbService.saveAll(observations);
+
+		Assert.assertEquals(4, observations.size());
+
+		// Mock an updated REST Encounter
+		encounter.getObs().clear();
+		encounter.getObs().add(obs1);
+		encounter.getObs().add(obs2);
+		encounter.getObs().add(obs3);
+
+		Assert.assertEquals(3, encounter.getObs().size());
+
+		obsDbService.removeLocalObservationsNotFoundInREST(encounter);
+
+		observations = obsDbService.getByEncounter(encounter, null, null);
+		Assert.assertEquals(3, observations.size());
 	}
 }

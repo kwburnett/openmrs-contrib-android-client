@@ -9,7 +9,8 @@ import org.openmrs.mobile.data.db.impl.VisitTaskDbService;
 import org.openmrs.mobile.data.rest.impl.VisitRestServiceImpl;
 import org.openmrs.mobile.data.sync.BasePushProvider;
 import org.openmrs.mobile.models.Encounter;
-import org.openmrs.mobile.models.SyncAction;
+import org.openmrs.mobile.models.Observation;
+import org.openmrs.mobile.models.Resource;
 import org.openmrs.mobile.models.SyncLog;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitAttribute;
@@ -57,6 +58,11 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 		if (!encounters.isEmpty()) {
 			for (Encounter encounter : encounters) {
 				encounter.setVisit(restEntity);
+				encounter.setPatient(restEntity.getPatient());
+
+				for (Observation obs : encounter.getObs()) {
+					obs.setPerson(restEntity.getPatient().getPerson());
+				}
 			}
 			encounterDbService.saveAll(encounters);
 		}
@@ -73,6 +79,7 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 		VisitNote visitNote = visitNoteDbService.getByVisit(originalEntity);
 		if (visitNote != null) {
 			visitNote.setVisit(restEntity);
+			visitNote.setPersonId(restEntity.getPatient().getUuid());
 			visitNoteDbService.save(visitNote);
 		}
 
@@ -92,6 +99,11 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 
 			entity.setAttributes(attributes);
 		}
+
+		if (Resource.isLocalUuid(entity.getUuid())) {
+			// remove encounters as they will be handled separately in the EncounterPushProvider
+			entity.setEncounters(null);
+		}
 	}
 
 	@Override
@@ -109,10 +121,7 @@ public class VisitPushProvider extends BasePushProvider<Visit, VisitDbService, V
 			}
 
 			if (originalEntity.getAttributes().size() != restEntity.getAttributes().size()) {
-				// void existing attributes
-				dbService.voidExistingVisitAttributes(restEntity);
-
-				dbService.save(restEntity);
+				dbService.saveVisitAttributes(originalEntity);
 			}
 		}
 	}

@@ -40,7 +40,7 @@ public class VisitNotePushProvider extends BasePushProvider<VisitNote, VisitNote
 	protected void postProcess(VisitNote originalEntity, VisitNote restEntity, SyncLog syncLog) {
 		// void existing obs
 		if(originalEntity.getEncounter() != null) {
-			obsDbService.voidExistingObs(originalEntity.getEncounter());
+			obsDbService.removeLocalObservationsNotFoundInREST(originalEntity.getEncounter());
 		}
 		// save new obs
 		encounterDbService.save(restEntity.getEncounter());

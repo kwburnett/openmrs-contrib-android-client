@@ -321,7 +321,7 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 	}
 
 	private void loadVisitDetails(Visit visit) {
-		if (!patientDashboardActivity.mPresenter.isLoading()) {
+		if (patientDashboardActivity != null && !patientDashboardActivity.isLoading()) {
 			setVisitStopDate(visit);
 			Intent intent = new Intent(context, VisitActivity.class);
 			intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, OpenMRS.getInstance()

@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataOperationException;
+import org.openmrs.mobile.data.EntityNotFoundException;
 import org.openmrs.mobile.data.db.impl.PullSubscriptionDbService;
 import org.openmrs.mobile.data.db.impl.SyncLogDbService;
 import org.openmrs.mobile.data.sync.impl.PatientListContextSubscriptionProvider;
@@ -129,6 +130,8 @@ public class SyncService {
 
 					pushProvider.push(record);
 
+					syncLogDbService.delete(record);
+				} catch (EntityNotFoundException ex) {
 					syncLogDbService.delete(record);
 				} catch (DataOperationException doe) {
 					Log.w(TAG, "Data exception occurred while processing push provider '" +

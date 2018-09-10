@@ -118,7 +118,7 @@ public class VisitPullProvider {
 				Visit visit = RestHelper.getCallValue(
 						visitRestService.getByUuid(visitRecord.getUuid(), QueryOptions.INCLUDE_ALL_FULL_REP));
 
-				visitDbService.voidExistingVisitAttributes(visit);
+				visitDbService.deleteAllVisitAttributes(visit);
 				visit.processRelationships();
 				visits.add(visit);
 			}
@@ -248,6 +248,9 @@ public class VisitPullProvider {
 				if (encounterRecord.isUpdatedSince(subscription)) {
 					Encounter encounter = RestHelper.getCallValue(
 							encounterRestService.getByUuid(encounterRecord.getUuid(), options));
+
+					// check if there are any voided obs from the server, and delete them locally
+					obsDbService.removeLocalObservationsNotFoundInREST(encounter);
 
 					encounter.processRelationships();
 					encounters.add(encounter);

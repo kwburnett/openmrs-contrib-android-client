@@ -67,6 +67,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	private Toolbar toolbar;
 	private OpenMRS instance = OpenMRS.getInstance();
 	private ActionBarDrawerToggle toggle;
+	private boolean loading;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -345,5 +346,13 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 				view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			}
 		});
+	}
+
+	public boolean isLoading() {
+		return loading;
+	}
+
+	public void setLoading(boolean loading) {
+		this.loading = loading;
 	}
 }

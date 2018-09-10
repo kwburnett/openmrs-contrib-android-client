@@ -46,12 +46,7 @@ import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.ToastUtil;
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-
-import static org.openmrs.mobile.utilities.ApplicationConstants.BundleKeys.LOCATION_UUID_BUNDLE;
-import static org.openmrs.mobile.utilities.ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE;
 
 public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashboardContract.Presenter>
 		implements PatientDashboardContract.View {
@@ -132,9 +127,9 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 				//Contact address header
 				View patientContactInfo = recyclerView.findViewById(R.id.container_patient_address_info);
 				if (patientContactInfo == null) {
-					((PatientDashboardActivity) getActivity()).updateHeaderShadowLine(true);
+					((PatientDashboardActivity)getActivity()).updateHeaderShadowLine(true);
 				} else {
-					((PatientDashboardActivity) getActivity()).updateHeaderShadowLine(false);
+					((PatientDashboardActivity)getActivity()).updateHeaderShadowLine(false);
 				}
 			}
 		};
@@ -321,5 +316,12 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	@Override
 	public void showTabSpinner(boolean show) {
 		showSavingClinicalNoteProgressBar(show);
+	}
+
+	@Override
+	public void setLoading(boolean loading) {
+		if (getActivity() != null) {
+			((PatientDashboardActivity)getActivity()).setLoading(loading);
+		}
 	}
 }

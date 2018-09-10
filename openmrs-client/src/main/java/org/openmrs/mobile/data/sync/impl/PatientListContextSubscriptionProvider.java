@@ -90,9 +90,9 @@ public class PatientListContextSubscriptionProvider extends BaseSubscriptionProv
 		}
 
 		// Create record info records
-		int size = patientListContexts == null ? 0 : patientListContexts.size();
+		int size = patientListContexts.size();
 		List<RecordInfo> patientRecordInfoList = new ArrayList<>(size);
-		if (patientListContexts != null && !patientListContexts.isEmpty()) {
+		if (!patientListContexts.isEmpty()) {
 			for (PatientListContext patient : patientListContexts) {
 				RecordInfo record = RecordInfo.fromEntity(patient.getPatient());
 				patientRecordInfoList.add(record);
@@ -101,7 +101,7 @@ public class PatientListContextSubscriptionProvider extends BaseSubscriptionProv
 
 		// Delete context records that are no longer in patient list
 		databaseHelper.diffDelete(PatientListContext.class, PatientListContext_Table.patientList_uuid.eq(patientListUuid),
-				patientRecordInfoList);
+				patientListContexts);
 
 		if (patientListContexts.isEmpty()) {
 			return;

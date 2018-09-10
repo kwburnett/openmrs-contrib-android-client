@@ -208,7 +208,8 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 			if (componentType instanceof RadioButton) {
 				visitAttribute.setValue(((RadioButton)componentType).isChecked() ? "true" : "false");
 			} else if (componentType instanceof EditText) {
-				visitAttribute.setValue(ViewUtils.getInput((EditText)componentType));
+				String value = ViewUtils.getInput((EditText)componentType);
+				visitAttribute.setValue(value != null ? value : " ");
 			}
 
 			if (visitAttribute.getValue() != null) {
@@ -284,7 +285,7 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 				// set default value
 				String defaultValue = mPresenter.searchVisitAttributeValueByType(visitAttributeType);
 				if (StringUtils.notEmpty(defaultValue)) {
-					freeTextType.setText(defaultValue);
+					freeTextType.setText(defaultValue.trim());
 				}
 
 				row.addView(freeTextType, 1);

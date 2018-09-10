@@ -872,6 +872,22 @@
 									android:layout_height="wrap_content"
 									android:hint="@string/first_respiratory_rate"
 									android:inputType="number"/>
+							<TextView
+									android:id="@+id/invalidFirstRespiratoryRate"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									android:layout_weight="1"
+									android:paddingStart="10dp"
+									android:paddingLeft="10dp"
+									android:paddingRight="10dp"
+									android:paddingEnd="10dp"
+									android:padding="2dp"
+									android:text="@string/emptyerror"
+									android:textColor="@color/red"
+									android:textSize="12sp"
+									android:textStyle="normal"
+									android:visibility="gone"/>
+
 						</android.support.design.widget.TextInputLayout>
 						
 						<android.support.design.widget.TextInputLayout
@@ -889,6 +905,22 @@
 									android:layout_height="wrap_content"
 									android:hint="@string/first_gcs_score"
 									android:inputType="number" />
+							<TextView
+									android:id="@+id/invalidGscError"
+									android:layout_width="wrap_content"
+									android:layout_height="wrap_content"
+									android:layout_weight="1"
+									android:paddingStart="10dp"
+									android:paddingLeft="10dp"
+									android:paddingRight="10dp"
+									android:paddingEnd="10dp"
+									android:padding="2dp"
+									android:text="@string/emptyerror"
+									android:textColor="@color/red"
+									android:textSize="12sp"
+									android:textStyle="normal"
+									android:visibility="gone"/>
+
 						</android.support.design.widget.TextInputLayout>
 
 						<TextView
@@ -974,37 +1006,6 @@
 									android:checked="false" />
 						</RadioGroup>
 
-						<TextView
-								android:id="@+id/invalidGscError"
-								android:layout_width="wrap_content"
-								android:layout_height="wrap_content"
-								android:layout_weight="1"
-								android:paddingStart="10dp"
-								android:paddingLeft="10dp"
-								android:paddingRight="10dp"
-								android:paddingEnd="10dp"
-								android:padding="2dp"
-								android:text="@string/emptyerror"
-								android:textColor="@color/red"
-								android:textSize="12sp"
-								android:textStyle="normal"
-								android:visibility="gone"/>
-
-						<TextView
-								android:id="@+id/invalidFirstRespiratoryRate"
-								android:layout_width="match_parent"
-								android:layout_height="wrap_content"
-								android:layout_weight="1"
-								android:paddingStart="10dp"
-								android:paddingLeft="10dp"
-								android:paddingRight="10dp"
-								android:paddingEnd="10dp"
-								android:padding="2dp"
-								android:text="@string/emptyerror"
-								android:textColor="@color/red"
-								android:textSize="12sp"
-								android:textStyle="normal"
-								android:visibility="gone"/>
 					</LinearLayout>
 					
 					<CheckBox
