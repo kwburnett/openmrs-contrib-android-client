@@ -324,13 +324,11 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 			return;
 		}
 		InputMethodManager inputMethodManager =
-				(InputMethodManager)activity.getSystemService(
-						Activity.INPUT_METHOD_SERVICE);
+				(InputMethodManager)activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
 		View windowToken = activity.getCurrentFocus();
 
 		if (windowToken != null) {
-			inputMethodManager.toggleSoftInputFromWindow(windowToken.getWindowToken(),
-					inputMethodManager.SHOW_FORCED, 0);
+			inputMethodManager.showSoftInput(windowToken, inputMethodManager.SHOW_IMPLICIT);
 		}
 	}
 
