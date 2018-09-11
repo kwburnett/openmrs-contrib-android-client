@@ -167,6 +167,7 @@ public class FindPatientRecordActivity extends ACBaseActivity {
 
 			@Override
 			public boolean onMenuItemActionCollapse(MenuItem item) {
+				hideSoftKeyboard(self);
 				return true;
 			}
 		});

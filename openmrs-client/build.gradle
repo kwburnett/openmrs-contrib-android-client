@@ -34,7 +34,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-	compileSdkVersion 25
+	compileSdkVersion rootProject.ext.compileSdkVersion
 	buildToolsVersion '27.0.3'
 	useLibrary 'org.apache.http.legacy'
 
@@ -46,8 +46,8 @@ android {
 		testApplicationId TEST_APPLICATION_ID
 		testInstrumentationRunner TEST_INSTRUMENTATION_RUNNER
 
-		minSdkVersion 16
-		targetSdkVersion 24
+		minSdkVersion rootProject.ext.minSdkVersion
+		targetSdkVersion rootProject.ext.targetSdkVersion
 		multiDexEnabled true
 	}
 
@@ -125,13 +125,13 @@ dependencies {
 	androidTestImplementation files('libs/the-missing-android-xml-junit-test-runner-release-1.3_2.jar')
 
 	implementation 'com.google.guava:guava:23.3-android'
-	implementation 'com.android.support:appcompat-v7:25.4.0'
-	implementation 'com.android.support:gridlayout-v7:25.4.0'
-	implementation 'com.android.support:cardview-v7:25.4.0'
-	implementation 'com.android.support:recyclerview-v7:25.4.0'
-	implementation 'com.android.support:design:25.4.0'
-	implementation 'com.android.support:support-v13:25.4.0'
-	implementation 'com.android.support:support-annotations:27.0.0'
+	implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:gridlayout-v7:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:cardview-v7:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:design:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:support-v13:${rootProject.ext.supportLibVersion}"
+	implementation "com.android.support:support-annotations:${rootProject.ext.supportLibVersion}"
 	implementation 'com.squareup.retrofit2:retrofit:2.0.2'
 	implementation 'com.squareup.retrofit2:converter-gson:2.0.2'
 	implementation 'org.apache.httpcomponents:httpcore:4.4.4'
