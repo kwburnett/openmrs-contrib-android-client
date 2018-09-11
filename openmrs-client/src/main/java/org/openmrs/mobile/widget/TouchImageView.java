@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 
+//TODO: handle double-tap for zoom
 public class TouchImageView extends AppCompatImageView {
 
 	Matrix matrix;
