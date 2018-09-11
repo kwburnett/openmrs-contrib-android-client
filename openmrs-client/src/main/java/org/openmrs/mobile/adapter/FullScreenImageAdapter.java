@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -14,8 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import org.openmrs.mobile.R;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.VisitPhoto;
+import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.widget.TouchImageView;
 
 public class FullScreenImageAdapter extends PagerAdapter {
@@ -46,7 +50,8 @@ public class FullScreenImageAdapter extends PagerAdapter {
 	}
 
 	@Override
-	public Object instantiateItem(ViewGroup container, int position) {
+	@NonNull
+	public Object instantiateItem(@NonNull ViewGroup container, int position) {
 		TouchImageView imageDisplay;
 		Button buttonClose;
 
@@ -54,7 +59,6 @@ public class FullScreenImageAdapter extends PagerAdapter {
 		View viewLayout = layoutInflater.inflate(R.layout.layout_fullscreen_image, container, false);
 
 		imageDisplay = (TouchImageView) viewLayout.findViewById(R.id.imageDisplay);
-		buttonClose = (Button) viewLayout.findViewById(R.id.imageCloseButton);
 
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -63,13 +67,17 @@ public class FullScreenImageAdapter extends PagerAdapter {
 				visitPhoto.getImageColumn().getBlob().length, options);
 		imageDisplay.setImageBitmap(bitmap);
 
-		buttonClose.setOnClickListener(new View.OnClickListener() {
+		TextView descriptionView = (TextView) viewLayout.findViewById(R.id.photoDetails);
+		String uploadedBy;
+		if (visitPhoto.getCreator() != null) {
+			uploadedBy = visitPhoto.getCreator().getDisplay();
+		} else {
+			// must have been uploaded locally
+			uploadedBy = OpenMRS.getInstance().getUserPersonName();
+		}
 
-			@Override
-			public void onClick(View v) {
-				activity.finish();
-			}
-		});
+		descriptionView.setText(activity.getString(R.string.visit_image_description, visitPhoto.getFileCaption(),
+				DateUtils.calculateRelativeDate(visitPhoto.getDateCreated()), uploadedBy));
 
 		((ViewPager) container).addView(viewLayout);
 

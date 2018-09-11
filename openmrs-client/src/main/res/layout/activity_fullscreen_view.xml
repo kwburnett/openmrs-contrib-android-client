@@ -4,6 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+	<include
+			layout="@layout/toolbar_base_activity"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"/>
+
 	<android.support.v4.view.ViewPager
 		android:id="@+id/fullscreenPager"
 	    android:layout_width="match_parent"

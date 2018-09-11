@@ -6,10 +6,12 @@ import java.util.List;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.adapter.FullScreenImageAdapter;
 import org.openmrs.mobile.models.VisitPhoto;
+import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.ToastUtil;
 
 public class FullScreenViewActivity extends ACBaseActivity implements FullScreenViewContract.View {
@@ -22,6 +24,13 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_fullscreen_view);
+		intitializeToolbar();
+
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			actionBar.setTitle(ApplicationConstants.EMPTY_STRING);
+		}
 
 		viewPager = (ViewPager) findViewById(R.id.fullscreenPager);
 
@@ -56,5 +65,11 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 	@Override
 	public void showToast(String message, ToastUtil.ToastType toastType) {
 		ToastUtil.showShortToast(this, toastType, message);
+	}
+
+	@Override
+	public boolean onSupportNavigateUp(){
+		finish();
+		return true;
 	}
 }

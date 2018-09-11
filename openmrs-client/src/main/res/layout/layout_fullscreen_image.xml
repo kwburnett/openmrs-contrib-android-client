@@ -3,22 +3,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:clickable="true"
+			android:orientation="vertical"
+			android:background="@drawable/nav_footer_border_top"
+			android:gravity="bottom"
+			android:layout_alignParentBottom="true"
+			android:minHeight="@dimen/avatar_size">
+
+		<TextView
+				android:id="@+id/photoDetails"
+				android:layout_width="match_parent"
+				android:layout_height="48dp"
+				android:gravity="left|center"
+				android:paddingLeft="@dimen/labels_text_size"
+				android:paddingBottom="@dimen/labels_text_size"
+				android:paddingTop="@dimen/labels_text_size"/>
+	</LinearLayout>
+
 	<org.openmrs.mobile.widget.TouchImageView
 			android:id="@+id/imageDisplay"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:scaleType="fitCenter"/>
-
-	<Button
-			android:id="@+id/imageCloseButton"
-			android:layout_width="wrap_content"
-			android:layout_height="30dp"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentTop="true"
-			android:paddingTop="2dp"
-			android:paddingBottom="2dp"
-			android:background="@drawable/button_background"
-			android:textColor="@color/white"
-			android:text="Close"/>
 
 </RelativeLayout>
