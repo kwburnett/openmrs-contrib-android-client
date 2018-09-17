@@ -134,19 +134,20 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 		}
 
 		// Validate telephone number
-		if (patient.getPerson().getAttributes() != null && patient.getPerson().getAttributes().size() > 0) {
-			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
-				if (personAttribute.getAttributeType().getUuid().equalsIgnoreCase(ApplicationConstants
-						.RequiredPersonAttributes.TELEPHONE_NUMBER_UUID)) {
-					phonenumberError = personAttribute.getValue() == null;
-					break;
-				} else {
-					phonenumberError = true;
-				}
-			}
-		} else {
-			phonenumberError = true;
-		}
+		phonenumberError = false;
+//		if (patient.getPerson().getAttributes() != null && patient.getPerson().getAttributes().size() > 0) {
+//			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
+//				if (personAttribute.getAttributeType().getUuid().equalsIgnoreCase(ApplicationConstants
+//						.RequiredPersonAttributes.TELEPHONE_NUMBER_UUID)) {
+//					phonenumberError = personAttribute.getValue() == null;
+//					break;
+//				} else {
+//					phonenumberError = true;
+//				}
+//			}
+//		} else {
+//			phonenumberError = true;
+//		}
 
 		boolean result =
 				!familyNameError && !lastNameError && !dateOfBirthError && !countyError && !genderError
