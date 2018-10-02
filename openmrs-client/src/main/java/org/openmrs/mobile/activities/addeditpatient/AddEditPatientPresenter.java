@@ -135,6 +135,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 
 		// Validate telephone number
 		phonenumberError = false;
+		// This was done to remove requirement of phone number per IMK-12
 //		if (patient.getPerson().getAttributes() != null && patient.getPerson().getAttributes().size() > 0) {
 //			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
 //				if (personAttribute.getAttributeType().getUuid().equalsIgnoreCase(ApplicationConstants
