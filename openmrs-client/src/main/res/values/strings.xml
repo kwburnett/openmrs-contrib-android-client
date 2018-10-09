@@ -21,7 +21,7 @@
 	<string name="action_logout">Logout</string>
 
 	<!-- URIs -->
-	<string name="uri_privacy_policy">https://www.bandahealth.org/imed-privacy-policy</string>
+	<string name="uri_privacy_policy">https://www.bandahealth.org/privacy-policy</string>
 	
 	<string name="dbname">openmrs.db</string>
 	<string name="aadbname">aaopenmrs.db</string>
