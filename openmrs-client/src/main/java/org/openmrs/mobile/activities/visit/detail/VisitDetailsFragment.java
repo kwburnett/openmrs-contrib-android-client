@@ -480,7 +480,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 						encounter.getEncounterType().getDisplay().equalsIgnoreCase(
 								ApplicationConstants.EncounterTypeDisplays.AUDITDATA))) {
 
-					if (!encounter.getObs().isEmpty()) {
+					if (!encounter.getObs().isEmpty() && encounter.getEncounterDatetime() != null) {
 						auditDataMetadata.setVisibility(View.VISIBLE);
 						auditDataMetadataDate.setText(
 								DATE_FORMAT.format(encounter.getEncounterDatetime()));
