@@ -134,19 +134,27 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 		}
 
 		// Validate telephone number
-		if (patient.getPerson().getAttributes() != null && patient.getPerson().getAttributes().size() > 0) {
-			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
-				if (personAttribute.getAttributeType().getUuid().equalsIgnoreCase(ApplicationConstants
-						.RequiredPersonAttributes.TELEPHONE_NUMBER_UUID)) {
-					phonenumberError = personAttribute.getValue() == null;
-					break;
-				} else {
-					phonenumberError = true;
-				}
-			}
-		} else {
-			phonenumberError = true;
-		}
+		phonenumberError = false;
+		/**
+		 * This was done to remove requirement of phone number per IMK-12
+		 * Instead of removing this block, it was commented out in the hopes of being used again in the future.
+		 * Ideally we'd pull which attributes are required (as set by the xforms module) and check based on that, also
+		 * updating the UI with the asterisk to show what is required and what isn't. This would allow configuration on the
+		 * server to show up in the app.
+		 */
+//		if (patient.getPerson().getAttributes() != null && patient.getPerson().getAttributes().size() > 0) {
+//			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
+//				if (personAttribute.getAttributeType().getUuid().equalsIgnoreCase(ApplicationConstants
+//						.RequiredPersonAttributes.TELEPHONE_NUMBER_UUID)) {
+//					phonenumberError = personAttribute.getValue() == null;
+//					break;
+//				} else {
+//					phonenumberError = true;
+//				}
+//			}
+//		} else {
+//			phonenumberError = true;
+//		}
 
 		boolean result =
 				!familyNameError && !lastNameError && !dateOfBirthError && !countyError && !genderError
