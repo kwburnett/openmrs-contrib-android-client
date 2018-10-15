@@ -151,72 +151,55 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 		setTotalNumberResults(0);
 		setExistingPatientListUuid(patientListUuid);
 
-		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
-		pagingInfo.setPage(page);
-		pagingInfo.setLoadRecordCount(true);
-
-		Runnable dataFetchCall = new Runnable() {
-
-			@Override
-			public void run() {
-
-				patientListContextDataService.getListPatients(patientListUuid, null, pagingInfo,
-						new DataService.GetCallback<List<PatientListContext>>() {
-							@Override
-							public void onCompleted(List<PatientListContext> entities) {
-								if (entities.isEmpty()) {
-									setViewAfterLoadData(true);
-									patientListView.setNumberOfPatientsView(0);
-									patientListView.updatePatientListData(entities, forceRefresh);
-								} else {
-									setViewAfterLoadData(false);
-									patientListView.updatePatientListData(entities, forceRefresh);
-									setTotalNumberResults(pagingInfo.getTotalRecordCount() != null ? pagingInfo
-											.getTotalRecordCount() : 0);
-									if (pagingInfo.getTotalRecordCount() != null && pagingInfo.getTotalRecordCount() > 0) {
-										patientListView.setNumberOfPatientsView(pagingInfo.getTotalRecordCount());
-										totalNumberPages = pagingInfo.getTotalPages();
-										patientListView.updatePagingLabel(page, totalNumberPages);
-									}
-								}
-								setLoading(false);
-								patientListView.displayRefreshingData(false);
-							}
-
-							@Override
-							public void onError(Throwable t) {
-								patientListView.updatePatientListData(new ArrayList<>(), false);
-								setViewAfterLoadData(true);
-								patientListView.setNumberOfPatientsView(0);
-								setLoading(false);
-								patientListView.displayRefreshingData(false);
-							}
-						});
-			}
-		};
+		PagingInfo pagingInfo;
+		QueryOptions queryOptions = null;
 
 		// If we're doing a force refresh, first update the DB by making the rest call before fetching results
 		if (forceRefresh) {
-			QueryOptions queryOptions = new QueryOptions.Builder()
+			queryOptions = new QueryOptions.Builder()
 					.customRepresentation(RestConstants.Representations.PATIENT_LIST_PATIENTS_CONTEXT)
 					.requestStrategy(RequestStrategy.REMOTE_THEN_LOCAL)
 					.build();
-			patientListContextDataService.getListPatients(patientListUuid, queryOptions, PagingInfo.ALL.getInstance(),
-					new DataService.GetCallback<List<PatientListContext>>() {
-
-						@Override
-						public void onCompleted(List<PatientListContext> patientListContexts) {
-							dataFetchCall.run();
-						}
-
-						@Override
-						public void onError(Throwable t) {
-							dataFetchCall.run();
-						}
-					});
+			pagingInfo = PagingInfo.ALL.getInstance();
 		} else {
-			dataFetchCall.run();
+			pagingInfo = PagingInfo.DEFAULT.getInstance();
+			pagingInfo.setPage(page);
+			pagingInfo.setLoadRecordCount(true);
 		}
+
+		patientListContextDataService.getListPatients(patientListUuid, queryOptions, pagingInfo,
+				new DataService.GetCallback<List<PatientListContext>>() {
+					@Override
+					public void onCompleted(List<PatientListContext> entities) {
+						if (entities.isEmpty()) {
+							setViewAfterLoadData(true);
+							patientListView.setNumberOfPatientsView(0);
+							patientListView.updatePatientListData(entities, forceRefresh);
+						} else {
+							setViewAfterLoadData(false);
+							patientListView.updatePatientListData(entities, forceRefresh);
+							setTotalNumberResults(pagingInfo.getTotalRecordCount() != null ? pagingInfo
+									.getTotalRecordCount() : 0);
+							if (pagingInfo.getTotalRecordCount() != null && pagingInfo.getTotalRecordCount() > 0) {
+								patientListView.setNumberOfPatientsView(pagingInfo.getTotalRecordCount());
+								totalNumberPages = pagingInfo.getTotalPages();
+								patientListView.updatePagingLabel(page, totalNumberPages);
+							}
+						}
+						setLoading(false);
+						patientListView.displayRefreshingData(false);
+					}
+
+					@Override
+					public void onError(Throwable t) {
+						patientListView.updatePatientListData(new ArrayList<>(), false);
+						setViewAfterLoadData(true);
+						patientListView.setNumberOfPatientsView(0);
+						setLoading(false);
+						patientListView.displayRefreshingData(false);
+					}
+				});
+
 	}
 
 	@Override
