@@ -3,6 +3,7 @@ apply plugin: 'com.github.triplet.play'
 
 buildscript {
 	repositories {
+		google()
 		jcenter()
 	}
 
@@ -90,10 +91,10 @@ android {
 repositories {
 	maven { url 'http://yanzm.github.io/MaterialTabHost/repository' }
 	mavenCentral()
+	google()
 	jcenter()
 	maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 	maven { url "https://jitpack.io" }
-	google()
 }
 
 configurations {
