@@ -412,6 +412,7 @@
 	<string name="error_gcs_score">Invalid GCS value (should be between %1$d and %2$d)</string>
 	<string name="error_first_respiratory_rate">Invalid Respiratory Rate (should be between %1$d and %2$d)</string>
 	<string name="error_hba1c">Invalid HbA1c value (should be between %1$d and %2$d)</string>
+	<string name="signed_off_on_consult_before_discharge">Signed off on consult before discharge?</string>
 	<!-- Login Sync Activity -->
 	<string name="download_upload_speed_is_fast">This should take less than a minute&#8230;</string>
 	<string name="download_upload_speed_is_slow">This could take a few minutes&#8230;</string>
