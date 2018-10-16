@@ -391,7 +391,10 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 								.equalsIgnoreCase(visitAttributeType.getUuid())) {
 					return (T)visitAttribute.getValue();
 				} else if (visitAttribute.getAttributeType() == null && visitAttribute.getDisplay() != null) {
-					if (visitAttribute.getDisplay().contains(visitAttributeType.getName())) {
+					String attributeName = visitAttributeType.getName() != null ? visitAttributeType.getName() :
+							visitAttributeType.getDisplay();
+
+					if (visitAttribute.getDisplay().contains(attributeName)) {
 						return (T)visitAttribute.getDisplay().split(": ")[1];
 					}
 				}
