@@ -304,7 +304,9 @@
 	<string name="label_capture_vitals">Capture Vitals</string>
 	<string name="default_file_caption_message">Uploaded from android client</string>
 	<string name="edit_patient">Edit Patient</string>
-	
+
+	<string name="complete_audit_data_form">Kindly complete the Audit Data Form before ending visit.</string>
+
 	<!--Audit data form -->
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
