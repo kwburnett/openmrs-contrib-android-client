@@ -37,6 +37,7 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
+import org.openmrs.mobile.activities.auditdata.AuditDataActivity;
 import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.models.BaseOpenmrsObject;
@@ -48,6 +49,7 @@ import org.openmrs.mobile.models.VisitType;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.utilities.StringUtils;
+import org.openmrs.mobile.utilities.ToastUtil;
 import org.openmrs.mobile.utilities.ViewUtils;
 
 import java.util.ArrayList;
@@ -396,6 +398,22 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
 		}
 		getContext().startActivity(intent);
+	}
+
+	@Override
+	public void loadAuditDataForm(String visitUUID) {
+		getActivity().finish();
+		Intent intent = new Intent(getContext(), AuditDataActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		if (visitUUID == null) {
+			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		} else {
+			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUUID);
+			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
+		}
+		//intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		getContext().startActivity(intent);
+		ToastUtil.notifyLong(getString(R.string.complete_audit_data_form));
 	}
 
 	@Override

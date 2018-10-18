@@ -110,7 +110,7 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 	public void getPatientList() {
 		patientListView.showPatientListProgressSpinner(true);
 		setPage(1);
-		patientListDataService.getAll(null, PagingInfo.ALL.getInstance(),
+		patientListDataService.getAll(QueryOptions.REMOTE, PagingInfo.ALL.getInstance(),
 				new DataService.GetCallback<List<PatientList>>() {
 					@Override
 					public void onCompleted(List<PatientList> entities) {

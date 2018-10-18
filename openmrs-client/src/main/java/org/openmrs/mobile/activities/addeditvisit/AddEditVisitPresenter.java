@@ -28,7 +28,9 @@ import org.openmrs.mobile.data.impl.VisitDataService;
 import org.openmrs.mobile.data.impl.VisitTypeDataService;
 import org.openmrs.mobile.data.rest.RestConstants;
 import org.openmrs.mobile.models.ConceptAnswer;
+import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Location;
+import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitAttribute;
@@ -346,6 +348,27 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 
 	@Override
 	public void endVisit() {
+		// andr-405 Check if audit data has been completed before ending a visit on the app
+		boolean auditDataFormCompleted = false;
+		if (visit.getEncounters() != null && !visit.getEncounters().isEmpty()) {
+			for (Encounter encounter : visit.getEncounters()) {
+				if (encounter.getDisplay().contains("Audit Data")) {
+					if (encounter.getObs() != null && !encounter.getObs().isEmpty()) {
+						for (Observation obs : encounter.getObs()) {
+							if (obs.getDisplay().equalsIgnoreCase("Audit Data Complete: Yes")) {
+								auditDataFormCompleted = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (!auditDataFormCompleted) {
+			addEditVisitView.loadAuditDataForm(visit.getUuid());
+			return;
+		}
+
 		if (visit.getStopDatetime() == null) {
 			visit.setStopDatetime(new Date());
 		}
