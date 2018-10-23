@@ -151,7 +151,10 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 		setTotalNumberResults(0);
 		setExistingPatientListUuid(patientListUuid);
 
-		PagingInfo pagingInfo;
+		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
+		pagingInfo.setPage(page);
+		pagingInfo.setLoadRecordCount(true);
+
 		QueryOptions queryOptions = null;
 
 		// If we're doing a force refresh, first update the DB by making the rest call before fetching results
@@ -160,11 +163,6 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 					.customRepresentation(RestConstants.Representations.PATIENT_LIST_PATIENTS_CONTEXT)
 					.requestStrategy(RequestStrategy.REMOTE_THEN_LOCAL)
 					.build();
-			pagingInfo = PagingInfo.ALL.getInstance();
-		} else {
-			pagingInfo = PagingInfo.DEFAULT.getInstance();
-			pagingInfo.setPage(page);
-			pagingInfo.setLoadRecordCount(true);
 		}
 
 		patientListContextDataService.getListPatients(patientListUuid, queryOptions, pagingInfo,
