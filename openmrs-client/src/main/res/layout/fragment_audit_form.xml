@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:card_view="http://schemas.android.com/apk/res-auto"
 		xmlns:android="http://schemas.android.com/apk/res/android"
-	android:animateLayoutChanges="true"
+		android:animateLayoutChanges="true"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-	android:orientation="vertical">
-	
+		android:orientation="vertical">
+
 	<RelativeLayout
 			android:id="@+id/auditDataFormProgressBar"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:visibility="gone">
-		
+
 		<ProgressBar
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent"
 				android:layout_centerInParent="true"
 				android:layout_gravity="center" />
-	
+
 	</RelativeLayout>
-	
+
 	<LinearLayout
 			android:id="@+id/auditDataFormScreen"
 			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
-		
+
 		<FrameLayout
 				android:id="@+id/patientHeader"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="10dp" />
-		
+
 		<RelativeLayout
 				android:id="@+id/auditDataRelativeView"
 				android:orientation="vertical"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:visibility="gone">
-			
+
 			<ProgressBar
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:layout_centerInParent="true"
 					android:layout_gravity="center" />
-		
+
 		</RelativeLayout>
-		
-		
+
+
 		<ScrollView
 				android:id="@+id/auditDataFormScrollView"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent">
-			
+
 			<android.support.v7.widget.CardView
 					card_view:cardBackgroundColor="@android:color/white"
 					card_view:cardElevation="2dp"
@@ -65,7 +65,7 @@
 					android:orientation="vertical"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content">
-				
+
 				<LinearLayout
 						android:paddingTop="20dp"
 						android:paddingBottom="10dp"
@@ -76,7 +76,7 @@
 						android:paddingEnd="20dp"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
-					
+
 					<android.support.v7.widget.AppCompatSpinner
 							android:id="@+id/inpatient_service_type"
 							android:layout_width="match_parent"
@@ -88,7 +88,7 @@
 							android:layout_marginStart="10dp"
 							android:spinnerMode="dialog"
 							style="@style/Widget.AppCompat.Spinner.Underlined" />
-					
+
 					<TextView
 							android:text="@string/is_death_in_hospital"
 							android:layout_width="match_parent"
@@ -98,7 +98,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -108,7 +108,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -116,7 +116,7 @@
 								android:id="@+id/is_death_in_hospital_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -124,9 +124,22 @@
 								android:id="@+id/is_death_in_hospital_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
+					<android.support.v7.widget.AppCompatSpinner
+							android:id="@+id/classification_of_death_type"
+							android:layout_width="match_parent"
+							android:layout_height="wrap_content"
+							android:layout_marginBottom="8dp"
+							android:layout_marginLeft="10dp"
+							android:layout_marginEnd="10dp"
+							android:layout_marginRight="10dp"
+							android:layout_marginStart="10dp"
+							android:spinnerMode="dialog"
+							android:visibility="gone"
+							style="@style/Widget.AppCompat.Spinner.Underlined" />
+
 					<TextView
 							android:text="@string/is_preop_risk_assessment_only"
 							android:layout_width="match_parent"
@@ -136,7 +149,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -146,7 +159,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -154,7 +167,7 @@
 								android:id="@+id/is_preop_risk_assessment_only_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -162,7 +175,7 @@
 								android:id="@+id/is_preop_risk_assessment_only_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -170,9 +183,9 @@
 								android:id="@+id/is_preop_risk_assessment_only_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
 					<TextView
 							android:text="@string/is_palliative_consult"
 							android:layout_width="match_parent"
@@ -182,7 +195,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -192,7 +205,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -200,7 +213,7 @@
 								android:id="@+id/is_palliative_consult_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -208,7 +221,7 @@
 								android:id="@+id/is_palliative_consult_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -216,10 +229,10 @@
 								android:id="@+id/is_palliative_consult_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
-					
+
+
 					<TextView
 							android:text="@string/is_hiv_positive"
 							android:layout_width="match_parent"
@@ -230,7 +243,7 @@
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="8dp"
 							android:layout_marginTop="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -240,7 +253,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -248,7 +261,7 @@
 								android:id="@+id/is_hiv_positive_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -256,7 +269,7 @@
 								android:id="@+id/is_hiv_positive_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -264,9 +277,9 @@
 								android:id="@+id/is_hiv_positive_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
 					<android.support.design.widget.TextInputLayout
 							android:id="@+id/cd4TextInputLayout"
 							android:layout_width="match_parent"
@@ -277,7 +290,7 @@
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="10dp"
 							android:visibility="gone">
-						
+
 						<EditText
 								android:id="@+id/cd4"
 								android:layout_width="match_parent"
@@ -285,8 +298,8 @@
 								android:hint="@string/cd4"
 								android:inputType="number" />
 					</android.support.design.widget.TextInputLayout>
-					
-					
+
+
 					<TextView
 							android:text="@string/patient_diabetic"
 							android:layout_width="match_parent"
@@ -296,7 +309,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -306,7 +319,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -314,7 +327,7 @@
 								android:id="@+id/patient_diabetic_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -322,7 +335,7 @@
 								android:id="@+id/patient_diabetic_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -330,9 +343,9 @@
 								android:id="@+id/patient_diabetic_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
 					<android.support.design.widget.TextInputLayout
 							android:id="@+id/hba1cTextLayout"
 							android:layout_width="match_parent"
@@ -343,7 +356,7 @@
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="10dp"
 							android:visibility="gone">
-						
+
 						<EditText
 								android:id="@+id/hba1c"
 								android:layout_width="match_parent"
@@ -351,6 +364,7 @@
 								android:hint="@string/hba1c"
 								android:inputType="numberDecimal" />
 					</android.support.design.widget.TextInputLayout>
+
 					<TextView
 							android:id="@+id/invalidHba1cError"
 							android:layout_width="wrap_content"
@@ -366,7 +380,7 @@
 							android:textSize="12sp"
 							android:textStyle="normal"
 							android:visibility="gone" />
-					
+
 					<TextView
 							android:text="@string/ward_stay_admission"
 							android:layout_width="match_parent"
@@ -376,7 +390,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -386,7 +400,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -394,7 +408,7 @@
 								android:id="@+id/ward_stay_admission_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -402,7 +416,7 @@
 								android:id="@+id/ward_stay_admission_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -410,9 +424,9 @@
 								android:id="@+id/ward_stay_admission_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
 					<TextView
 							android:text="@string/is_hdu_stay"
 							android:layout_width="match_parent"
@@ -422,7 +436,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -432,7 +446,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -440,7 +454,7 @@
 								android:id="@+id/is_hdu_stay_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -448,7 +462,7 @@
 								android:id="@+id/is_hdu_stay_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -456,16 +470,16 @@
 								android:id="@+id/is_hdu_stay_unknown"
 								android:layout_gravity="start"
 								android:checked="false" />
-					
+
 					</RadioGroup>
-					
+
 					<LinearLayout
 							android:id="@+id/hduCoManage"
 							android:orientation="vertical"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:visibility="gone">
-						
+
 						<TextView
 								android:text="@string/is_hdu_comgmt"
 								android:layout_width="match_parent"
@@ -475,7 +489,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -485,7 +499,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -493,7 +507,7 @@
 									android:id="@+id/is_hdu_comgmt_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -501,7 +515,7 @@
 									android:id="@+id/is_hdu_comgmt_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -509,11 +523,11 @@
 									android:id="@+id/is_hdu_comgmt_unknown"
 									android:layout_gravity="start"
 									android:checked="false" />
-						
+
 						</RadioGroup>
-					
+
 					</LinearLayout>
-					
+
 					<TextView
 							android:text="@string/is_icu_stay"
 							android:layout_width="match_parent"
@@ -523,7 +537,7 @@
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp"
 							android:layout_marginBottom="5dp" />
-					
+
 					<RadioGroup
 							android:layout_width="match_parent"
 							android:orientation="horizontal"
@@ -533,7 +547,7 @@
 							android:layout_marginEnd="10dp"
 							android:layout_marginRight="10dp"
 							android:layout_marginStart="10dp">
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -541,7 +555,7 @@
 								android:id="@+id/is_icu_stay_yes"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -549,7 +563,7 @@
 								android:id="@+id/is_icu_stay_no"
 								android:layout_gravity="start"
 								android:checked="false" />
-						
+
 						<RadioButton
 								android:layout_height="wrap_content"
 								android:layout_width="wrap_content"
@@ -558,7 +572,7 @@
 								android:layout_gravity="start"
 								android:checked="false" />
 					</RadioGroup>
-					
+
 					<LinearLayout
 							android:id="@+id/extraFormAdditions"
 							android:orientation="vertical"
@@ -575,7 +589,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -585,7 +599,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -593,7 +607,7 @@
 									android:id="@+id/mechanical_ventilation_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -601,7 +615,7 @@
 									android:id="@+id/mechanical_ventilation_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -610,7 +624,7 @@
 									android:layout_gravity="start"
 									android:checked="false" />
 						</RadioGroup>
-						
+
 						<TextView
 								android:text="@string/vaospressors_during_hospital_stay"
 								android:layout_width="match_parent"
@@ -620,7 +634,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -630,7 +644,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -638,7 +652,7 @@
 									android:id="@+id/vaospressors_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -646,7 +660,7 @@
 									android:id="@+id/vaospressors_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -655,7 +669,7 @@
 									android:layout_gravity="start"
 									android:checked="false" />
 						</RadioGroup>
-						
+
 						<TextView
 								android:text="@string/confirmed_infection"
 								android:layout_width="match_parent"
@@ -665,7 +679,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -675,7 +689,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -683,7 +697,7 @@
 									android:id="@+id/confirmed_infection_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -691,7 +705,7 @@
 									android:id="@+id/confirmed_infection_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -700,7 +714,7 @@
 									android:layout_gravity="start"
 									android:checked="false" />
 						</RadioGroup>
-						
+
 						<TextView
 								android:text="@string/first_sbp"
 								android:layout_width="match_parent"
@@ -710,7 +724,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -720,7 +734,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -728,7 +742,7 @@
 									android:id="@+id/first_sbp_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -736,7 +750,7 @@
 									android:id="@+id/first_sbp_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -745,7 +759,7 @@
 									android:layout_gravity="start"
 									android:checked="false" />
 						</RadioGroup>
-						
+
 						<TextView
 								android:text="@string/first_map"
 								android:layout_width="match_parent"
@@ -755,7 +769,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="horizontal"
@@ -765,7 +779,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -773,7 +787,7 @@
 									android:id="@+id/first_map_yes"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -781,7 +795,7 @@
 									android:id="@+id/first_map_no"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -800,7 +814,7 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="5dp" />
-						
+
 						<RadioGroup
 								android:layout_width="match_parent"
 								android:orientation="vertical"
@@ -810,7 +824,7 @@
 								android:layout_marginEnd="10dp"
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp">
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -818,7 +832,7 @@
 									android:id="@+id/surgery_na"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -826,7 +840,7 @@
 									android:id="@+id/surgery_planned"
 									android:layout_gravity="start"
 									android:checked="false" />
-							
+
 							<RadioButton
 									android:layout_height="wrap_content"
 									android:layout_width="wrap_content"
@@ -835,7 +849,7 @@
 									android:layout_gravity="start"
 									android:checked="false" />
 						</RadioGroup>
-						
+
 						<android.support.design.widget.TextInputLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
@@ -867,7 +881,8 @@
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
 									android:hint="@string/first_respiratory_rate"
-									android:inputType="number"/>
+									android:inputType="number" />
+
 							<TextView
 									android:id="@+id/invalidFirstRespiratoryRate"
 									android:layout_width="match_parent"
@@ -882,10 +897,10 @@
 									android:textColor="@color/red"
 									android:textSize="12sp"
 									android:textStyle="normal"
-									android:visibility="gone"/>
+									android:visibility="gone" />
 
 						</android.support.design.widget.TextInputLayout>
-						
+
 						<android.support.design.widget.TextInputLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
@@ -894,13 +909,14 @@
 								android:layout_marginRight="10dp"
 								android:layout_marginStart="10dp"
 								android:layout_marginBottom="10dp">
-							
+
 							<EditText
 									android:id="@+id/firstGcsScore"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
 									android:hint="@string/first_gcs_score"
 									android:inputType="number" />
+
 							<TextView
 									android:id="@+id/invalidGscError"
 									android:layout_width="wrap_content"
@@ -915,7 +931,7 @@
 									android:textColor="@color/red"
 									android:textSize="12sp"
 									android:textStyle="normal"
-									android:visibility="gone"/>
+									android:visibility="gone" />
 
 						</android.support.design.widget.TextInputLayout>
 
@@ -944,20 +960,21 @@
 									android:layout_height="wrap_content"
 									android:text="@string/intubation_yes"
 									android:id="@+id/intubationDone"
-									android:checked="false"/>
+									android:checked="false" />
+
 							<RadioButton
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
 									android:text="@string/intubation_no"
 									android:id="@+id/intubationNotDone"
-									android:checked="false"/>
+									android:checked="false" />
 
 							<RadioButton
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
 									android:text="@string/intubation_unknown"
 									android:id="@+id/intubationNotKnown"
-									android:checked="false"/>
+									android:checked="false" />
 						</RadioGroup>
 
 						<TextView
@@ -1052,8 +1069,8 @@
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
 							android:text="@string/audit_complete" />
-					
-					
+
+
 					<android.support.v7.widget.AppCompatButton
 							android:id="@+id/submitConfirm"
 							android:layout_width="match_parent"
@@ -1071,6 +1088,6 @@
 				</LinearLayout>
 			</android.support.v7.widget.CardView>
 		</ScrollView>
-	
+
 	</LinearLayout>
 </LinearLayout>

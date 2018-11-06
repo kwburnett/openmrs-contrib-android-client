@@ -49,6 +49,7 @@ public interface AuditDataContract {
 		void hideSoftKeys();
 
 		void setInpatientTypeServices(List<ConceptAnswer> conceptAnswers);
+
 	}
 
 	interface Presenter extends BasePresenterContract {
