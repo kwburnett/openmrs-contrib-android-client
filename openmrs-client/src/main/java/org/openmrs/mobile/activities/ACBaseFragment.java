@@ -14,8 +14,9 @@
 
 package org.openmrs.mobile.activities;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
-import android.view.Menu;
+import android.support.v4.app.FragmentActivity;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.utilities.ApplicationConstants;
@@ -24,6 +25,24 @@ import org.openmrs.mobile.utilities.ToastUtil;
 public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fragment implements BaseView<T> {
 
 	protected T mPresenter;
+
+	protected FragmentActivity mContext;
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+
+		if (context instanceof FragmentActivity) {
+			this.mContext = (FragmentActivity) context;
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		this.mContext = null;
+	}
 
 	@Override
 	public void setPresenter(T presenter) {

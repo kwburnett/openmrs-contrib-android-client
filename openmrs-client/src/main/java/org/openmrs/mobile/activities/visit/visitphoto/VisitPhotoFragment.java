@@ -113,7 +113,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_visit_photo, container, false);
-		layoutManager = new LinearLayoutManager(this.getActivity());
+		layoutManager = new LinearLayoutManager(this.mContext);
 		recyclerView = (RecyclerView)root.findViewById(R.id.downloadPhotoRecyclerView);
 		recyclerView.setLayoutManager(layoutManager);
 
@@ -138,7 +138,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		adapter = new VisitPhotoRecyclerViewAdapter(this.getActivity(), this);
+		adapter = new VisitPhotoRecyclerViewAdapter(this.mContext, this);
 		recyclerView.setAdapter(adapter);
 	}
 
@@ -147,7 +147,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		if (visitPhotos != null && !visitPhotos.isEmpty()) {
 			adapter.setVisitPhotos(visitPhotos);
 
-			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getContext(), visitPhotos.size());
+			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, visitPhotos.size());
 			recyclerView.setLayoutManager(layoutManager);
 		}
 	}
@@ -186,7 +186,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void capturePhoto() {
 		VisitPhotoFragmentPermissionsDispatcher.externalStorageWithCheck(VisitPhotoFragment.this);
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Context context = getContext();
+		Context context = mContext;
 		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
 			OpenMRS openMRS = OpenMRS.getInstance();
 			File dir = openMRS.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -231,7 +231,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@OnShowRationale(Manifest.permission.CAMERA)
 	public void showRationaleForCamera(final PermissionRequest request) {
-		new AlertDialog.Builder(getActivity())
+		new AlertDialog.Builder(mContext)
 				.setMessage(R.string.permission_camera_rationale)
 				.setPositiveButton(R.string.button_allow, (dialog, which) -> request.proceed())
 				.setNegativeButton(R.string.button_deny, (dialog, button) -> request.cancel())
@@ -347,8 +347,8 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			if (!isVisibleToUser) {
 				try {
 					InputMethodManager inputMethodManager =
-							(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+							(InputMethodManager)this.mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputMethodManager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), 0);
 				} catch (Exception e) {
 
 				}
