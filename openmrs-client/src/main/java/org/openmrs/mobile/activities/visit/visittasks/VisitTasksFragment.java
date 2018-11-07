@@ -89,7 +89,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		resolveViews(mRootView);
 
 		//Adding the Recycler view
-		layoutManager = new LinearLayoutManager(this.getActivity());
+		layoutManager = new LinearLayoutManager(mContext);
 		openViewTasksRecyclerView.setLayoutManager(layoutManager);
 
 		addListeners();
@@ -129,7 +129,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		if (visit != null) {
 			if (visitTaskList.size() != 0) {
 				VisitTasksRecyclerViewAdapter adapter =
-						new VisitTasksRecyclerViewAdapter(this.getActivity(), visitTaskList, visit, this);
+						new VisitTasksRecyclerViewAdapter(mContext, visitTaskList, visit, this);
 				openViewTasksRecyclerView.setAdapter(adapter);
 
 				openViewTasksRecyclerView.setVisibility(View.VISIBLE);
@@ -159,7 +159,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 		if (!groupedClosedTasks.isEmpty()) {
 			for (Map.Entry<String, List<VisitTask>> set : groupedClosedTasks.entrySet()) {
-				CardView cardView = new CardView(getContext());
+				CardView cardView = new CardView(mContext);
 				cardView.setCardBackgroundColor(Color.WHITE);
 				cardView.setContentPadding(10, 10, 10, 50);
 
@@ -169,14 +169,14 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 				cardViewParams.setMargins(0, 20, 0, 20);
 				cardView.setLayoutParams(cardViewParams);
 
-				LinearLayout linearLayout = new LinearLayout(getContext());
+				LinearLayout linearLayout = new LinearLayout(mContext);
 				LinearLayout.LayoutParams params =
 						new LinearLayout.LayoutParams(
 								LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 				linearLayout.setLayoutParams(params);
 				linearLayout.setOrientation(LinearLayout.VERTICAL);
 
-				TextView closedTaskTitle = new TextView(getContext());
+				TextView closedTaskTitle = new TextView(mContext);
 				closedTaskTitle.setTypeface(Typeface.DEFAULT_BOLD);
 				closedTaskTitle.setText(getString(R.string.nav_closed_visit_tasks_period, set.getKey()));
 
@@ -188,7 +188,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 				linearLayout.addView(closedTaskTitle);
 
-				View view = new View(getContext());
+				View view = new View(mContext);
 				LinearLayout.LayoutParams viewParams =
 						new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2);
 				viewParams.setMargins(0, 5, 0, 10);
@@ -196,16 +196,16 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 				view.setBackgroundColor(getResources().getColor(R.color.dark_grey));
 				linearLayout.addView(view);
 
-				RecyclerView closedRecyclerView = new RecyclerView(getContext());
+				RecyclerView closedRecyclerView = new RecyclerView(mContext);
 				VisitTasksRecyclerViewAdapter adapter =
-						new VisitTasksRecyclerViewAdapter(this.getActivity(), set.getValue(), visit, this);
+						new VisitTasksRecyclerViewAdapter(mContext, set.getValue(), visit, this);
 				closedRecyclerView.setAdapter(adapter);
 
 				closedRecyclerView.setLayoutParams(
 						new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 								LinearLayout.LayoutParams.MATCH_PARENT));
 
-				LinearLayoutManager layoutManagerClosed = new LinearLayoutManager(this.getActivity());
+				LinearLayoutManager layoutManagerClosed = new LinearLayoutManager(mContext);
 				closedRecyclerView.setLayoutManager(layoutManagerClosed);
 				linearLayout.addView(closedRecyclerView);
 
@@ -264,7 +264,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void setPredefinedTasks(List<VisitPredefinedTask> predefinedTasks) {
 		this.predefinedTasks = predefinedTasks;
 		ArrayAdapter adapter =
-				new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line,
+				new ArrayAdapter<>(mContext, android.R.layout.simple_dropdown_item_1line,
 						removeUsedPredefinedTasks(predefinedTasks, visitTasksLists));
 		addtask.setAdapter(adapter);
 	}
@@ -347,8 +347,8 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			if (!isVisibleToUser) {
 				try {
 					InputMethodManager inputMethodManager =
-							(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+							(InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputMethodManager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), 0);
 				} catch (Exception e) {
 
 				}

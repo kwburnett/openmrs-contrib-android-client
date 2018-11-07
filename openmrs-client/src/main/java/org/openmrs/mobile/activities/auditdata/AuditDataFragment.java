@@ -158,9 +158,9 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-		this.patientUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		this.visitUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-		this.visitStopDate = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
+		this.patientUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
+		this.visitUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
+		this.visitStopDate = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
 
 		fragmentView = inflater.inflate(R.layout.fragment_audit_form, container, false);
 		mPresenter.fetchInpatientTypeServices();
@@ -194,7 +194,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 		displayExtraFormFields = false;
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
 
 		return fragmentView;
 	}
@@ -825,11 +825,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	@Override
 	public void goBackToVisitPage() {
-		Intent intent = new Intent(getContext(), VisitActivity.class);
+		Intent intent = new Intent(mContext, VisitActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
-		getContext().startActivity(intent);
+		mContext.startActivity(intent);
 	}
 
 	@Override
@@ -851,7 +851,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	@Override
 	public void hideSoftKeys() {
 		goBackToVisitPage();
-		ACBaseActivity.hideSoftKeyboard(getActivity());
+		ACBaseActivity.hideSoftKeyboard(mContext);
 	}
 
 	@Override
@@ -862,7 +862,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		conceptAnswerList.addAll(conceptAnswers);
 
 		int selectedInpatientServiceTypePositon = inpatientServiceType.getSelectedItemPosition();
-		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(getContext(), android.R.layout
+		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(mContext, android.R.layout
 				.simple_spinner_dropdown_item, conceptAnswerList);
 		inpatientServiceType.setAdapter(adapter);
 
@@ -1491,17 +1491,23 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 
 		encounter.setObs(observations);
-		encounter.setPatient(visit.getPatient());
 		encounter.setForm(auditDataForm);
 		encounter.setLocation(location);
-		encounter.setVisit(visit);
 		encounter.setProvider(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
 		encounter.setEncounterType(auditFormEncounterType);
 
-		// set startdatetime == visit startdatetime
-		if (visit != null && visit.getStartDatetime() != null) {
-			encounter.setDateCreated(visit.getStartDatetime());
-			encounter.setEncounterDatetime(visit.getStartDatetime());
+
+		if (visit != null) {
+			encounter.setVisit(visit);
+			// set startdatetime == visit startdatetime
+			if (visit.getStartDatetime() != null){
+				encounter.setDateCreated(visit.getStartDatetime());
+				encounter.setEncounterDatetime(visit.getStartDatetime());
+			}
+
+			if (visit.getPatient() != null) {
+				encounter.setPatient(visit.getPatient());
+			}
 		}
 
 		mPresenter.saveUpdateEncounter(encounter, isNewEncounter);

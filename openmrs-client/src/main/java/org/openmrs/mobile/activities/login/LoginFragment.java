@@ -96,7 +96,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		loadLocations();
 		authorizationManager = openMRS.getAuthorizationManager();
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
 
 		if (authorizationManager.hasUserSessionExpiredDueToInactivity()) {
 			mPresenter.userWasLoggedOutDueToInactivity();
@@ -212,12 +212,12 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 
 	@Override
 	public void hideSoftKeys() {
-		View view = this.getActivity().getCurrentFocus();
+		View view = this.mContext.getCurrentFocus();
 		if (view == null) {
-			view = new View(this.getActivity());
+			view = new View(this.mContext);
 		}
 		InputMethodManager inputMethodManager =
-				(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				(InputMethodManager)this.mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
@@ -228,7 +228,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		bundle.setTextViewMessage(getString(R.string.warning_lost_data_dialog));
 		bundle.setRightButtonText(getString(R.string.dialog_button_ok));
 		bundle.setRightButtonAction(CustomFragmentDialog.OnClickAction.LOGIN);
-		((LoginActivity)this.getActivity())
+		((LoginActivity)this.mContext)
 				.createAndShowDialog(bundle, ApplicationConstants.DialogTAG.WARNING_LOST_DATA_DIALOG_TAG);
 	}
 
@@ -243,7 +243,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		}
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		openMRS.getApplicationContext().startActivity(intent);
-		getActivity().finish();
+		mContext.finish();
 
 	}
 
@@ -252,7 +252,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		// Since the user has just logged in, update the interaction time so we don't have a (potentially) immediate
 		// re-login
 		authorizationManager.trackUserInteraction();
-		getActivity().finish();
+		mContext.finish();
 	}
 
 	@Override
@@ -263,7 +263,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 
 	private void bindDrawableResources() {
 		bitmapCache = new SparseArray<>();
-		ImageView bandaHealthLogo = (ImageView)getActivity().findViewById(R.id.bandaHealthLogo);
+		ImageView bandaHealthLogo = (ImageView)mContext.findViewById(R.id.bandaHealthLogo);
 		createImageBitmap(R.drawable.banda_logo, bandaHealthLogo.getLayoutParams());
 		bandaHealthLogo.setImageBitmap(bitmapCache.get(R.drawable.banda_logo));
 	}
@@ -317,7 +317,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		}
 
 		ArrayAdapter<String> adapter =
-				new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, spinnerArray);
+				new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, spinnerArray);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		dropdownLocation.setAdapter(adapter);
 		dropdownLocation.setSelection(selectedLocation);
@@ -338,7 +338,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 	@Override
 	public void setProgressBarVisibility(boolean visible) {
 		if (visible) {
-			ACBaseActivity.hideSoftKeyboard(getActivity());
+			ACBaseActivity.hideSoftKeyboard(mContext);
 		}
 		loadingProgressBar.setVisibility(visible ? View.VISIBLE : View.GONE);
 	}
