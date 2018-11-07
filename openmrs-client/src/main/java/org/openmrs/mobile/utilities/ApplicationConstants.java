@@ -126,6 +126,7 @@ public abstract class ApplicationConstants {
 		public static final String UNKNOWN = "Unknown";
 		public static final String AUDIT_DATA_COMPLETE = "Audit Data Complete: ";
 		public static final String TYPE_OF_INPATIENT_SERVICE = "Type of inpatient service: ";
+		public static final String CLASSIFICATION_OF_DEATH_TYPE = "Classification of death: ";
 		public static final String HOSPITAL_DEATH = "Hospital Death: ";
 		public static final String PALLIATIVE_CARE_CONSULT = "Palliative Care consult?: ";
 		public static final String HIV_INFECTED = "HIV INFECTED: ";
@@ -276,6 +277,7 @@ public abstract class ApplicationConstants {
 		public static final String CONCEPT_CD4_COUNT = "5497AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		public static final String CONCEPT_HBA1C = "159644AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		public static final String CONCEPT_INPATIENT_SERVICE_TYPE = "161630AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+		public static final String CONCEPT_CLASSIFICATION_OF_DEATH_TYPE = "84540b74-9984-4895-b770-9745c9e72390";
 		public static final String CONCEPT_AUDIT_COMPLETE = "98f0f043-bdb1-40c6-8c81-6a094056e981";
 		public static final String CONCEPT_MECHANICAL_VENTILATIN = "99f47aa5-827c-4472-9884-fbbc094f70bd";
 		public static final String CONCEPT_RECIEVED_VAOSPRESSORS = "611cfa95-0685-4c76-bf9c-981647a085e6";
@@ -291,6 +293,12 @@ public abstract class ApplicationConstants {
 		public static final String CONCEPT_WARD_STAY_DURING_ADMISSION = "59073230-e0d9-4cbc-bebc-4bf91a42f3bb";
 		public static final String CONCEPT_INTUBATION_AT_GCS = "8b6e4154-006b-4991-ab18-96c1c5357bf3";
 		public static final String CONCEPT_SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE = "62c2aab1-0801-4875-9eeb-ee62d9767df4";
+
+		public static final String CONCEPT_ANTICIPATED_DEATH = "24718921-c543-40c8-8860-72c8bd2f6042";
+		public static final String CONCEPT_EXPECTED_DEATH = "b4a4946f-b6d7-42f7-9312-5177cf1f7f07";
+		public static final String CONCEPT_UNEXPECTED_DEATH_NOT_PREVENTABLE = "5cd85418-e409-40cf-a13f-8cbc7cbca206";
+		public static final String CONCEPT_PREVENTABLE_DEATH = "31afb19a-40fb-47ee-bc09-86b04d13cd69";
+		public static final String CONCEPT_UNEXPECTED_DEATH_MEDICAL_INTERVENTION = "0d29fff3-58f5-474c-9ce3-93c1b71f2aab";
 	}
 
 	public abstract static class VITALSFormConcepts {
