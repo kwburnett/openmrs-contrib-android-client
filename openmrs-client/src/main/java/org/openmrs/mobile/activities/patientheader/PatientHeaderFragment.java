@@ -66,6 +66,9 @@ public class PatientHeaderFragment extends ACBaseFragment<PatientHeaderContract.
 
 	@Override
 	public void updatePatientHeader(Patient patient) {
+		if (patient == null || patient.getPerson() == null) {
+			return;
+		}
 		patientDisplayName.setText(patient.getPerson().getName() != null ?
 				patient.getPerson().getName().getNameString() : patient.getPerson().getDisplay());
 		patientGender.setImageResource(patient.getPerson().getGender().equalsIgnoreCase("f") ? R.drawable.female : R

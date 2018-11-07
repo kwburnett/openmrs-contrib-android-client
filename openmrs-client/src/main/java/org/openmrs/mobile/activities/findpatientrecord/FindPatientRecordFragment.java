@@ -14,7 +14,6 @@
 
 package org.openmrs.mobile.activities.findpatientrecord;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -35,7 +34,6 @@ import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.FontsUtil;
-import org.openmrs.mobile.utilities.ToastUtil;
 
 import java.util.List;
 
@@ -104,12 +102,12 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 		resolveViews(mRootView);
 		setNumberOfPatientsView(0);
 		//Adding the Recycler view
-		layoutManager = new LinearLayoutManager(this.getActivity());
+		layoutManager = new LinearLayoutManager(this.mContext);
 		findPatientRecyclerView = (RecyclerView)mRootView.findViewById(R.id.findPatientModelRecyclerView);
 		findPatientRecyclerView.setLayoutManager(layoutManager);
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
 		authorizationManager = openMRS.getAuthorizationManager();
 		if (authorizationManager.isUserLoggedIn()) {
 			if (!OpenMRS.getInstance().getSearchQuery().equalsIgnoreCase(ApplicationConstants.EMPTY_STRING)) {
@@ -135,7 +133,7 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 
 	@Override
 	public void fetchPatients(List<Patient> patients) {
-		FindPatientRecyclerViewAdapter adapter = new FindPatientRecyclerViewAdapter(this.getActivity(), patients, this);
+		FindPatientRecyclerViewAdapter adapter = new FindPatientRecyclerViewAdapter(this.mContext, patients, this);
 		findPatientRecyclerView.setAdapter(adapter);
 	}
 

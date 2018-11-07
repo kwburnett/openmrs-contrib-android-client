@@ -33,7 +33,7 @@ public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presente
 		initViewFields();
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
 
 		return rootView;
 	}
@@ -99,10 +99,10 @@ public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presente
 	}
 
 	public void navigateToNextActivity() {
-		Intent intent = new Intent(this.getContext(), PatientListActivity.class);
+		Intent intent = new Intent(this.mContext, PatientListActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		this.getContext().startActivity(intent);
-		getActivity().finish();
+		this.mContext.startActivity(intent);
+		mContext.finish();
 	}
 
 	public void notifyConnectionLost() {

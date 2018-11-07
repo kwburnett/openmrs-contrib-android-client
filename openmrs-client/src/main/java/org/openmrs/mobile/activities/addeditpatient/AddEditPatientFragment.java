@@ -31,7 +31,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -142,8 +141,8 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_add_edit_patient, container, false);
-		if (getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE) != null) {
-			patientUuuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
+		if (mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE) != null) {
+			patientUuuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
 		} else {
 			patientUuuid = EMPTY_STRING;
 		}
@@ -161,12 +160,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void finishAddPatientActivity() {
-		getActivity().finish();
+		mContext.finish();
 	}
 
 	@Override
 	public void scrollToTop() {
-		ScrollView scrollView = (ScrollView)this.getActivity().findViewById(R.id.patientAddScrollView);
+		ScrollView scrollView = mContext.findViewById(R.id.patientAddScrollView);
 		scrollView.smoothScrollTo(0, scrollView.getPaddingTop());
 	}
 
@@ -218,7 +217,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 		// Add gender
 		String[] genderChoices = { "M", "F" };
-		int index = gen.indexOfChild(getActivity().findViewById(gen.getCheckedRadioButtonId()));
+		int index = gen.indexOfChild(mContext.findViewById(gen.getCheckedRadioButtonId()));
 		if (index != -1) {
 			person.setGender(genderChoices[index]);
 		} else {
@@ -280,12 +279,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void hideSoftKeys() {
-		View view = this.getActivity().getCurrentFocus();
+		View view = mContext.getCurrentFocus();
 		if (view == null) {
-			view = new View(this.getActivity());
+			view = new View(mContext);
 		}
 		InputMethodManager inputMethodManager =
-				(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				(InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
 		inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
@@ -297,14 +296,14 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		similarPatientsDialog.setLeftButtonAction(CustomFragmentDialog.OnClickAction.CANCEL_REGISTERING);
 		similarPatientsDialog.setPatientsList(patients);
 		similarPatientsDialog.setNewPatient(newPatient);
-		((AddEditPatientActivity)this.getActivity())
+		((AddEditPatientActivity)mContext)
 				.createAndShowDialog(similarPatientsDialog, ApplicationConstants.DialogTAG.SIMILAR_PATIENTS_TAG);
 	}
 
 	@Override
 	public void startPatientDashboardActivity(Patient patient) {
 		//check for patient id if it's empty patient has just been added, open the dashboard
-		Intent intent = new Intent(getActivity(), PatientDashboardActivity.class);
+		Intent intent = new Intent(mContext, PatientDashboardActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patient.getUuid());
 		startActivity(intent);
 		showPageSpinner(false);
@@ -318,9 +317,9 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	@Override
 	public void loadPersonAttributeTypes(List<PersonAttributeType> personAttributeTypeList) {
 		for (PersonAttributeType personAttributeType : personAttributeTypeList) {
-			LinearLayout personLayout = new LinearLayout(getContext());
+			LinearLayout personLayout = new LinearLayout(mContext);
 			personLayout.setOrientation(LinearLayout.VERTICAL);
-			TextInputLayout textInputLayout = new TextInputLayout(getContext());
+			TextInputLayout textInputLayout = new TextInputLayout(mContext);
 			textInputLayout.setHintTextAppearance(R.style.textInputLayoutHintColor);
 
 			String datatypeClass = personAttributeType.getFormat();
@@ -329,7 +328,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			}
 
 			if (datatypeClass.equalsIgnoreCase("java.lang.Boolean")) {
-				AppCompatRadioButton booleanType = new AppCompatRadioButton(getContext());
+				AppCompatRadioButton booleanType = new AppCompatRadioButton(mContext);
 				booleanType.setLayoutParams(marginParams);
 				booleanType.setText(personAttributeType.getDisplay());
 
@@ -344,13 +343,13 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.Concept")) {
 				// get coded concept uuid
 				String conceptUuid = personAttributeType.getConcept().getUuid();
-				AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(getContext());
+				AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(mContext);
 				conceptAnswersDropdown.setLayoutParams(marginParams);
 				mPresenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
 				textInputLayout.addView(conceptAnswersDropdown);
 				viewPersonAttributeTypeMap.put(conceptAnswersDropdown, personAttributeType);
 			} else if (datatypeClass.equalsIgnoreCase("java.lang.String")) {
-				TextInputEditText textInputEditText = new TextInputEditText(getContext());
+				TextInputEditText textInputEditText = new TextInputEditText(mContext);
 				textInputEditText.setTextSize(14);
 				textInputEditText.setFocusable(true);
 				textInputEditText.setHint(personAttributeType.getDisplay());
@@ -389,7 +388,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			conceptAnswer.setDisplay(ApplicationConstants.KIN_RELATIONSHIP);
 		}
 		conceptAnswers.add(0, conceptAnswer);
-		ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(this.getActivity(),
+		ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(mContext,
 				android.R.layout.simple_spinner_dropdown_item, conceptAnswers);
 		conceptNamesDropdown.setAdapter(conceptNameArrayAdapter);
 
@@ -441,8 +440,8 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		if (patient != null && patient.getPerson() != null) {
 			//Change to Update Patient Form
 			String patientHeaderString = getResources().getString(R.string.action_update_patient_data);
-			this.getActivity().setTitle(patientHeaderString);
-			AddEditPatientActivity addEditPatientActivity = (AddEditPatientActivity)getActivity();
+			mContext.setTitle(patientHeaderString);
+			AddEditPatientActivity addEditPatientActivity = (AddEditPatientActivity)mContext;
 			addEditPatientActivity.updateToolbar();
 			submitConfirm.setText(patientHeaderString);
 			submitConfirm.setOnClickListener(new View.OnClickListener() {
@@ -540,15 +539,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 					edmonth.getText().clear();
 					edyr.getText().clear();
 
-					DatePickerDialog mDatePicker = new DatePickerDialog(AddEditPatientFragment.this.getActivity(),
-							new DatePickerDialog.OnDateSetListener() {
-								public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth,
-										int selectedday) {
-									int adjustedMonth = selectedmonth + 1;
-									eddob.setText(selectedday + "/" + adjustedMonth + "/" + selectedyear);
-									birthdate = new LocalDate(selectedyear, adjustedMonth, selectedday);
-									bdt = birthdate.toDateTimeAtStartOfDay().toDateTime();
-								}
+					DatePickerDialog mDatePicker =
+							new DatePickerDialog(mContext, (datepicker, selectedyear, selectedmonth, selectedday) -> {
+								int adjustedMonth = selectedmonth + 1;
+								eddob.setText(selectedday + "/" + adjustedMonth + "/" + selectedyear);
+								birthdate = new LocalDate(selectedyear, adjustedMonth, selectedday);
+								bdt = birthdate.toDateTimeAtStartOfDay().toDateTime();
 							}, cYear, cMonth, cDay);
 					mDatePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
 					mDatePicker.setTitle("Select Date");

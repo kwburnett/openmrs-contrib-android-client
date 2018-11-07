@@ -36,6 +36,14 @@ public class ConceptAnswer extends BaseOpenmrsAuditableObject {
 	@ForeignKey(stubbedRelationship = true)
 	private Concept answerConcept;
 
+	public ConceptAnswer() {
+	}
+
+	public ConceptAnswer(String uuid, String description) {
+		this.uuid = uuid;
+		this.display = description;
+	}
+
 	public Concept getConcept() {
 		return concept;
 	}
