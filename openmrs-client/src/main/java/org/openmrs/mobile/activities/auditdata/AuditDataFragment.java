@@ -61,9 +61,17 @@ import java.util.List;
 
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_NEGATIVE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_NO;
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_ANTICIPATED_DEATH;
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_EXPECTED_DEATH;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_FIRST_RESPIRATORY_RATE_ICU;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_INTUBATION_AT_GCS;
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_PREVENTABLE_DEATH;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE;
+
+
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts
+		.CONCEPT_UNEXPECTED_DEATH_MEDICAL_INTERVENTION;
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_UNEXPECTED_DEATH_NOT_PREVENTABLE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.SCHEDULED_IN_CLINIC;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.NOT_SCHEDULED_IN_CLINIC;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_POSITIVE;
@@ -90,6 +98,7 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcept
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_ICU_STAY;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_INFECTION_CONFIRMED_SUSPECTED;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_INPATIENT_SERVICE_TYPE;
+import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_CLASSIFICATION_OF_DEATH_TYPE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_MECHANICAL_VENTILATIN;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_PALLIATIVE_CONSULT;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_PATIENT_DIABETIC;
@@ -123,6 +132,10 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			priorSedetionObservation, surgeryObservation, firstIcuHeartRateObservation, firstGcsScoreObservation,
 			patientDiabeticObservation, wardStayAdmissionObservation, firstIcuRespiratoryRateObservation,
 			intubationObservation, signedOffOnConsultBeforeDischargeObservation;
+
+	// andr-414 Create Audit Data "death in hospital" options
+	private Observation classificationOfDeathTypeObservation;
+
 	private RadioButton deathInHospitalYes, deathInHospitalNo, palliativeConsultYes, palliativeConsultNo,
 			palliativeConsultUknown, preopRiskAssessmentYes, preopRiskAssessmentNo, preopRiskAssessmentUknown, icuStayYes,
 			icuStayNo, icuStayUnknown, hduStayYes, hduStayNo, hduStayUnknown, hduComgmtYes, hduComgmtNo, hduComgmtUnknown,
@@ -134,6 +147,10 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			ward_stay_admission_no, ward_stay_admission_unknown, patient_diabetic_yes, patient_diabetic_no,
 			patient_diabetic_unknown, intubatedYes, intubatedNo, intubatedUnknown,
 			signed_off_on_consult_before_discharge_yes, signed_off_on_consult_before_discharge_no;
+
+	// andr-414
+	private Spinner classificationOfDeathType;
+
 	private CheckBox auditComplete;
 
 	private Spinner inpatientServiceType;
@@ -141,15 +158,20 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	private LinearLayout auditDataFormScreen, extraFormAdditions, hduCoManage;
 	private ScrollView auditScrollView;
 	private Button submitForm;
-	private List<ConceptAnswer> conceptAnswerList;
+	private List<ConceptAnswer> conceptAnswerList, classificationOfDeathList;
 	private String inpatientServiceTypeSelectedUuid, displayInpatientServiceType;
 	private Boolean displayExtraFormFields, displayCd4CountField, displayHbA1CField, displayHduCoManageField;
 	private TextInputLayout hba1cTextLayout, cd4TextInputLayout;
 	private TextView errorFirstGcsScore, errorHba1c, errorFirstRespiratoryRate;
 
-	private ConceptAnswer initialInpatientTypeServiceSelection;
+	private ConceptAnswer initialInpatientTypeServiceSelection, initialClassificationOfDeathSelection;
 
 	private String encounterInpatientService;
+
+	private String encounterClassificationOfDeath;
+
+	// andr-414
+	private String classificationOfDeathTypeSelectedUuid;
 
 	public static AuditDataFragment newInstance() {
 		return new AuditDataFragment();
@@ -158,9 +180,9 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-		this.patientUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		this.visitUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-		this.visitStopDate = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
+		this.patientUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
+		this.visitUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
+		this.visitStopDate = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
 
 		fragmentView = inflater.inflate(R.layout.fragment_audit_form, container, false);
 		mPresenter.fetchInpatientTypeServices();
@@ -187,14 +209,18 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 
 		initObservations();
+		initClassificationOfDeathOptions();
 		addListeners();
 
 		initialInpatientTypeServiceSelection = new ConceptAnswer();
 		initialInpatientTypeServiceSelection.setDisplay(getString(R.string.inpatient_service_type_prompt));
 
+		initialClassificationOfDeathSelection= new ConceptAnswer();
+		initialClassificationOfDeathSelection.setDisplay(getString(R.string.classification_of_death));
+
 		displayExtraFormFields = false;
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
 
 		return fragmentView;
 	}
@@ -216,6 +242,30 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 				inpatientServiceTypeObservation = setObservationFields(inpatientServiceTypeObservation,
 						CONCEPT_INPATIENT_SERVICE_TYPE, conceptAnswer.getUuid(),
 						ApplicationConstants.ObservationLocators.TYPE_OF_INPATIENT_SERVICE + conceptAnswer.getDisplay());
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
+
+		classificationOfDeathType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				ConceptAnswer conceptAnswer = classificationOfDeathList.get(position);
+
+				if (conceptAnswer == initialClassificationOfDeathSelection) {
+					if (classificationOfDeathTypeObservation != null) {
+						setObservationVoided(classificationOfDeathTypeObservation);
+					}
+					return;
+				}
+
+				classificationOfDeathTypeSelectedUuid = conceptAnswer.getUuid();
+				classificationOfDeathTypeObservation = setObservationFields(classificationOfDeathTypeObservation,
+						CONCEPT_CLASSIFICATION_OF_DEATH_TYPE, conceptAnswer.getUuid(),
+						ApplicationConstants.ObservationLocators.CLASSIFICATION_OF_DEATH_TYPE + conceptAnswer.getDisplay());
 			}
 
 			@Override
@@ -279,79 +329,82 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	private void initViewFields() {
 
-		deathInHospitalYes = (RadioButton)fragmentView.findViewById(R.id.is_death_in_hospital_yes);
-		deathInHospitalNo = (RadioButton)fragmentView.findViewById(R.id.is_death_in_hospital_no);
-		palliativeConsultYes = (RadioButton)fragmentView.findViewById(R.id.is_palliative_consult_yes);
-		palliativeConsultNo = (RadioButton)fragmentView.findViewById(R.id.is_palliative_consult_no);
-		palliativeConsultUknown = (RadioButton)fragmentView.findViewById(R.id.is_palliative_consult_unknown);
-		preopRiskAssessmentYes = (RadioButton)fragmentView.findViewById(R.id.is_preop_risk_assessment_only_yes);
-		preopRiskAssessmentNo = (RadioButton)fragmentView.findViewById(R.id.is_preop_risk_assessment_only_no);
-		preopRiskAssessmentUknown = (RadioButton)fragmentView.findViewById(R.id.is_preop_risk_assessment_only_unknown);
-		icuStayYes = (RadioButton)fragmentView.findViewById(R.id.is_icu_stay_yes);
-		icuStayNo = (RadioButton)fragmentView.findViewById(R.id.is_icu_stay_no);
-		icuStayUnknown = (RadioButton)fragmentView.findViewById(R.id.is_icu_stay_unknown);
-		hduStayYes = (RadioButton)fragmentView.findViewById(R.id.is_hdu_stay_yes);
-		hduStayNo = (RadioButton)fragmentView.findViewById(R.id.is_hdu_stay_no);
-		hduStayUnknown = (RadioButton)fragmentView.findViewById(R.id.is_hdu_stay_unknown);
-		hduComgmtYes = (RadioButton)fragmentView.findViewById(R.id.is_hdu_comgmt_yes);
-		hduComgmtNo = (RadioButton)fragmentView.findViewById(R.id.is_hdu_comgmt_no);
-		hduComgmtUnknown = (RadioButton)fragmentView.findViewById(R.id.is_hdu_comgmt_unknown);
-		hivPositiveYes = (RadioButton)fragmentView.findViewById(R.id.is_hiv_positive_yes);
-		hivPositiveNo = (RadioButton)fragmentView.findViewById(R.id.is_hiv_positive_no);
-		hivPositiveUnknown = (RadioButton)fragmentView.findViewById(R.id.is_hiv_positive_unknown);
-		auditComplete = (CheckBox)fragmentView.findViewById(R.id.audit_complete);
-		cd4 = (EditText)fragmentView.findViewById(R.id.cd4);
-		hBa1c = (EditText)fragmentView.findViewById(R.id.hba1c);
-		inpatientServiceType = (Spinner)fragmentView.findViewById(R.id.inpatient_service_type);
-		submitForm = (Button)fragmentView.findViewById(R.id.submitConfirm);
-		extraFormAdditions = (LinearLayout)fragmentView.findViewById(R.id.extraFormAdditions);
-		hduCoManage = (LinearLayout)fragmentView.findViewById(R.id.hduCoManage);
-		firstIcuHeartRate = (EditText)fragmentView.findViewById(R.id.firstIcuHeartRate);
-		firstIcuRespiratoryRate = (EditText)fragmentView.findViewById(R.id.firstIcuRespiratoryRate);
-		firstGcsScore = (EditText)fragmentView.findViewById(R.id.firstGcsScore);
-		mechanical_ventilation_yes = (RadioButton)fragmentView.findViewById(R.id.mechanical_ventilation_yes);
-		mechanical_ventilation_no = (RadioButton)fragmentView.findViewById(R.id.mechanical_ventilation_no);
-		mechanical_ventilation_unknown = (RadioButton)fragmentView.findViewById(R.id.mechanical_ventilation_unknown);
-		vaospressors_yes = (RadioButton)fragmentView.findViewById(R.id.vaospressors_yes);
-		vaospressors_no = (RadioButton)fragmentView.findViewById(R.id.vaospressors_no);
-		vaospressors_unknown = (RadioButton)fragmentView.findViewById(R.id.vaospressors_unknown);
-		confirmed_infection_yes = (RadioButton)fragmentView.findViewById(R.id.confirmed_infection_yes);
-		confirmed_infection_no = (RadioButton)fragmentView.findViewById(R.id.confirmed_infection_no);
-		confirmed_infection_unknown = (RadioButton)fragmentView.findViewById(R.id.confirmed_infection_unknown);
-		first_sbp_yes = (RadioButton)fragmentView.findViewById(R.id.first_sbp_yes);
-		first_sbp_no = (RadioButton)fragmentView.findViewById(R.id.first_sbp_no);
-		first_sbp_unknown = (RadioButton)fragmentView.findViewById(R.id.first_sbp_unknown);
-		any_prior_sedetion_yes = (RadioButton)fragmentView.findViewById(R.id.any_prior_sedetion_yes);
-		any_prior_sedetion_no = (RadioButton)fragmentView.findViewById(R.id.any_prior_sedetion_no);
-		any_prior_sedetion_unknown = (RadioButton)fragmentView.findViewById(R.id.any_prior_sedetion_unknown);
-		surgery_na = (RadioButton)fragmentView.findViewById(R.id.surgery_na);
-		surgery_planned = (RadioButton)fragmentView.findViewById(R.id.surgery_planned);
-		surgery_unplanned = (RadioButton)fragmentView.findViewById(R.id.surgery_unplanned);
-		first_map_yes = (RadioButton)fragmentView.findViewById(R.id.first_map_yes);
-		first_map_no = (RadioButton)fragmentView.findViewById(R.id.first_map_no);
-		first_map_unknown = (RadioButton)fragmentView.findViewById(R.id.first_map_unknown);
-		ward_stay_admission_yes = (RadioButton)fragmentView.findViewById(R.id.ward_stay_admission_yes);
-		ward_stay_admission_no = (RadioButton)fragmentView.findViewById(R.id.ward_stay_admission_no);
-		ward_stay_admission_unknown = (RadioButton)fragmentView.findViewById(R.id.ward_stay_admission_unknown);
-		patient_diabetic_yes = (RadioButton)fragmentView.findViewById(R.id.patient_diabetic_yes);
-		patient_diabetic_no = (RadioButton)fragmentView.findViewById(R.id.patient_diabetic_no);
-		patient_diabetic_unknown = (RadioButton)fragmentView.findViewById(R.id.patient_diabetic_unknown);
-		cd4TextInputLayout = (TextInputLayout)fragmentView.findViewById(R.id.cd4TextInputLayout);
-		hba1cTextLayout = (TextInputLayout)fragmentView.findViewById(R.id.hba1cTextLayout);
-		errorFirstGcsScore = (TextView)fragmentView.findViewById(R.id.invalidGscError);
-		errorFirstRespiratoryRate = (TextView) fragmentView.findViewById(R.id.invalidFirstRespiratoryRate);
-		errorHba1c = (TextView)fragmentView.findViewById(R.id.invalidHba1cError);
-		progressBar = (RelativeLayout)fragmentView.findViewById(R.id.auditDataRelativeView);
-		auditDataFormProgressBar = (RelativeLayout)fragmentView.findViewById(R.id.auditDataFormProgressBar);
-		auditDataFormScreen = (LinearLayout)fragmentView.findViewById(R.id.auditDataFormScreen);
-		auditScrollView = (ScrollView)fragmentView.findViewById(R.id.auditDataFormScrollView);
-		intubatedYes = (RadioButton) fragmentView.findViewById(R.id.intubationDone);
-		intubatedNo = (RadioButton) fragmentView.findViewById(R.id.intubationNotDone);
-		intubatedUnknown = (RadioButton) fragmentView.findViewById(R.id.intubationNotKnown);
+		deathInHospitalYes = fragmentView.findViewById(R.id.is_death_in_hospital_yes);
+		deathInHospitalNo = fragmentView.findViewById(R.id.is_death_in_hospital_no);
+		palliativeConsultYes = fragmentView.findViewById(R.id.is_palliative_consult_yes);
+		palliativeConsultNo = fragmentView.findViewById(R.id.is_palliative_consult_no);
+		palliativeConsultUknown = fragmentView.findViewById(R.id.is_palliative_consult_unknown);
+		preopRiskAssessmentYes = fragmentView.findViewById(R.id.is_preop_risk_assessment_only_yes);
+		preopRiskAssessmentNo = fragmentView.findViewById(R.id.is_preop_risk_assessment_only_no);
+		preopRiskAssessmentUknown = fragmentView.findViewById(R.id.is_preop_risk_assessment_only_unknown);
+		icuStayYes = fragmentView.findViewById(R.id.is_icu_stay_yes);
+		icuStayNo = fragmentView.findViewById(R.id.is_icu_stay_no);
+		icuStayUnknown = fragmentView.findViewById(R.id.is_icu_stay_unknown);
+		hduStayYes = fragmentView.findViewById(R.id.is_hdu_stay_yes);
+		hduStayNo = fragmentView.findViewById(R.id.is_hdu_stay_no);
+		hduStayUnknown = fragmentView.findViewById(R.id.is_hdu_stay_unknown);
+		hduComgmtYes = fragmentView.findViewById(R.id.is_hdu_comgmt_yes);
+		hduComgmtNo = fragmentView.findViewById(R.id.is_hdu_comgmt_no);
+		hduComgmtUnknown = fragmentView.findViewById(R.id.is_hdu_comgmt_unknown);
+		hivPositiveYes = fragmentView.findViewById(R.id.is_hiv_positive_yes);
+		hivPositiveNo = fragmentView.findViewById(R.id.is_hiv_positive_no);
+		hivPositiveUnknown = fragmentView.findViewById(R.id.is_hiv_positive_unknown);
+		auditComplete = fragmentView.findViewById(R.id.audit_complete);
+		cd4 = fragmentView.findViewById(R.id.cd4);
+		hBa1c = fragmentView.findViewById(R.id.hba1c);
+		inpatientServiceType = fragmentView.findViewById(R.id.inpatient_service_type);
+		submitForm = fragmentView.findViewById(R.id.submitConfirm);
+		extraFormAdditions = fragmentView.findViewById(R.id.extraFormAdditions);
+		hduCoManage = fragmentView.findViewById(R.id.hduCoManage);
+		firstIcuHeartRate = fragmentView.findViewById(R.id.firstIcuHeartRate);
+		firstIcuRespiratoryRate = fragmentView.findViewById(R.id.firstIcuRespiratoryRate);
+		firstGcsScore = fragmentView.findViewById(R.id.firstGcsScore);
+		mechanical_ventilation_yes = fragmentView.findViewById(R.id.mechanical_ventilation_yes);
+		mechanical_ventilation_no = fragmentView.findViewById(R.id.mechanical_ventilation_no);
+		mechanical_ventilation_unknown = fragmentView.findViewById(R.id.mechanical_ventilation_unknown);
+		vaospressors_yes = fragmentView.findViewById(R.id.vaospressors_yes);
+		vaospressors_no = fragmentView.findViewById(R.id.vaospressors_no);
+		vaospressors_unknown = fragmentView.findViewById(R.id.vaospressors_unknown);
+		confirmed_infection_yes = fragmentView.findViewById(R.id.confirmed_infection_yes);
+		confirmed_infection_no = fragmentView.findViewById(R.id.confirmed_infection_no);
+		confirmed_infection_unknown = fragmentView.findViewById(R.id.confirmed_infection_unknown);
+		first_sbp_yes = fragmentView.findViewById(R.id.first_sbp_yes);
+		first_sbp_no = fragmentView.findViewById(R.id.first_sbp_no);
+		first_sbp_unknown = fragmentView.findViewById(R.id.first_sbp_unknown);
+		any_prior_sedetion_yes = fragmentView.findViewById(R.id.any_prior_sedetion_yes);
+		any_prior_sedetion_no = fragmentView.findViewById(R.id.any_prior_sedetion_no);
+		any_prior_sedetion_unknown = fragmentView.findViewById(R.id.any_prior_sedetion_unknown);
+		surgery_na = fragmentView.findViewById(R.id.surgery_na);
+		surgery_planned = fragmentView.findViewById(R.id.surgery_planned);
+		surgery_unplanned = fragmentView.findViewById(R.id.surgery_unplanned);
+		first_map_yes = fragmentView.findViewById(R.id.first_map_yes);
+		first_map_no = fragmentView.findViewById(R.id.first_map_no);
+		first_map_unknown = fragmentView.findViewById(R.id.first_map_unknown);
+		ward_stay_admission_yes = fragmentView.findViewById(R.id.ward_stay_admission_yes);
+		ward_stay_admission_no = fragmentView.findViewById(R.id.ward_stay_admission_no);
+		ward_stay_admission_unknown = fragmentView.findViewById(R.id.ward_stay_admission_unknown);
+		patient_diabetic_yes = fragmentView.findViewById(R.id.patient_diabetic_yes);
+		patient_diabetic_no = fragmentView.findViewById(R.id.patient_diabetic_no);
+		patient_diabetic_unknown = fragmentView.findViewById(R.id.patient_diabetic_unknown);
+		cd4TextInputLayout = fragmentView.findViewById(R.id.cd4TextInputLayout);
+		hba1cTextLayout = fragmentView.findViewById(R.id.hba1cTextLayout);
+		errorFirstGcsScore = fragmentView.findViewById(R.id.invalidGscError);
+		errorFirstRespiratoryRate = fragmentView.findViewById(R.id.invalidFirstRespiratoryRate);
+		errorHba1c = fragmentView.findViewById(R.id.invalidHba1cError);
+		progressBar = fragmentView.findViewById(R.id.auditDataRelativeView);
+		auditDataFormProgressBar = fragmentView.findViewById(R.id.auditDataFormProgressBar);
+		auditDataFormScreen = fragmentView.findViewById(R.id.auditDataFormScreen);
+		auditScrollView = fragmentView.findViewById(R.id.auditDataFormScrollView);
+		intubatedYes = fragmentView.findViewById(R.id.intubationDone);
+		intubatedNo = fragmentView.findViewById(R.id.intubationNotDone);
+		intubatedUnknown = fragmentView.findViewById(R.id.intubationNotKnown);
 		signed_off_on_consult_before_discharge_yes = fragmentView.findViewById(R.id
 				.signed_off_on_consult_before_discharge_yes);
 		signed_off_on_consult_before_discharge_no = fragmentView.findViewById(R.id
 				.signed_off_on_consult_before_discharge_no);
+
+		//andr-414
+		classificationOfDeathType = fragmentView.findViewById(R.id.classification_of_death_type);
 	}
 
 	private void initObservations() {
@@ -364,7 +417,6 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 														patientDiabeticObservation = wardStayAdmissionObservation =
 																intubationObservation = null;
 		signedOffOnConsultBeforeDischargeObservation = null;
-
 	}
 
 	private void initRadioButtonListeners(RadioButton... params) {
@@ -381,18 +433,47 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 	}
 
+	private void initClassificationOfDeathOptions() {
+		classificationOfDeathList = new ArrayList<>();
+		classificationOfDeathList.add(new ConceptAnswer("", getString(R.string.classification_of_death)));
+		classificationOfDeathList.add(new ConceptAnswer("24718921-c543-40c8-8860-72c8bd2f6042",
+				getString(R.string.anticipated_death_following_terminal_illness_name)));
+		classificationOfDeathList.add(new ConceptAnswer("b4a4946f-b6d7-42f7-9312-5177cf1f7f07",
+				getString(R.string.expected_death_clinical_situation_name)));
+		classificationOfDeathList.add(new ConceptAnswer("5cd85418-e409-40cf-a13f-8cbc7cbca206",
+				getString(R.string.unexpected_death_not_preventable_name)));
+		classificationOfDeathList.add(new ConceptAnswer("31afb19a-40fb-47ee-bc09-86b04d13cd69",
+				getString(R.string.preventable_death_name)));
+		classificationOfDeathList.add(new ConceptAnswer("0d29fff3-58f5-474c-9ce3-93c1b71f2aab",
+				getString(R.string.unexpected_death_medical_intervention_name)));
+
+		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(getContext(), android.R.layout
+				.simple_spinner_dropdown_item, classificationOfDeathList);
+		classificationOfDeathType.setAdapter(adapter);
+
+		int selectedPosition = classificationOfDeathType.getSelectedItemPosition();
+
+		if (selectedPosition >= 0) {
+			classificationOfDeathType.setSelection(selectedPosition);
+		} else if (!StringUtils.isNullOrEmpty(encounterClassificationOfDeath)) {
+			updateInpatientDisplaySelection(encounterClassificationOfDeath);
+		}
+	}
+
 	private void applyEvent(int id) {
 		switch (id) {
 			case R.id.is_death_in_hospital_yes:
 				deathInHospitalObservation = setObservationFields(deathInHospitalObservation, CONCEPT_DEATH_IN_HOSPITAL,
 						CONCEPT_ANSWER_YES, ApplicationConstants.ObservationLocators.HOSPITAL_DEATH +
 								ApplicationConstants.ObservationLocators.YES);
+				showAnimateView(true, classificationOfDeathType);
 				break;
 
 			case R.id.is_death_in_hospital_no:
 				deathInHospitalObservation = setObservationFields(deathInHospitalObservation, CONCEPT_DEATH_IN_HOSPITAL,
 						CONCEPT_ANSWER_NO, ApplicationConstants.ObservationLocators.HOSPITAL_DEATH +
 								ApplicationConstants.ObservationLocators.NO);
+				showAnimateView(false, classificationOfDeathType);
 				break;
 
 			case R.id.is_palliative_consult_yes:
@@ -825,11 +906,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	@Override
 	public void goBackToVisitPage() {
-		Intent intent = new Intent(getContext(), VisitActivity.class);
+		Intent intent = new Intent(mContext, VisitActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
-		getContext().startActivity(intent);
+		mContext.startActivity(intent);
 	}
 
 	@Override
@@ -851,7 +932,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	@Override
 	public void hideSoftKeys() {
 		goBackToVisitPage();
-		ACBaseActivity.hideSoftKeyboard(getActivity());
+		ACBaseActivity.hideSoftKeyboard(mContext);
 	}
 
 	@Override
@@ -861,13 +942,13 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		conceptAnswerList.add(initialInpatientTypeServiceSelection);
 		conceptAnswerList.addAll(conceptAnswers);
 
-		int selectedInpatientServiceTypePositon = inpatientServiceType.getSelectedItemPosition();
-		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(getContext(), android.R.layout
+		int selectedInpatientServiceTypePosition = inpatientServiceType.getSelectedItemPosition();
+		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(mContext, android.R.layout
 				.simple_spinner_dropdown_item, conceptAnswerList);
 		inpatientServiceType.setAdapter(adapter);
 
-		if (selectedInpatientServiceTypePositon >= 0) {
-			inpatientServiceType.setSelection(selectedInpatientServiceTypePositon);
+		if (selectedInpatientServiceTypePosition >= 0) {
+			inpatientServiceType.setSelection(selectedInpatientServiceTypePosition);
 		} else if (!StringUtils.isNullOrEmpty(encounterInpatientService)) {
 			updateInpatientDisplaySelection(encounterInpatientService);
 		}
@@ -894,12 +975,14 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			switch (observationName) {
 				case ApplicationConstants.ObservationLocators.HOSPITAL_DEATH:
 					if (displayValue.equalsIgnoreCase(ANSWER_YES)) {
+						showAnimateView(true, classificationOfDeathType);
 						deathInHospitalYes.setChecked(true);
 						deathInHospitalObservation =
 								setObservationFields(observation, CONCEPT_DEATH_IN_HOSPITAL,
 										CONCEPT_ANSWER_YES);
 
 					} else if (displayValue.equalsIgnoreCase(ANSWER_NO)) {
+						showAnimateView(false, classificationOfDeathType);
 						deathInHospitalNo.setChecked(true);
 						deathInHospitalObservation =
 								setObservationFields(observation, CONCEPT_DEATH_IN_HOSPITAL,
@@ -1291,6 +1374,15 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 					}
 					break;
 
+				// andr-414
+				case ApplicationConstants.ObservationLocators.CLASSIFICATION_OF_DEATH_TYPE:
+					encounterClassificationOfDeath = displayValue;
+					updateClassificationOfDeathDisplaySelection(displayValue);
+					classificationOfDeathTypeObservation = setObservationFields(observation, CONCEPT_CLASSIFICATION_OF_DEATH_TYPE,
+							classificationOfDeathTypeSelectedUuid);
+
+					break;
+
 				default:
 					break;
 			}
@@ -1304,6 +1396,17 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 				if (conceptAnswerList.get(i).getDisplay().equalsIgnoreCase(displayValue)) {
 					inpatientServiceType.setSelection(i);
 					inpatientServiceTypeSelectedUuid = conceptAnswerList.get(i).getUuid();
+				}
+			}
+		}
+	}
+
+	private void updateClassificationOfDeathDisplaySelection(String value) {
+		if (classificationOfDeathList != null) {
+			for (int i = 0; i < classificationOfDeathList.size(); i++) {
+				if (classificationOfDeathList.get(i).getDisplay().equalsIgnoreCase(value)) {
+					classificationOfDeathType.setSelection(i);
+					classificationOfDeathTypeSelectedUuid = classificationOfDeathList.get(i).getUuid();
 				}
 			}
 		}
@@ -1335,6 +1438,9 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 		if (deathInHospitalObservation != null) {
 			observations.add(deathInHospitalObservation);
+			if (deathInHospitalObservation.getDisplay().equals(ApplicationConstants.ObservationLocators.YES)) {
+				classificationOfDeathTypeObservation = null;
+			}
 		}
 
 		if (palliativeConsultObservation != null) {
@@ -1460,6 +1566,12 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observations.add(inpatientServiceTypeObservation);
 		}
 
+		if (classificationOfDeathTypeObservation != null) {
+			classificationOfDeathTypeObservation = setObservationFields(classificationOfDeathTypeObservation,
+					CONCEPT_CLASSIFICATION_OF_DEATH_TYPE, classificationOfDeathTypeSelectedUuid);
+			observations.add(classificationOfDeathTypeObservation);
+		}
+
 		if (auditComplete.isChecked()) {
 			auditCompleteObservation = setObservationFields(auditCompleteObservation,
 					CONCEPT_AUDIT_COMPLETE, CONCEPT_ANSWER_YES,
@@ -1491,17 +1603,23 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 
 		encounter.setObs(observations);
-		encounter.setPatient(visit.getPatient());
 		encounter.setForm(auditDataForm);
 		encounter.setLocation(location);
-		encounter.setVisit(visit);
 		encounter.setProvider(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
 		encounter.setEncounterType(auditFormEncounterType);
 
-		// set startdatetime == visit startdatetime
-		if (visit != null && visit.getStartDatetime() != null) {
-			encounter.setDateCreated(visit.getStartDatetime());
-			encounter.setEncounterDatetime(visit.getStartDatetime());
+
+		if (visit != null) {
+			encounter.setVisit(visit);
+			// set startdatetime == visit startdatetime
+			if (visit.getStartDatetime() != null){
+				encounter.setDateCreated(visit.getStartDatetime());
+				encounter.setEncounterDatetime(visit.getStartDatetime());
+			}
+
+			if (visit.getPatient() != null) {
+				encounter.setPatient(visit.getPatient());
+			}
 		}
 
 		mPresenter.saveUpdateEncounter(encounter, isNewEncounter);
