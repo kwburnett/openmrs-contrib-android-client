@@ -161,6 +161,9 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 			boolean isLocationErrorOccurred = loginValidatorWatcher.isLocationErrorOccurred();
 
 			if (!isViewFocused && (!isUrlChanged || isUrlChanged && (isUrlEntered || isLocationErrorOccurred))) {
+				if (isUrlChanged) {
+					mPresenter.clearLocations();
+				}
 				setUrl(url.getText().toString());
 				loginValidatorWatcher.setUrlChanged(false);
 			}
@@ -315,6 +318,10 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 				selectedLocation = i;
 			}
 		}
+		boolean shouldHideLocationSelectorBecauseOnlyOneChoice = false;
+		if (locationsSize <= 1) {
+			shouldHideLocationSelectorBecauseOnlyOneChoice = true;
+		}
 
 		ArrayAdapter<String> adapter =
 				new ArrayAdapter<String>(mContext, android.R.layout.simple_spinner_item, spinnerArray);
@@ -323,6 +330,11 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		dropdownLocation.setSelection(selectedLocation);
 		setProgressBarVisibility(false);
 
+		if (shouldHideLocationSelectorBecauseOnlyOneChoice) {
+			dropdownLocation.setVisibility(View.GONE);
+		} else {
+			dropdownLocation.setVisibility(View.VISIBLE);
+		}
 	}
 
 	@Override
