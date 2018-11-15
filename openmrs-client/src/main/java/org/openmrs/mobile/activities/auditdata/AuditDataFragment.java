@@ -1438,7 +1438,8 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 		if (deathInHospitalObservation != null) {
 			observations.add(deathInHospitalObservation);
-			if (deathInHospitalObservation.getDisplay().equals(ApplicationConstants.ObservationLocators.YES)) {
+			if (deathInHospitalObservation.getDisplay() != null &&
+					deathInHospitalObservation.getDisplay().equals(ApplicationConstants.ObservationLocators.YES)) {
 				classificationOfDeathTypeObservation = null;
 			}
 		}
@@ -1505,7 +1506,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observations.add(signedOffOnConsultBeforeDischargeObservation);
 		}
 
-		if (firstIcuHeartRate.getText().length() > 0) {
+		if (firstIcuHeartRate.getText() != null && firstIcuHeartRate.getText().length() > 0) {
 			if (Float.valueOf(firstIcuHeartRate.getText().toString()) >= 0
 					&& Float.valueOf(firstIcuHeartRate.getText().toString()) <= 240) {
 				firstIcuHeartRateObservation =
@@ -1517,7 +1518,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			}
 		}
 
-		if (firstIcuRespiratoryRate.getText().length() > 0) {
+		if (firstIcuRespiratoryRate.getText() != null && firstIcuRespiratoryRate.getText().length() > 0) {
 			if (Float.valueOf(firstIcuRespiratoryRate.getText().toString()) >= AUDIT_1ST_RESPIRATORY_RATE_MIN
 					&& Float.valueOf(firstIcuRespiratoryRate.getText().toString()) <= AUDIT_1ST_RESPIRATORY_RATE_MAX) {
 				firstIcuRespiratoryRateObservation =
@@ -1531,7 +1532,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observationsToVoid.add(firstIcuRespiratoryRateObservation);
 		}
 
-		if (firstGcsScore.getText().length() > 0) {
+		if (firstGcsScore.getText() != null && firstGcsScore.getText().length() > 0) {
 			if (Float.valueOf(firstGcsScore.getText().toString()) >= 1
 					&& Float.valueOf(firstGcsScore.getText().toString()) <= 15) {
 				firstGcsScoreObservation = setObservationFields(firstGcsScoreObservation, CONCEPT_FIRST_GCS_SCORE_ICU,
@@ -1545,13 +1546,13 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observations.add(intubationObservation);
 		}
 
-		if (cd4.getText().length() > 0) {
+		if (cd4.getText() != null && cd4.getText().length() > 0) {
 			cd4Observation = setObservationFields(cd4Observation, CONCEPT_CD4_COUNT, cd4.getText().toString(),
 					ApplicationConstants.ObservationLocators.CD4_COUNT + cd4.getText().toString());
 			observations.add(cd4Observation);
 		}
 
-		if (hBa1c.getText().length() > 0) {
+		if (hBa1c.getText() != null && hBa1c.getText().length() > 0) {
 			if (Float.valueOf(hBa1c.getText().toString()) > 3
 					&& Float.valueOf(hBa1c.getText().toString()) < 26) {
 				hBa1cObservation = setObservationFields(hBa1cObservation, CONCEPT_HBA1C, hBa1c.getText().toString(),
@@ -1572,7 +1573,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observations.add(classificationOfDeathTypeObservation);
 		}
 
-		if (auditComplete.isChecked()) {
+		if (auditComplete != null && auditComplete.isChecked()) {
 			auditCompleteObservation = setObservationFields(auditCompleteObservation,
 					CONCEPT_AUDIT_COMPLETE, CONCEPT_ANSWER_YES,
 					ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE +
