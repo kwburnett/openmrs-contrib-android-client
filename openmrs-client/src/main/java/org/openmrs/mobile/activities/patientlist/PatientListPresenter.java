@@ -143,17 +143,8 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 		if (page <= 0) {
 			return;
 		}
-		setPage(page);
-		setLoading(true);
-		if (!forceRefresh) {
-			setViewBeforeLoadData();
-		}
-		setTotalNumberResults(0);
-		setExistingPatientListUuid(patientListUuid);
 
-		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
-		pagingInfo.setPage(page);
-		pagingInfo.setLoadRecordCount(true);
+		PagingInfo pagingInfo;
 
 		QueryOptions queryOptions = null;
 
@@ -163,7 +154,27 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 					.customRepresentation(RestConstants.Representations.PATIENT_LIST_PATIENTS_CONTEXT)
 					.requestStrategy(RequestStrategy.REMOTE_THEN_LOCAL)
 					.build();
+			pagingInfo = PagingInfo.ALL.getInstance();
+		} else {
+			pagingInfo = PagingInfo.DEFAULT.getInstance();
+			pagingInfo.setPage(page);
+			pagingInfo.setLoadRecordCount(true);
+
+			// if a swipe refresh was done, there is no need to go and fetch again results as they are already loaded.
+			int startIndex = pagingInfo.getStartIndex();
+			int patientsDisplayed = patientListView.getPatientsDisplayedOnView();
+			if (patientsDisplayed > 0 && patientsDisplayed > startIndex) {
+				return;
+			}
 		}
+
+		setPage(page);
+		setLoading(true);
+		if (!forceRefresh) {
+			setViewBeforeLoadData();
+		}
+		setTotalNumberResults(0);
+		setExistingPatientListUuid(patientListUuid);
 
 		patientListContextDataService.getListPatients(patientListUuid, queryOptions, pagingInfo,
 				new DataService.GetCallback<List<PatientListContext>>() {
@@ -176,11 +187,16 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 						} else {
 							setViewAfterLoadData(false);
 							patientListView.updatePatientListData(entities, forceRefresh);
-							setTotalNumberResults(pagingInfo.getTotalRecordCount() != null ? pagingInfo
-									.getTotalRecordCount() : 0);
+							setTotalNumberResults(
+									pagingInfo.getTotalRecordCount() != null ? pagingInfo.getTotalRecordCount() : 0);
 							if (pagingInfo.getTotalRecordCount() != null && pagingInfo.getTotalRecordCount() > 0) {
 								patientListView.setNumberOfPatientsView(pagingInfo.getTotalRecordCount());
-								totalNumberPages = pagingInfo.getTotalPages();
+								if (forceRefresh) {
+									totalNumberPages = pagingInfo.getTotalPages(PagingInfo.DEFAULT.getInstance()
+											.getPageSize());
+								} else {
+									totalNumberPages = pagingInfo.getTotalPages();
+								}
 								patientListView.updatePagingLabel(page, totalNumberPages);
 							}
 						}
