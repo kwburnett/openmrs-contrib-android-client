@@ -1331,14 +1331,14 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 						showAnimateView(true, hba1cTextLayout);
 
 					} else if (displayValue.equalsIgnoreCase(ANSWER_NO)) {
-						patient_diabetic_yes.setChecked(true);
+						patient_diabetic_no.setChecked(true);
 						patientDiabeticObservation =
 								setObservationFields(observation, CONCEPT_PATIENT_DIABETIC,
 										CONCEPT_ANSWER_NO);
 						showAnimateView(false, hba1cTextLayout);
 
 					} else if (displayValue.equalsIgnoreCase(ANSWER_UNKNOWN)) {
-						patient_diabetic_yes.setChecked(true);
+						patient_diabetic_unknown.setChecked(true);
 						patientDiabeticObservation =
 								setObservationFields(observation, CONCEPT_PATIENT_DIABETIC,
 										CONCEPT_ANSWER_UNKNOWN);
