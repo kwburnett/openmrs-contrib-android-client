@@ -254,6 +254,14 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	}
 
 	@Override
+	public int getPatientsDisplayedOnView() {
+		if (adapter != null) {
+			return adapter.getItemCount();
+		}
+		return 0;
+	}
+
+	@Override
 	public void displayRefreshingData(boolean visibility) {
 		patientListSwipeRefreshLayout.setRefreshing(visibility);
 	}
