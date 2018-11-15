@@ -69,7 +69,11 @@ public class PatientListModelRecyclerViewAdapter
 
 	@Override
 	public int getItemCount() {
-		return items.size();
+		if (items != null) {
+			return items.size();
+		}
+
+		return 0;
 	}
 
 	public void addItems(List<PatientListContext> items) {

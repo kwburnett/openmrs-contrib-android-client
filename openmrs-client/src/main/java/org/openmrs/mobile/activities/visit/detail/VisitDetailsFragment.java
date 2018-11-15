@@ -546,6 +546,10 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		List<TableRow> rowsToDisplay = new ArrayList<>();
 
 		for (Observation observation : observations) {
+			if (observation == null || observation.getDisplay() == null) {
+				continue;
+			}
+
 			TableRow row = new TableRow(mContext);
 			row.setPadding(0, 5, 0, 5);
 			row.setGravity(Gravity.CENTER);
