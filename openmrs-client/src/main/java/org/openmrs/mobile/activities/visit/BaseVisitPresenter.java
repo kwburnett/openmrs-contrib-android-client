@@ -99,7 +99,7 @@ public abstract class BaseVisitPresenter extends BasePresenter implements VisitC
 
 	@Override
 	public void dataRefreshWasRequested() {
-		if (OpenMRS.getInstance().getNetworkUtils().isConnectedOrConnecting()) {
+		if (OpenMRS.getInstance().getNetworkUtils().isConnected()) {
 			refreshAllTabData();
 		} else {
 			visitDashboardPageView.showToast(ApplicationConstants.toastMessages.notConnected, ToastType.NOTICE );

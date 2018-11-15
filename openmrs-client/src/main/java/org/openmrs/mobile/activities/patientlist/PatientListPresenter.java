@@ -93,7 +93,7 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 
 	@Override
 	public void dataRefreshWasRequested() {
-		if (OpenMRS.getInstance().getNetworkUtils().isConnectedOrConnecting()) {
+		if (OpenMRS.getInstance().getNetworkUtils().isConnected()) {
 			fetchPatientListData(patientListUuid, 1, true);
 		} else {
 			patientListView.showToast(ApplicationConstants.toastMessages.notConnected, ToastType.NOTICE);
