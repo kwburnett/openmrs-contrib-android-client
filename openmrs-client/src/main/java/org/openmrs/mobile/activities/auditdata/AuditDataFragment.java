@@ -968,6 +968,10 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	@Override
 	public void updateFormFields(Encounter encounter) {
 		for (Observation observation : encounter.getObs()) {
+			if (observation == null || observation.getDisplay() == null) {
+				continue;
+			}
+
 			ArrayList displayString = StringUtils.splitStrings(observation.getDisplay(), ":");
 			String observationName = displayString.get(0).toString() + ": ";
 			String displayValue = displayString.get(1).toString().trim();
