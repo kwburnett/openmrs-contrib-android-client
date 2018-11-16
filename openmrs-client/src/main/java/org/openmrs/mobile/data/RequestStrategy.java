@@ -1,7 +1,7 @@
 package org.openmrs.mobile.data;
 
 /**
- * Define the request critieria that will be used when fetching data.
+ * Define the request criteria that will be used when fetching data.
  */
 public enum RequestStrategy {
 	/**
