@@ -262,6 +262,9 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@Override
 	public void setPredefinedTasks(List<VisitPredefinedTask> predefinedTasks) {
+		if (predefinedTasks == null) {
+			predefinedTasks = new ArrayList<>();
+		}
 		this.predefinedTasks = predefinedTasks;
 		ArrayAdapter adapter =
 				new ArrayAdapter<>(mContext, android.R.layout.simple_dropdown_item_1line,
