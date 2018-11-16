@@ -14,6 +14,7 @@
 
 package org.openmrs.mobile.activities.patientdashboard;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -213,8 +214,16 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		if (patientVisitsRecyclerAdapter != null) {
 			patientVisitsRecyclerAdapter.destroy();
 		}
+
+		Context context;
+		if (mContext != null) {
+			context = mContext;
+		} else {
+			context = getActivity();
+		}
+
 		patientVisitsRecyclerAdapter =
-				new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, mContext, this);
+				new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context, this);
 		patientVisitsRecyclerAdapter.setOnLoadMoreListener(() -> {
 			// Add a null for loading indicator
 			patientVisits.add(null);
