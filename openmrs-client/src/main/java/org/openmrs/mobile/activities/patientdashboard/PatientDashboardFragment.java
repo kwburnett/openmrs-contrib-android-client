@@ -14,6 +14,7 @@
 
 package org.openmrs.mobile.activities.patientdashboard;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -83,7 +84,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 
 	@Override
 	public void navigateBack() {
-		getActivity().onBackPressed();
+		mContext.onBackPressed();
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 
 		//set start index incase it's cached somewhere
 		mPresenter.fetchPatientData();
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont(mContext.findViewById(android.R.id.content));
 
 		return fragmentView;
 	}
@@ -127,34 +128,28 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 				//Contact address header
 				View patientContactInfo = recyclerView.findViewById(R.id.container_patient_address_info);
 				if (patientContactInfo == null) {
-					((PatientDashboardActivity)getActivity()).updateHeaderShadowLine(true);
+					((PatientDashboardActivity)mContext).updateHeaderShadowLine(true);
 				} else {
-					((PatientDashboardActivity)getActivity()).updateHeaderShadowLine(false);
+					((PatientDashboardActivity)mContext).updateHeaderShadowLine(false);
 				}
 			}
 		};
 
 		patientVisitsRecyclerView.addOnScrollListener(patientVisitsOnScrollListener);
 
-		patientVisitsSwipeRefreshView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-
-			@Override
-			public void onRefresh() {
-				mPresenter.dataRefreshWasRequested();
-			}
-		});
+		patientVisitsSwipeRefreshView.setOnRefreshListener(() -> mPresenter.dataRefreshWasRequested());
 	}
 
 	private void startSelectedPatientDashboardActivity(int selectedId) {
 		patientDashboardMenu.close(true);
 		switch (selectedId) {
 			case R.id.start_visit:
-				intent = new Intent(getContext(), AddEditVisitActivity.class);
+				intent = new Intent(mContext, AddEditVisitActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				startActivity(intent);
 				break;
 			case R.id.edit_Patient:
-				intent = new Intent(getContext(), AddEditPatientActivity.class);
+				intent = new Intent(mContext, AddEditPatientActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				startActivity(intent);
 				break;
@@ -219,17 +214,21 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		if (patientVisitsRecyclerAdapter != null) {
 			patientVisitsRecyclerAdapter.destroy();
 		}
-		patientVisitsRecyclerAdapter =
-				new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, getActivity(), this);
-		patientVisitsRecyclerAdapter.setOnLoadMoreListener(new PatientVisitsRecyclerAdapter.OnLoadMoreListener() {
 
-			@Override
-			public void onLoadMore() {
-				// Add a null for loading indicator
-				patientVisits.add(null);
-				patientVisitsRecyclerAdapter.notifyItemInserted(patientVisits.size() - 1);
-				mPresenter.loadResults();
-			}
+		Context context;
+		if (mContext != null) {
+			context = mContext;
+		} else {
+			context = getActivity();
+		}
+
+		patientVisitsRecyclerAdapter =
+				new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context, this);
+		patientVisitsRecyclerAdapter.setOnLoadMoreListener(() -> {
+			// Add a null for loading indicator
+			patientVisits.add(null);
+			patientVisitsRecyclerAdapter.notifyItemInserted(patientVisits.size() - 1);
+			mPresenter.loadResults();
 		});
 		patientVisitsRecyclerView.setAdapter(patientVisitsRecyclerAdapter);
 	}
@@ -320,8 +319,8 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 
 	@Override
 	public void setLoading(boolean loading) {
-		if (getActivity() != null) {
-			((PatientDashboardActivity)getActivity()).setLoading(loading);
+		if (mContext != null) {
+			((PatientDashboardActivity)mContext).setLoading(loading);
 		}
 	}
 }

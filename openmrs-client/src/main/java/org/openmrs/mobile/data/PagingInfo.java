@@ -103,6 +103,10 @@ public class PagingInfo {
 	}
 
 	public Integer getTotalPages() {
+		return getTotalPages(pageSize);
+	}
+
+	public Integer getTotalPages(int pageSize) {
 		return (pageSize + getTotalRecordCount() - 1) / pageSize;
 	}
 

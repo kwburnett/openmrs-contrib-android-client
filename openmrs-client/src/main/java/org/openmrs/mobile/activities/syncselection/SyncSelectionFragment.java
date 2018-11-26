@@ -61,7 +61,7 @@ public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.
 		screenProgressBar = (ProgressBar) rootView.findViewById(R.id.syncSelectionScreenProgressBar);
 		advanceButton = (Button) rootView.findViewById(R.id.moveForwardButton);
 
-		layoutManager = new LinearLayoutManager(this.getActivity());
+		layoutManager = new LinearLayoutManager(this.mContext);
 		syncSelectionModelRecyclerView = (RecyclerView) rootView.findViewById(R.id.syncSelectionModelRecyclerView);
 	}
 
@@ -105,6 +105,6 @@ public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.
 		}
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 		openMRS.getApplicationContext().startActivity(intent);
-		getActivity().finish();
+		mContext.finish();
 	}
 }

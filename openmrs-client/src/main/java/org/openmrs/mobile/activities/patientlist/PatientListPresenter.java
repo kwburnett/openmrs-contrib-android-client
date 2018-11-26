@@ -93,7 +93,7 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 
 	@Override
 	public void dataRefreshWasRequested() {
-		if (OpenMRS.getInstance().getNetworkUtils().isConnectedOrConnecting()) {
+		if (OpenMRS.getInstance().getNetworkUtils().isConnected()) {
 			fetchPatientListData(patientListUuid, 1, true);
 		} else {
 			patientListView.showToast(ApplicationConstants.toastMessages.notConnected, ToastType.NOTICE);
@@ -110,7 +110,7 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 	public void getPatientList() {
 		patientListView.showPatientListProgressSpinner(true);
 		setPage(1);
-		patientListDataService.getAll(null, PagingInfo.ALL.getInstance(),
+		patientListDataService.getAll(QueryOptions.REMOTE, PagingInfo.ALL.getInstance(),
 				new DataService.GetCallback<List<PatientList>>() {
 					@Override
 					public void onCompleted(List<PatientList> entities) {
@@ -143,6 +143,31 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 		if (page <= 0) {
 			return;
 		}
+
+		PagingInfo pagingInfo;
+
+		QueryOptions queryOptions = null;
+
+		// If we're doing a force refresh, first update the DB by making the rest call before fetching results
+		if (forceRefresh) {
+			queryOptions = new QueryOptions.Builder()
+					.customRepresentation(RestConstants.Representations.PATIENT_LIST_PATIENTS_CONTEXT)
+					.requestStrategy(RequestStrategy.REMOTE_THEN_LOCAL)
+					.build();
+			pagingInfo = PagingInfo.ALL.getInstance();
+		} else {
+			pagingInfo = PagingInfo.DEFAULT.getInstance();
+			pagingInfo.setPage(page);
+			pagingInfo.setLoadRecordCount(true);
+
+			// if a swipe refresh was done, there is no need to go and fetch again results as they are already loaded.
+			int startIndex = pagingInfo.getStartIndex();
+			int patientsDisplayed = patientListView.getPatientsDisplayedOnView();
+			if (patientsDisplayed > 0 && patientsDisplayed > startIndex) {
+				return;
+			}
+		}
+
 		setPage(page);
 		setLoading(true);
 		if (!forceRefresh) {
@@ -151,72 +176,44 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 		setTotalNumberResults(0);
 		setExistingPatientListUuid(patientListUuid);
 
-		PagingInfo pagingInfo = PagingInfo.DEFAULT.getInstance();
-		pagingInfo.setPage(page);
-		pagingInfo.setLoadRecordCount(true);
-
-		Runnable dataFetchCall = new Runnable() {
-
-			@Override
-			public void run() {
-
-				patientListContextDataService.getListPatients(patientListUuid, null, pagingInfo,
-						new DataService.GetCallback<List<PatientListContext>>() {
-							@Override
-							public void onCompleted(List<PatientListContext> entities) {
-								if (entities.isEmpty()) {
-									setViewAfterLoadData(true);
-									patientListView.setNumberOfPatientsView(0);
-									patientListView.updatePatientListData(entities, forceRefresh);
+		patientListContextDataService.getListPatients(patientListUuid, queryOptions, pagingInfo,
+				new DataService.GetCallback<List<PatientListContext>>() {
+					@Override
+					public void onCompleted(List<PatientListContext> entities) {
+						if (entities.isEmpty()) {
+							setViewAfterLoadData(true);
+							patientListView.setNumberOfPatientsView(0);
+							patientListView.updatePatientListData(entities, forceRefresh);
+						} else {
+							setViewAfterLoadData(false);
+							patientListView.updatePatientListData(entities, forceRefresh);
+							setTotalNumberResults(
+									pagingInfo.getTotalRecordCount() != null ? pagingInfo.getTotalRecordCount() : 0);
+							if (pagingInfo.getTotalRecordCount() != null && pagingInfo.getTotalRecordCount() > 0) {
+								patientListView.setNumberOfPatientsView(pagingInfo.getTotalRecordCount());
+								if (forceRefresh) {
+									totalNumberPages = pagingInfo.getTotalPages(PagingInfo.DEFAULT.getInstance()
+											.getPageSize());
 								} else {
-									setViewAfterLoadData(false);
-									patientListView.updatePatientListData(entities, forceRefresh);
-									setTotalNumberResults(pagingInfo.getTotalRecordCount() != null ? pagingInfo
-											.getTotalRecordCount() : 0);
-									if (pagingInfo.getTotalRecordCount() != null && pagingInfo.getTotalRecordCount() > 0) {
-										patientListView.setNumberOfPatientsView(pagingInfo.getTotalRecordCount());
-										totalNumberPages = pagingInfo.getTotalPages();
-										patientListView.updatePagingLabel(page, totalNumberPages);
-									}
+									totalNumberPages = pagingInfo.getTotalPages();
 								}
-								setLoading(false);
-								patientListView.displayRefreshingData(false);
+								patientListView.updatePagingLabel(page, totalNumberPages);
 							}
-
-							@Override
-							public void onError(Throwable t) {
-								patientListView.updatePatientListData(new ArrayList<>(), false);
-								setViewAfterLoadData(true);
-								patientListView.setNumberOfPatientsView(0);
-								setLoading(false);
-								patientListView.displayRefreshingData(false);
-							}
-						});
-			}
-		};
-
-		// If we're doing a force refresh, first update the DB by making the rest call before fetching results
-		if (forceRefresh) {
-			QueryOptions queryOptions = new QueryOptions.Builder()
-					.customRepresentation(RestConstants.Representations.PATIENT_LIST_PATIENTS_CONTEXT)
-					.requestStrategy(RequestStrategy.REMOTE_THEN_LOCAL)
-					.build();
-			patientListContextDataService.getListPatients(patientListUuid, queryOptions, PagingInfo.ALL.getInstance(),
-					new DataService.GetCallback<List<PatientListContext>>() {
-
-						@Override
-						public void onCompleted(List<PatientListContext> patientListContexts) {
-							dataFetchCall.run();
 						}
+						setLoading(false);
+						patientListView.displayRefreshingData(false);
+					}
 
-						@Override
-						public void onError(Throwable t) {
-							dataFetchCall.run();
-						}
-					});
-		} else {
-			dataFetchCall.run();
-		}
+					@Override
+					public void onError(Throwable t) {
+						patientListView.updatePatientListData(new ArrayList<>(), false);
+						setViewAfterLoadData(true);
+						patientListView.setNumberOfPatientsView(0);
+						setLoading(false);
+						patientListView.displayRefreshingData(false);
+					}
+				});
+
 	}
 
 	@Override

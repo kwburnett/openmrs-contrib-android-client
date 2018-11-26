@@ -298,7 +298,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				T result = dbSupplier.get();
 
 				if ((result == null || (result instanceof List<?> && ((List<?>)result).size() == 0)) &&
-						networkUtils.isConnectedOrConnecting() &&
+						networkUtils.isConnected() &&
 						QueryOptions.getRequestStrategy(options) == RequestStrategy.LOCAL_THEN_REMOTE) {
 					// This call will spin up another thread
 					performOnlineCallback(callback, options, dbSupplier, restSupplier, responseConverter, dbOperation);
