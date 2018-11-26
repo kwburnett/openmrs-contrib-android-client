@@ -48,6 +48,8 @@ public interface LoginContract {
 
 		void login(String username, String password, String url, String oldUrl);
 
+		void clearLocations();
+
 		void loadLocations(String url);
 
 		void authenticateUser(final String username, final String password, final String url, boolean wipeDatabase);
