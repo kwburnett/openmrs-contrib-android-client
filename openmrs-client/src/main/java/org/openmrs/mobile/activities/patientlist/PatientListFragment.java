@@ -132,14 +132,14 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 		patientListSwipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.patientListSwipeRefreshView);
 		patientListSwipeRefreshLayout.setEnabled(false);
 
-		layoutManager = new LinearLayoutManager(this.getActivity());
+		layoutManager = new LinearLayoutManager(mContext);
 		patientListModelRecyclerView = (RecyclerView)root.findViewById(R.id.patientListModelRecyclerView);
 
 		patientListNotSelectedOption = new PatientList();
 		patientListNotSelectedOption.setName(getString(R.string.select_patient_list));
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)mContext.findViewById(android.R.id.content));
 
 		return root;
 	}
@@ -147,7 +147,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		adapter = new PatientListModelRecyclerViewAdapter(this.getActivity(), this);
+		adapter = new PatientListModelRecyclerViewAdapter(mContext, this);
 		patientListModelRecyclerView.setAdapter(adapter);
 		patientListModelRecyclerView.addOnScrollListener(recyclerViewOnScrollListener);
 
@@ -199,7 +199,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	public void updatePatientLists(List<PatientList> patientLists, List<PatientList> syncingPatientLists) {
 		List<PatientList> patientListsToShow = getPatientListDisplayList(patientLists);
 
-		patientListSpinnerAdapter = new PatientListSpinnerAdapter(getContext(),
+		patientListSpinnerAdapter = new PatientListSpinnerAdapter(mContext,
 				patientListsToShow, syncingPatientLists);
 		patientListDropdown.setAdapter(patientListSpinnerAdapter);
 
@@ -251,6 +251,14 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 		} else {
 			adapter.addItems(patientListData);
 		}
+	}
+
+	@Override
+	public int getPatientsDisplayedOnView() {
+		if (adapter != null) {
+			return adapter.getItemCount();
+		}
+		return 0;
 	}
 
 	@Override

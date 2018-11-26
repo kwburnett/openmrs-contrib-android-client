@@ -21,7 +21,7 @@
 	<string name="action_logout">Logout</string>
 
 	<!-- URIs -->
-	<string name="uri_privacy_policy">https://www.bandahealth.org/imed-privacy-policy</string>
+	<string name="uri_privacy_policy">https://www.bandahealth.org/privacy-policy</string>
 	
 	<string name="dbname">openmrs.db</string>
 	<string name="aadbname">aaopenmrs.db</string>
@@ -304,7 +304,9 @@
 	<string name="label_capture_vitals">Capture Vitals</string>
 	<string name="default_file_caption_message">Uploaded from android client</string>
 	<string name="edit_patient">Edit Patient</string>
-	
+
+	<string name="complete_audit_data_form">Kindly complete the Audit Data Form before ending visit.</string>
+
 	<!--Audit data form -->
 	<string name="yes">Yes</string>
 	<string name="no">No</string>
@@ -412,6 +414,29 @@
 	<string name="error_gcs_score">Invalid GCS value (should be between %1$d and %2$d)</string>
 	<string name="error_first_respiratory_rate">Invalid Respiratory Rate (should be between %1$d and %2$d)</string>
 	<string name="error_hba1c">Invalid HbA1c value (should be between %1$d and %2$d)</string>
+	<string name="signed_off_on_consult_before_discharge">Signed off on consult before discharge?</string>
+	<string name="classification_of_death">Classification of death</string>
+
+	<string name="anticipated_death_following_terminal_illness_name">Anticipated death after terminal illness or pre-arrival</string>
+	<string name="anticipated_death_following_terminal_illness_description">Anticipated death following a terminal illness
+		and/or following pre-arrival cardiac/respiratory arrest?</string>
+
+	<string name="expected_death_clinical_situation_name">Expected death given clinical situation</string>
+	<string name="expected_death_clinical_situation_description">Expected death given clinical situation, despite the
+		health service taking preventative measures?</string>
+
+	<string name="unexpected_death_not_preventable_name">Unexpected death not reasonably preventable</string>
+	<string name="unexpected_death_not_preventable_description">Unexpected death, not reasonably preventable with medical
+		intervention?</string>
+
+	<string name="preventable_death_name">Preventable death quality or system issues</string>
+	<string name="preventable_death_description">Preventable death - Quality / system issues / opportunity for improvement
+		identified?</string>
+
+	<string name="unexpected_death_medical_intervention_name">Unexpected death from medical intervention</string>
+	<string name="unexpected_death_medical_intervention_description">Unexpected death, resulting from medical
+		intervention?</string>
+
 	<!-- Login Sync Activity -->
 	<string name="download_upload_speed_is_fast">This should take less than a minute&#8230;</string>
 	<string name="download_upload_speed_is_slow">This could take a few minutes&#8230;</string>

@@ -42,11 +42,13 @@ public interface AddEditVisitContract {
 
 		void showPatientDashboard();
 
-		void showVisitDetails(String visitUuuid, boolean isNewInstance);
+		void showVisitDetails(String visitUUID, boolean isNewInstance);
 
 		void showPageSpinner(boolean visibility);
 
 		void loadEndVisitView();
+
+		void loadAuditDataForm(String visitUUID);
 	}
 
 	interface Presenter extends BasePresenterContract {

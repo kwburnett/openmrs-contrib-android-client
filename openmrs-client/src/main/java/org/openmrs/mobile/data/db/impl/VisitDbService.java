@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import org.openmrs.mobile.data.db.BaseEntityDbService;
@@ -17,7 +19,9 @@ import org.openmrs.mobile.models.VisitAttribute;
 import org.openmrs.mobile.models.VisitAttribute_Table;
 import org.openmrs.mobile.models.Visit_Table;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -67,10 +71,35 @@ public class VisitDbService extends BaseEntityDbService<Visit> implements Entity
 		repository.deleteAll(visitAttributeTable, VisitAttribute_Table.visit_uuid.eq(visit.getUuid()));
 	}
 
+	public void removeLocalVisitAttributesNotFoundInREST(@NonNull Visit visit) {
+		checkNotNull(visit);
+
+		if (visit.getAttributes().isEmpty()) {
+			return;
+		}
+
+		// create a group of SQLOperators
+		List<SQLOperator> operators =
+				OperatorGroup.clause(
+						VisitAttribute_Table.visit_uuid.eq(visit.getUuid()))
+						.and(VisitAttribute_Table.uuid.notIn(getVisitAttributeUuids(visit))).getConditions();
+
+		repository.deleteAll(visitAttributeTable, operators.toArray(new SQLOperator[operators.size()]));
+	}
+
 	public void saveVisitAttributes(@NonNull Visit visit) {
 		checkNotNull(visit);
 
 		deleteAllVisitAttributes(visit);
 		repository.saveAll(visitAttributeTable, visit.getAttributes());
+	}
+
+	private List<String> getVisitAttributeUuids(Visit visit) {
+		List<String> uuids = new ArrayList<>();
+		for (VisitAttribute visitAttribute: visit.getAttributes()) {
+			uuids.add(visitAttribute.getUuid());
+		}
+
+		return uuids;
 	}
 }

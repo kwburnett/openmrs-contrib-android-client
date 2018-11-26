@@ -117,8 +117,8 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		initializeViewFields(root);
 		initializeAuditDataSortOrder();
 		addListeners();
-		primaryDiagnosisLayoutManager = new LinearLayoutManager(this.getActivity());
-		secondaryDiagnosisLayoutManager = new LinearLayoutManager(this.getActivity());
+		primaryDiagnosisLayoutManager = new LinearLayoutManager(this.mContext);
+		secondaryDiagnosisLayoutManager = new LinearLayoutManager(this.mContext);
 
 		primaryDiagnosesRecycler.setLayoutManager(primaryDiagnosisLayoutManager);
 		secondaryDiagnosesRecycler.setLayoutManager(secondaryDiagnosisLayoutManager);
@@ -261,7 +261,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	private void addListeners() {
 		addAuditData.setOnClickListener(
 				v -> {
-					intent = new Intent(getContext(), AuditDataActivity.class);
+					intent = new Intent(mContext, AuditDataActivity.class);
 					intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 					intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 					intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
@@ -272,7 +272,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		addVisitVitals.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				intent = new Intent(getContext(), CaptureVitalsActivity.class);
+				intent = new Intent(mContext, CaptureVitalsActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
@@ -284,7 +284,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		auditDataCompleteness.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				intent = new Intent(getContext(), AuditDataActivity.class);
+				intent = new Intent(mContext, AuditDataActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
@@ -306,10 +306,10 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		if (visit.getStopDatetime() != null) {
 			activeVisitBadge.setVisibility(View.GONE);
 			visitStartDate.setText(DATE_FORMAT.format(visit.getStartDatetime()));
-			visitEndDate.setText(getContext().getResources().getString(R.string.date_closed) + ": " + DATE_FORMAT
+			visitEndDate.setText(mContext.getResources().getString(R.string.date_closed) + ": " + DATE_FORMAT
 					.format(visit.getStopDatetime()));
 			startDuration.setText(DateUtils.calculateTimeDifference(visit.getStartDatetime()));
-			visitDuration.setText(getContext().getString(R.string.visit_duration,
+			visitDuration.setText(mContext.getString(R.string.visit_duration,
 					DateUtils.calculateTimeDifference(visit.getStartDatetime(), visit.getStopDatetime())));
 		} else {
 			activeVisitBadge.setVisibility(View.VISIBLE);
@@ -357,19 +357,19 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	}
 
 	private void createVisitAttributeTypesLayout(VisitAttributeType visitAttributeType) {
-		LinearLayout linearLayout = new LinearLayout(getContext());
+		LinearLayout linearLayout = new LinearLayout(mContext);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		linearLayout.setLayoutParams(params);
 		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 		String valueLabel = String.valueOf(ApplicationConstants.EMPTY_STRING);
-		TextView nameLabelView = new TextView(getContext());
+		TextView nameLabelView = new TextView(mContext);
 		nameLabelView.setPadding(0, 10, 10, 10);
 		nameLabelView.setText(visitAttributeType.getDisplay() + ":");
 		linearLayout.addView(nameLabelView);
 
-		TextView valueLabelView = new TextView(getContext());
+		TextView valueLabelView = new TextView(mContext);
 		valueLabelView.setPadding(20, 10, 10, 10);
 		valueLabelView.setText(valueLabel);
 
@@ -379,19 +379,19 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	}
 
 	private void createVisitAttributeLayout(VisitAttribute visitAttribute) {
-		LinearLayout linearLayout = new LinearLayout(getContext());
+		LinearLayout linearLayout = new LinearLayout(mContext);
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		linearLayout.setLayoutParams(params);
 		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 		String valueLabel = String.valueOf(visitAttribute.getValue());
-		TextView nameLabelView = new TextView(getContext());
+		TextView nameLabelView = new TextView(mContext);
 		nameLabelView.setPadding(0, 10, 10, 10);
 		nameLabelView.setText(visitAttribute.getAttributeType().getDisplay() + ":");
 		linearLayout.addView(nameLabelView);
 
-		TextView valueLabelView = new TextView(getContext());
+		TextView valueLabelView = new TextView(mContext);
 		valueLabelView.setPadding(20, 10, 10, 10);
 
 		if (visitAttribute.getAttributeType().getDatatypeConfig() != null) {
@@ -480,7 +480,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 						encounter.getEncounterType().getDisplay().equalsIgnoreCase(
 								ApplicationConstants.EncounterTypeDisplays.AUDITDATA))) {
 
-					if (!encounter.getObs().isEmpty()) {
+					if (!encounter.getObs().isEmpty() && encounter.getEncounterDatetime() != null) {
 						auditDataMetadata.setVisibility(View.VISIBLE);
 						auditDataMetadataDate.setText(
 								DATE_FORMAT.format(encounter.getEncounterDatetime()));
@@ -546,7 +546,11 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		List<TableRow> rowsToDisplay = new ArrayList<>();
 
 		for (Observation observation : observations) {
-			TableRow row = new TableRow(getContext());
+			if (observation == null || observation.getDisplay() == null) {
+				continue;
+			}
+
+			TableRow row = new TableRow(mContext);
 			row.setPadding(0, 5, 0, 5);
 			row.setGravity(Gravity.CENTER);
 
@@ -556,7 +560,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 
 			ArrayList splitValues = StringUtils.splitStrings(observation.getDisplay(), ":");
 
-			TextView label = new TextView(getContext());
+			TextView label = new TextView(mContext);
 			TableRow.LayoutParams labelParams = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
 			labelParams.weight = 1;
 
@@ -572,7 +576,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 			label.setTextColor(getResources().getColor(R.color.black));
 			row.addView(label, 0);
 
-			TextView value = new TextView(getContext());
+			TextView value = new TextView(mContext);
 			value.setTextSize(14);
 			if (type == EncounterTypeData.VITALS) {
 				value.setText(splitValues.get(1).toString());
@@ -645,7 +649,7 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 		bundle.setTextViewMessage(getString(R.string.visit_note_changes_pending_message));
 		bundle.setRightButtonAction(CustomFragmentDialog.OnClickAction.END_VISIT);
 		bundle.setRightButtonText(getString(R.string.dialog_button_confirm));
-		((VisitActivity)this.getActivity())
+		((VisitActivity)this.mContext)
 				.createAndShowDialog(bundle, ApplicationConstants.DialogTAG.PENDING_VISIT_NOTE_CHANGES_TAG);
 	}
 
@@ -663,8 +667,8 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 			if (!isVisibleToUser) {
 				try {
 					InputMethodManager inputMethodManager =
-							(InputMethodManager)this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputMethodManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+							(InputMethodManager)this.mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputMethodManager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), 0);
 				} catch (Exception e) {
 
 				}
@@ -685,8 +689,8 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 
 	@Override
 	public void setLoading(boolean loading) {
-		if (getActivity() != null) {
-			((VisitActivity)getActivity()).setLoading(loading);
+		if (mContext != null) {
+			((VisitActivity)mContext).setLoading(loading);
 		}
 	}
 }

@@ -23,4 +23,8 @@ public class LocationDataService extends BaseMetadataDataService<Location, Locat
 		);
 
 	}
+
+	public void deleteAllLocal() {
+		dbService.deleteAll();
+	}
 }

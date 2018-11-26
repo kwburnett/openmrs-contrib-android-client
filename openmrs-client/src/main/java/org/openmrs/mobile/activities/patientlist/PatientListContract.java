@@ -48,6 +48,8 @@ public interface PatientListContract {
 		void updatePatientListSyncDisplay(List<PatientList> patientList, List<PatientList> syncingPatientLists);
 
 		void displayRefreshingData(boolean visibility);
+
+		int getPatientsDisplayedOnView();
 	}
 
 	interface Presenter extends BasePresenterContract {

@@ -107,7 +107,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 		loginView.setProgressBarVisibility(true);
 		RestServiceBuilder.setloginUrl(url);
 
-		if (openMRS.getNetworkUtils().isConnectedOrConnecting()) {
+		if (openMRS.getNetworkUtils().isConnected()) {
 			wipeRequired = wipeDatabase;
 
 			DataService.GetCallback<Session> loginUserCallback = new DataService.GetCallback<Session>() {
@@ -164,7 +164,7 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 				} else {
 					loginView.showMessage(AUTH_FAILED);
 				}
-			} else if (openMRS.getNetworkUtils().isConnectedOrConnecting()) {
+			} else if (openMRS.getNetworkUtils().isConnected()) {
 				loginView.showMessage(OFFLINE_LOGIN_UNSUPPORTED);
 				loginView.setProgressBarVisibility(false);
 
@@ -216,6 +216,11 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 	}
 
 	@Override
+	public void clearLocations() {
+		locationDataService.deleteAllLocal();
+	}
+
+	@Override
 	public void loadLocations(String url) {
 		loginView.setProgressBarVisibility(true);
 		RestServiceBuilder.setBaseUrl(url);
@@ -223,7 +228,11 @@ public class LoginPresenter extends BasePresenter implements LoginContract.Prese
 				new DataService.GetCallback<List<Location>>() {
 					@Override
 					public void onCompleted(List<Location> locations) {
-						openMRS.setServerUrl(url);
+						if (locations == null || locations.size() == 0) {
+							loginView.showMessage(SERVER_ERROR);
+						} else {
+							openMRS.setServerUrl(url);
+						}
 						loginView.updateLoginFormLocations(locations, url);
 					}
 

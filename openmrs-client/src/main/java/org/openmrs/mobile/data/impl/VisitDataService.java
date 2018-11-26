@@ -79,6 +79,8 @@ public class VisitDataService extends BaseEntityDataService<Visit, VisitDbServic
 						for (Encounter encounter : visit.getEncounters()) {
 							obsDbService.removeLocalObservationsNotFoundInREST(encounter);
 						}
+
+						dbService.deleteAllVisitAttributes(visit);
 					}
 					dbService.saveAll(e);
 
