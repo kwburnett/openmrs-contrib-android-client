@@ -46,6 +46,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -87,10 +88,10 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private FloatingActionButton capturePhoto;
 	private Bitmap visitPhoto = null;
 	private AppCompatButton uploadVisitPhotoButton;
-	private RelativeLayout visitPhotoProgressBar;
+	private ProgressBar visitPhotoProgressBar;
 	private SwipeRefreshLayout visitPhotoSwipeRefreshLayout;
 
-	private File output;
+	private File photoFile;
 	private EditText fileCaption;
 	private TextView noVisitImage;
 
@@ -123,7 +124,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		fileCaption = (EditText)root.findViewById(R.id.fileCaption);
 		noVisitImage = (TextView)root.findViewById(R.id.noVisitImage);
 
-		visitPhotoProgressBar = (RelativeLayout)root.findViewById(R.id.visitPhotoProgressBar);
+		visitPhotoProgressBar = (ProgressBar) root.findViewById(R.id.visitPhotoProgressBar);
 		visitPhotoSwipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.visitPhotoTab);
 
 		// Disabling swipe refresh on this fragment due to issues
@@ -186,13 +187,12 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void capturePhoto() {
 		VisitPhotoFragmentPermissionsDispatcher.externalStorageWithCheck(VisitPhotoFragment.this);
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Context context = mContext;
+		Context context = getContext();
 		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
-			OpenMRS openMRS = OpenMRS.getInstance();
-			File dir = openMRS.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			output = new File(dir, getUniqueImageFileName());
-			if (output != null) {
-				Uri photoURI = FileProvider.getUriForFile(openMRS, ApplicationConstants.Authorities.FILE_PROVIDER, output);
+			File dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			photoFile = new File(dir, getUniqueImageFileName());
+			if (photoFile != null) {
+				Uri photoURI = FileProvider.getUriForFile(context, ApplicationConstants.Authorities.FILE_PROVIDER, photoFile);
 				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 				grantUriPermissions(context, takePictureIntent, photoURI);
 				startActivityForResult(takePictureIntent, IMAGE_REQUEST);
@@ -257,7 +257,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private Bitmap getPortraitImage(String imagePath) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
-		Bitmap photo = BitmapFactory.decodeFile(output.getPath(), options);
+		Bitmap photo = BitmapFactory.decodeFile(photoFile.getPath(), options);
 		float rotateAngle;
 		try {
 			ExifInterface exifInterface = new ExifInterface(imagePath);
@@ -295,9 +295,11 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		});
 
 		visitImageView.setOnClickListener(view -> {
-			if (output != null) {
+			if (photoFile != null) {
 				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setDataAndType(Uri.fromFile(output), "image/jpeg");
+				OpenMRS openMRS = OpenMRS.getInstance();
+				Uri photoURI = FileProvider.getUriForFile(openMRS, ApplicationConstants.Authorities.FILE_PROVIDER, photoFile);
+				i.setDataAndType(photoURI, "image/jpeg");
 				startActivity(i);
 			}
 		});
@@ -327,13 +329,13 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == IMAGE_REQUEST) {
 			if (resultCode == Activity.RESULT_OK) {
-				visitPhoto = getPortraitImage(output.getPath());
+				visitPhoto = getPortraitImage(photoFile.getPath());
 				Bitmap bitmap =
 						ThumbnailUtils.extractThumbnail(visitPhoto, visitImageView.getWidth(), visitImageView.getHeight());
 				visitImageView.setImageBitmap(bitmap);
 				visitImageView.invalidate();
 			} else {
-				output = null;
+				photoFile = null;
 			}
 		}
 	}

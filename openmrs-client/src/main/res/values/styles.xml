@@ -12,7 +12,7 @@
   ~ Copyright (C) OpenMRS, LLC.  All Rights Reserved.
   -->
 
-<resources xmlns:android="http://schemas.android.com/tools">
+<resources>
 
 	<style name="AppThemeOrig" parent="Theme.AppCompat.Light.DarkActionBar">
 		<item name="colorPrimary">@color/primary</item>
@@ -107,5 +107,15 @@
 
 	</style>
 
+	<style name="BandaHealth.Theme.Light.TransparentActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+		<item name="colorPrimary">@android:color/transparent</item>
+		<item name="progressBarStyle">@style/ProgressBar.Openmrs</item>
+	</style>
+
+	<style name="BandaHealth.Theme.Dark.TransparentActionBar" parent="Theme.AppCompat">
+		<item name="colorPrimary">@android:color/transparent</item>
+		<item name="progressBarStyle">@style/ProgressBar.Openmrs</item>
+		<item name="android:textColor">@android:color/white</item>
+	</style>
 
 </resources>
