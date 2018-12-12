@@ -20,6 +20,7 @@ import android.widget.TextView;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.VisitPhoto;
+import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.widget.TouchImageView;
 
@@ -28,6 +29,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
 	private Activity activity;
 	private List<VisitPhoto> visitPhotos;
 	private LayoutInflater layoutInflater;
+	private boolean hideDetails = false;
 
 	public FullScreenImageAdapter(Activity activity) {
 		this.activity = activity;
@@ -77,8 +79,15 @@ public class FullScreenImageAdapter extends PagerAdapter {
 			uploadedBy = OpenMRS.getInstance().getUserPersonName();
 		}
 
-		descriptionView.setText(activity.getString(R.string.visit_image_description, visitPhoto.getFileCaption(),
+		String description = visitPhoto.getFileCaption();
+		if (description == null) {
+			description = ApplicationConstants.EMPTY_STRING;
+		}
+		descriptionView.setText(activity.getString(R.string.visit_image_description, description,
 				DateUtils.calculateRelativeDate(visitPhoto.getDateCreated()), uploadedBy));
+		if (hideDetails) {
+			descriptionView.setVisibility(View.GONE);
+		}
 
 		((ViewPager) container).addView(viewLayout);
 
@@ -88,5 +97,9 @@ public class FullScreenImageAdapter extends PagerAdapter {
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {
 		((ViewPager) container).removeView((RelativeLayout) object);
+	}
+
+	public void hideDetails() {
+		hideDetails = true;
 	}
 }

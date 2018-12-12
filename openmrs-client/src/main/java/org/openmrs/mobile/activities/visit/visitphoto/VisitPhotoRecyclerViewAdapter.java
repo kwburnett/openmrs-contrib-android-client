@@ -14,9 +14,6 @@
 
 package org.openmrs.mobile.activities.visit.visitphoto;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,15 +21,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import org.openmrs.mobile.R;
-import org.openmrs.mobile.activities.fullscreenview.FullScreenViewActivity;
 import org.openmrs.mobile.activities.visit.VisitContract;
-import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.VisitPhoto;
-import org.openmrs.mobile.utilities.DateUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,13 +34,11 @@ import java.util.Map;
 public class VisitPhotoRecyclerViewAdapter
 		extends RecyclerView.Adapter<VisitPhotoRecyclerViewAdapter.DownloadVisitPhotoViewHolder> {
 
-	private Activity context;
 	private VisitContract.VisitPhotoView view;
 	private List<VisitPhoto> visitPhotos;
 	private Map<ImageView, VisitPhoto> map = new HashMap<>();
 
-	public VisitPhotoRecyclerViewAdapter(Activity context, VisitContract.VisitPhotoView view) {
-		this.context = context;
+	public VisitPhotoRecyclerViewAdapter(VisitContract.VisitPhotoView view) {
 		this.view = view;
 	}
 
@@ -79,48 +69,11 @@ public class VisitPhotoRecyclerViewAdapter
 			@Override
 			public void onClick(View imageView) {
 				if (map.containsKey(imageView)) {
-					Intent intent = new Intent(context, FullScreenViewActivity.class);
-					intent.putExtra("position", position);
-//					intent.putExtra("visitUuid", )
-					ArrayList<String> visitPhotoUuids = new ArrayList<>();
+					List<String> visitPhotoUuids = new ArrayList<>();
 					for (VisitPhoto visitPhoto : visitPhotos) {
 						visitPhotoUuids.add(visitPhoto.getUuid());
 					}
-					intent.putStringArrayListExtra("visitPhotoUuids", visitPhotoUuids);
-					context.startActivity(intent);
-//					VisitPhoto visitPhoto = map.get(imageView);
-//					Dialog expandImageDialog = new Dialog(context);
-//					RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(1000, 800);
-//					layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-//
-//					LinearLayout linearLayout = new LinearLayout(context);
-//					linearLayout.setOrientation(LinearLayout.VERTICAL);
-//
-//					ImageView expandImage = new ImageView(context);
-//					expandImage.setLayoutParams(layoutParams);
-//					expandImage.setImageBitmap(
-//							BitmapFactory.decodeByteArray(
-//									visitPhoto.getImageColumn().getBlob(), 0,
-//									visitPhoto.getImageColumn().getBlob().length));
-//
-//					TextView descriptionView = new TextView(context);
-//					String uploadedBy;
-//					if (visitPhoto.getCreator() != null) {
-//						uploadedBy = visitPhoto.getCreator().getDisplay();
-//					} else {
-//						// must have been uploaded locally
-//						uploadedBy = OpenMRS.getInstance().getUserPersonName();
-//					}
-//
-//					descriptionView.setText(view.formatVisitImageDescription(visitPhoto.getFileCaption(),
-//							DateUtils.calculateRelativeDate(visitPhoto.getDateCreated()), uploadedBy));
-//					descriptionView.setPadding(10, 10, 10, 10);
-//
-//					linearLayout.addView(descriptionView);
-//					linearLayout.addView(expandImage);
-//
-//					expandImageDialog.addContentView(linearLayout, layoutParams);
-//					expandImageDialog.show();
+					view.viewImage(visitPhotos.get(position).getUuid(), visitPhotoUuids);
 				}
 			}
 		});

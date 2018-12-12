@@ -82,6 +82,8 @@ public interface VisitContract {
 	interface VisitPhotoView extends VisitDashboardPageView {
 		void updateVisitImageMetadata(List<VisitPhoto> visitPhotos);
 
+		void viewImage(String photoUuidToView, List<String> visitPhotoUuids);
+
 		void deleteImage(VisitPhoto visitPhoto);
 
 		void refresh();

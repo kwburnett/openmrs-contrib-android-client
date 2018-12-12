@@ -1,9 +1,14 @@
 package org.openmrs.mobile.activities.fullscreenview;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -19,7 +24,7 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 	private FullScreenImageAdapter fullScreenImageAdapter;
 	private ViewPager viewPager;
 	private FullScreenViewContract.Presenter presenter;
-	private int initialPosition;
+	private String initialPhotoUuid;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -33,22 +38,43 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 		}
 
 		viewPager = (ViewPager) findViewById(R.id.fullscreenPager);
+		fullScreenImageAdapter = new FullScreenImageAdapter(FullScreenViewActivity.this);
+		presenter = new FullScreenViewPresenter(this);
+		viewPager.setAdapter(fullScreenImageAdapter);
 
 		Intent intent = getIntent();
-		initialPosition = intent.getIntExtra("position", 0);
-		ArrayList<String> visitPhotoUuids = intent.getStringArrayListExtra("visitPhotoUuids");
+		initialPhotoUuid = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID);
+		if (initialPhotoUuid != null) {
+			ArrayList<String> visitPhotoUuids = intent.getExtras()
+					.getStringArrayList(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS);
+			presenter.getVisitPhotos(visitPhotoUuids);
+		} else {
+			VisitPhoto tempVisitPhoto = new VisitPhoto();
+			String tempPhotoPath = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH);
 
-		fullScreenImageAdapter = new FullScreenImageAdapter(FullScreenViewActivity.this);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inSampleSize = 1;
+			Bitmap tempPhoto = BitmapFactory.decodeFile(tempPhotoPath, options);
+			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			tempPhoto.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+			tempVisitPhoto.setImage(byteArrayOutputStream.toByteArray());
 
-		presenter = new FullScreenViewPresenter(this);
-		presenter.getVisitPhotos(visitPhotoUuids);
+			fullScreenImageAdapter.hideDetails();
 
-		viewPager.setAdapter(fullScreenImageAdapter);
+			setVisitPhotos(new ArrayList<>(Arrays.asList(tempVisitPhoto)));
+		}
 	}
 
 	@Override
 	public void setVisitPhotos(List<VisitPhoto> visitPhotos) {
 		fullScreenImageAdapter.setVisitPhotos(visitPhotos);
+		int initialPosition = 0;
+		for (VisitPhoto visitPhoto : visitPhotos) {
+			if (visitPhoto.getUuid().equalsIgnoreCase(initialPhotoUuid)) {
+				break;
+			}
+			initialPosition++;
+		}
 		viewPager.setCurrentItem(initialPosition);
 	}
 

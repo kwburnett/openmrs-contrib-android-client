@@ -192,6 +192,9 @@ public abstract class ApplicationConstants {
 		public static final String VISIT_CLOSED_DATE = "visitClosedDate";
 		public static final String AUDIT_DATA_AVAILABILITY = "auditDataAvailability";
 		public static final String LOCATION_UUID_BUNDLE = "locationUuid";
+		public static final String EXTRA_VISIT_PHOTO_UUID = "visitPhotoUuid";
+		public static final String EXTRA_VISIT_PHOTO_UUIDS = "visitPhotoUuids";
+		public static final String EXTRA_TEMP_VISIT_PHOTO_PATH = "tempVisitPhotoPath";
 	}
 
 	public static class ConceptSets {

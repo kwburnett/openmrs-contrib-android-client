@@ -54,6 +54,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
+import org.openmrs.mobile.activities.fullscreenview.FullScreenViewActivity;
 import org.openmrs.mobile.activities.visit.VisitContract;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.VisitDashboardDataRefreshEvent;
@@ -66,6 +67,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -77,7 +79,8 @@ import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter> implements VisitContract.VisitPhotoView {
+public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter>
+		implements VisitContract.VisitPhotoView {
 
 	//Upload Visit photo
 	private final static int IMAGE_REQUEST = 1;
@@ -92,6 +95,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private SwipeRefreshLayout visitPhotoSwipeRefreshLayout;
 
 	private File photoFile;
+	private File tempPhotoFile;
 	private EditText fileCaption;
 	private TextView noVisitImage;
 
@@ -139,7 +143,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		adapter = new VisitPhotoRecyclerViewAdapter(this.mContext, this);
+		adapter = new VisitPhotoRecyclerViewAdapter(this);
 		recyclerView.setAdapter(adapter);
 	}
 
@@ -151,6 +155,14 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, visitPhotos.size());
 			recyclerView.setLayoutManager(layoutManager);
 		}
+	}
+
+	@Override
+	public void viewImage(String photoUuidToView, List<String> visitPhotoUuids) {
+		Intent intent = new Intent(getContext(), FullScreenViewActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID, photoUuidToView);
+		intent.putStringArrayListExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS, (ArrayList) visitPhotoUuids);
+		startActivity(intent);
 	}
 
 	@Override
@@ -190,9 +202,9 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		Context context = getContext();
 		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
 			File dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			photoFile = new File(dir, getUniqueImageFileName());
-			if (photoFile != null) {
-				Uri photoURI = FileProvider.getUriForFile(context, ApplicationConstants.Authorities.FILE_PROVIDER, photoFile);
+			tempPhotoFile = new File(dir, getUniqueImageFileName());
+			if (tempPhotoFile != null) {
+				Uri photoURI = FileProvider.getUriForFile(context, ApplicationConstants.Authorities.FILE_PROVIDER, tempPhotoFile);
 				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 				grantUriPermissions(context, takePictureIntent, photoURI);
 				startActivityForResult(takePictureIntent, IMAGE_REQUEST);
@@ -251,13 +263,13 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private String getUniqueImageFileName() {
 		// Create an image file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-		return timeStamp + "_" + ".jpg";
+		return timeStamp + "_" + ".png";
 	}
 
 	private Bitmap getPortraitImage(String imagePath) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inSampleSize = 4;
-		Bitmap photo = BitmapFactory.decodeFile(photoFile.getPath(), options);
+		Bitmap photo = BitmapFactory.decodeFile(imagePath, options);
 		float rotateAngle;
 		try {
 			ExifInterface exifInterface = new ExifInterface(imagePath);
@@ -296,18 +308,16 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 		visitImageView.setOnClickListener(view -> {
 			if (photoFile != null) {
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				OpenMRS openMRS = OpenMRS.getInstance();
-				Uri photoURI = FileProvider.getUriForFile(openMRS, ApplicationConstants.Authorities.FILE_PROVIDER, photoFile);
-				i.setDataAndType(photoURI, "image/jpeg");
-				startActivity(i);
+				Intent intent = new Intent(getContext(), FullScreenViewActivity.class);
+				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH, photoFile.getPath());
+				startActivity(intent);
 			}
 		});
 
 		uploadVisitPhotoButton.setOnClickListener(v -> {
 			if (visitPhoto != null) {
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-				visitPhoto.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+				visitPhoto.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
 
 				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setImage(byteArrayOutputStream.toByteArray());
 				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setFileCaption(
@@ -329,13 +339,14 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == IMAGE_REQUEST) {
 			if (resultCode == Activity.RESULT_OK) {
+				photoFile = tempPhotoFile;
 				visitPhoto = getPortraitImage(photoFile.getPath());
 				Bitmap bitmap =
 						ThumbnailUtils.extractThumbnail(visitPhoto, visitImageView.getWidth(), visitImageView.getHeight());
 				visitImageView.setImageBitmap(bitmap);
 				visitImageView.invalidate();
 			} else {
-				photoFile = null;
+				tempPhotoFile = null;
 			}
 		}
 	}
