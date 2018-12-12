@@ -47,14 +47,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.fullscreenview.FullScreenViewActivity;
+import org.openmrs.mobile.activities.imageGallery.ImageGalleryActivity;
 import org.openmrs.mobile.activities.visit.VisitContract;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.VisitDashboardDataRefreshEvent;
@@ -159,7 +158,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@Override
 	public void viewImage(String photoUuidToView, List<String> visitPhotoUuids) {
-		Intent intent = new Intent(getContext(), FullScreenViewActivity.class);
+		Intent intent = new Intent(getContext(), ImageGalleryActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID, photoUuidToView);
 		intent.putStringArrayListExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS, (ArrayList) visitPhotoUuids);
 		startActivity(intent);
@@ -308,7 +307,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 		visitImageView.setOnClickListener(view -> {
 			if (photoFile != null) {
-				Intent intent = new Intent(getContext(), FullScreenViewActivity.class);
+				Intent intent = new Intent(getContext(), ImageGalleryActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH, photoFile.getPath());
 				startActivity(intent);
 			}

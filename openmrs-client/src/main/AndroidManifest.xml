@@ -72,7 +72,7 @@
 					android:name="android.support.PARENT_ACTIVITY"
 					android:value=".activities.patientdashboard.PatientDashboardActivity" />
 		</activity>
-		<activity android:name=".activities.fullscreenview.FullScreenViewActivity"
+		<activity android:name=".activities.imageGallery.ImageGalleryActivity"
 		          android:screenOrientation="portrait"/>
 
 		<provider

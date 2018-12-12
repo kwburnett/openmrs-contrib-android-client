@@ -1,4 +1,4 @@
-package org.openmrs.mobile.activities.fullscreenview;
+package org.openmrs.mobile.activities.imageGallery;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +8,15 @@ import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.impl.VisitPhotoDataService;
 import org.openmrs.mobile.models.VisitPhoto;
 
-public class FullScreenViewPresenter extends BasePresenter implements FullScreenViewContract.Presenter {
+public class ImageGalleryPresenter extends BasePresenter implements ImageGalleryContract.Presenter {
 
-	private FullScreenViewContract.View view;
+	private ImageGalleryContract.View view;
 	private VisitPhotoDataService visitPhotoDataService;
 
 	private int numberOfPhotosToFetch, numberOfPhotosFetched;
 	private List<VisitPhoto> visitPhotos;
 
-	public FullScreenViewPresenter(FullScreenViewContract.View view) {
+	public ImageGalleryPresenter(ImageGalleryContract.View view) {
 		this.view = view;
 
 		visitPhotoDataService = dataAccess().visitPhoto();

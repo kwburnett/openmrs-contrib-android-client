@@ -1,4 +1,4 @@
-package org.openmrs.mobile.activities.fullscreenview;
+package org.openmrs.mobile.activities.imageGallery;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -8,27 +8,26 @@ import java.util.List;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
-import org.openmrs.mobile.adapter.FullScreenImageAdapter;
+import org.openmrs.mobile.adapter.ImageGalleryImageAdapter;
 import org.openmrs.mobile.models.VisitPhoto;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.ToastUtil;
 
-public class FullScreenViewActivity extends ACBaseActivity implements FullScreenViewContract.View {
+public class ImageGalleryActivity extends ACBaseActivity implements ImageGalleryContract.View {
 
-	private FullScreenImageAdapter fullScreenImageAdapter;
+	private ImageGalleryImageAdapter imageGalleryImageAdapter;
 	private ViewPager viewPager;
-	private FullScreenViewContract.Presenter presenter;
+	private ImageGalleryContract.Presenter presenter;
 	private String initialPhotoUuid;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_fullscreen_view);
+		setContentView(R.layout.activity_image_gallery);
 		intitializeToolbar();
 
 		ActionBar actionBar = getSupportActionBar();
@@ -38,9 +37,9 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 		}
 
 		viewPager = (ViewPager) findViewById(R.id.fullscreenPager);
-		fullScreenImageAdapter = new FullScreenImageAdapter(FullScreenViewActivity.this);
-		presenter = new FullScreenViewPresenter(this);
-		viewPager.setAdapter(fullScreenImageAdapter);
+		imageGalleryImageAdapter = new ImageGalleryImageAdapter(ImageGalleryActivity.this);
+		presenter = new ImageGalleryPresenter(this);
+		viewPager.setAdapter(imageGalleryImageAdapter);
 
 		Intent intent = getIntent();
 		initialPhotoUuid = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID);
@@ -59,7 +58,7 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 			tempPhoto.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
 			tempVisitPhoto.setImage(byteArrayOutputStream.toByteArray());
 
-			fullScreenImageAdapter.hideDetails();
+			imageGalleryImageAdapter.hideDetails();
 
 			setVisitPhotos(new ArrayList<>(Arrays.asList(tempVisitPhoto)));
 		}
@@ -67,7 +66,7 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 
 	@Override
 	public void setVisitPhotos(List<VisitPhoto> visitPhotos) {
-		fullScreenImageAdapter.setVisitPhotos(visitPhotos);
+		imageGalleryImageAdapter.setVisitPhotos(visitPhotos);
 		int initialPosition = 0;
 		for (VisitPhoto visitPhoto : visitPhotos) {
 			if (visitPhoto.getUuid().equalsIgnoreCase(initialPhotoUuid)) {
@@ -79,7 +78,7 @@ public class FullScreenViewActivity extends ACBaseActivity implements FullScreen
 	}
 
 	@Override
-	public void setPresenter(FullScreenViewContract.Presenter presenter) {
+	public void setPresenter(ImageGalleryContract.Presenter presenter) {
 		this.presenter = presenter;
 	}
 

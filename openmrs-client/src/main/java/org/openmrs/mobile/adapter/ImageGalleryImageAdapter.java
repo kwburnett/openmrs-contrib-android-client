@@ -24,14 +24,14 @@ import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.widget.TouchImageView;
 
-public class FullScreenImageAdapter extends PagerAdapter {
+public class ImageGalleryImageAdapter extends PagerAdapter {
 
 	private Activity activity;
 	private List<VisitPhoto> visitPhotos;
 	private LayoutInflater layoutInflater;
 	private boolean hideDetails = false;
 
-	public FullScreenImageAdapter(Activity activity) {
+	public ImageGalleryImageAdapter(Activity activity) {
 		this.activity = activity;
 		visitPhotos = new ArrayList<>();
 	}
@@ -59,7 +59,7 @@ public class FullScreenImageAdapter extends PagerAdapter {
 		Button buttonClose;
 
 		layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View viewLayout = layoutInflater.inflate(R.layout.layout_fullscreen_image, container, false);
+		View viewLayout = layoutInflater.inflate(R.layout.layout_image_gallery_image, container, false);
 
 		imageDisplay = (TouchImageView) viewLayout.findViewById(R.id.imageDisplay);
 

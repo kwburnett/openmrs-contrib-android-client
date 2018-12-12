@@ -1,4 +1,4 @@
-package org.openmrs.mobile.activities.fullscreenview;
+package org.openmrs.mobile.activities.imageGallery;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.openmrs.mobile.activities.BasePresenterContract;
 import org.openmrs.mobile.activities.BaseView;
 import org.openmrs.mobile.models.VisitPhoto;
 
-public interface FullScreenViewContract {
+public interface ImageGalleryContract {
 
 	interface View extends BaseView<Presenter> {
 
