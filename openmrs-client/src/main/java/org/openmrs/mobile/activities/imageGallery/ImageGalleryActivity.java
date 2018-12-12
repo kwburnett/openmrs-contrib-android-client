@@ -36,7 +36,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 			actionBar.setTitle(ApplicationConstants.EMPTY_STRING);
 		}
 
-		viewPager = (ViewPager) findViewById(R.id.fullscreenPager);
+		viewPager = (ViewPager) findViewById(R.id.imageGalleryPager);
 		imageGalleryImageAdapter = new ImageGalleryImageAdapter(ImageGalleryActivity.this);
 		presenter = new ImageGalleryPresenter(this);
 		viewPager.setAdapter(imageGalleryImageAdapter);
