@@ -179,6 +179,7 @@
 	<string name="create_account">No account yet? Create one</string>
 	<string name="search_hint">Search patients</string>
 	<string name="sync_hint">Sync selections</string>
+	<string name="action_delete_image">Delete</string>
 
 	<string name="nav_register_patient">Register Patient</string>
 	<string name="nav_open_visit_tasks">Open Visit Tasks</string>
@@ -284,7 +285,9 @@
 	<string name="visit_type">Visit Type:</string>
 	<string name="enter_caption">Enter caption</string>
 	<string name="visit_photo">Visit Photo</string>
-	
+	<string name="photo_was_deleted">Photo deleted</string>
+	<string name="photo_was_not_deleted">Problem deleting photo&#8230;</string>
+
 	<string name="findPatientsTitle">Search patients</string>
 	<string name="patientNotFound">Patient not found</string>
 	<string name="patientsFoundTitle">No. of Patients Found</string>

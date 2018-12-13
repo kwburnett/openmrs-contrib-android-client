@@ -11,10 +11,14 @@ public interface ImageGalleryContract {
 	interface View extends BaseView<Presenter> {
 
 		void setVisitPhotos(List<VisitPhoto> visitPhotos);
+
+		void showImageDeleted(boolean wasDeleted);
 	}
 
 	interface Presenter extends BasePresenterContract {
 
 		void getVisitPhotos(List<String> visitPhotoUuids);
+
+		void deletePhoto(VisitPhoto visitPhoto);
 	}
 }

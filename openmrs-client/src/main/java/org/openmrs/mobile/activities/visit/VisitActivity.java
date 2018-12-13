@@ -37,6 +37,7 @@ import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
 import org.openmrs.mobile.activities.auditdata.AuditDataActivity;
 import org.openmrs.mobile.activities.capturevitals.CaptureVitalsActivity;
+import org.openmrs.mobile.activities.imageGallery.ImageGalleryActivity;
 import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderContract;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;
@@ -53,8 +54,9 @@ import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.TabUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class VisitActivity extends ACBaseActivity {
+public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.VisitPhotoListener {
 	private static final int END_VISIT_RESULT = 1;
 	public VisitContract.VisitDashboardPagePresenter visitDetailsMainPresenter;
 	private PatientHeaderContract.Presenter patientHeaderPresenter;
@@ -284,13 +286,19 @@ public class VisitActivity extends ACBaseActivity {
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == END_VISIT_RESULT) {
-			if (resultCode == RESULT_OK) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		if (resultCode == RESULT_OK) {
+			if (requestCode == END_VISIT_RESULT) {
 				finish();
+			} else if (requestCode == ApplicationConstants.Activity.RequestCodes.VIEW_IMAGE_GALLERY) {
+				boolean shouldRefreshVisitPhotos = intent
+						.getBooleanExtra(ApplicationConstants.BundleKeys.EXTRA_SHOULD_REFRESH, false);
+				if (visitDetailsMainPresenter instanceof VisitPhotoPresenter && shouldRefreshVisitPhotos) {
+					((VisitPhotoPresenter) visitDetailsMainPresenter).refreshPhotosWhenVisible();
+				}
 			}
 		}
-		super.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, intent);
 	}
 
 	@Override
@@ -308,6 +316,14 @@ public class VisitActivity extends ACBaseActivity {
 		//fix for now
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		getApplicationContext().startActivity(intent);
+		startActivity(intent);
+	}
+
+	@Override
+	public void viewVisitPhotos(String photoUuidToView, List<String> visitPhotoUuids) {
+		Intent intent = new Intent(this, ImageGalleryActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID, photoUuidToView);
+		intent.putStringArrayListExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS, (ArrayList) visitPhotoUuids);
+		startActivityForResult(intent, ApplicationConstants.Activity.RequestCodes.VIEW_IMAGE_GALLERY);
 	}
 }

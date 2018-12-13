@@ -117,13 +117,13 @@ public interface VisitContract {
 	interface VisitPhotoPresenter extends VisitDashboardPagePresenter {
 		boolean isLoading();
 
+		void refreshPhotosWhenVisible();
+
 		void setLoading(boolean loading);
 
-		void uploadImage();
+		void uploadPhoto(byte[] visitPhoto, String description);
 
-		VisitPhoto getVisitPhoto();
-
-		void deleteImage(VisitPhoto visitPhoto);
+		void deletePhoto(VisitPhoto visitPhoto);
 	}
 
 	interface VisitDetailsPresenter extends VisitDashboardPagePresenter {

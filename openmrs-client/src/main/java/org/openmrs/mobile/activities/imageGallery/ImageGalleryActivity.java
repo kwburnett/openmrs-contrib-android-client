@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.view.Menu;
+import android.view.MenuItem;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.adapter.ImageGalleryImageAdapter;
@@ -24,6 +26,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 	private ViewPager viewPager;
 	private ImageGalleryContract.Presenter presenter;
 	private String initialPhotoUuid;
+	private boolean anyImageWasDeleted = false;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,7 +58,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 			options.inSampleSize = 1;
 			Bitmap tempPhoto = BitmapFactory.decodeFile(tempPhotoPath, options);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-			tempPhoto.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+			tempPhoto.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
 			tempVisitPhoto.setImage(byteArrayOutputStream.toByteArray());
 
 			imageGalleryImageAdapter.hideDetails();
@@ -78,6 +81,15 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 	}
 
 	@Override
+	public void showImageDeleted(boolean wasDeleted) {
+		if (wasDeleted) {
+			showToast(getString(R.string.photo_was_deleted), ToastUtil.ToastType.SUCCESS);
+		} else {
+			showToast(getString(R.string.photo_was_not_deleted), ToastUtil.ToastType.ERROR);
+		}
+	}
+
+	@Override
 	public void setPresenter(ImageGalleryContract.Presenter presenter) {
 		this.presenter = presenter;
 	}
@@ -96,5 +108,42 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 	public boolean onSupportNavigateUp(){
 		finish();
 		return true;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu to add the actions to the app bar
+		getMenuInflater().inflate(R.menu.menu_image_gallery, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem menuItem) {
+		switch (menuItem.getItemId()) {
+			case R.id.action_delete_image:
+				int indexOfImageBeingViewed = viewPager.getCurrentItem();
+				VisitPhoto photoBeingViewed = imageGalleryImageAdapter.getItem(indexOfImageBeingViewed);
+//				presenter.deletePhoto(photoBeingViewed);
+				imageGalleryImageAdapter.removePhoto(viewPager, indexOfImageBeingViewed);
+				anyImageWasDeleted = true;
+				if (viewPager.getChildCount() == 0) {
+					this.onBackPressed();
+				}
+				return true;
+			case android.R.id.home:
+				this.onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(menuItem);
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		Intent intent = new Intent();
+		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_SHOULD_REFRESH, anyImageWasDeleted);
+		setResult(RESULT_OK, intent);
+		finish();
+		return;
 	}
 }

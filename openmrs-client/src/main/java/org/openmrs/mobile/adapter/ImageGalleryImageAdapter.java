@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.application.OpenMRS;
@@ -30,6 +29,7 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 	private List<VisitPhoto> visitPhotos;
 	private LayoutInflater layoutInflater;
 	private boolean hideDetails = false;
+	private Object[] views;
 
 	public ImageGalleryImageAdapter(Activity activity) {
 		this.activity = activity;
@@ -39,7 +39,18 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 	public void setVisitPhotos(List<VisitPhoto> visitPhotos) {
 		this.visitPhotos.clear();
 		this.visitPhotos.addAll(visitPhotos);
+		views = new Object[visitPhotos.size()];
 		notifyDataSetChanged();
+	}
+
+	@Override
+	public int getItemPosition(Object item) {
+		for (int i = 0; i < views.length; i++) {
+			if (views[i] != null && views[i].equals(item)) {
+				return i;
+			}
+		}
+		return POSITION_NONE;
 	}
 
 	@Override
@@ -90,16 +101,34 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 		}
 
 		((ViewPager) container).addView(viewLayout);
+		views[position] = viewLayout;
 
 		return viewLayout;
 	}
 
 	@Override
 	public void destroyItem(ViewGroup container, int position, Object object) {
-		((ViewPager) container).removeView((RelativeLayout) object);
+		((ViewPager) container).removeView((ConstraintLayout) object);
+	}
+
+	public void removePhoto(ViewGroup container, int position) {
+		visitPhotos.remove(position);
+		Object[] newViews = new Object[visitPhotos.size()];
+		int j = 0;
+		for (int i = 0; i < views.length; i++) {
+			if (i != position) {
+				newViews[j++] = views[i];
+			}
+		}
+		views = newViews;
+		notifyDataSetChanged();
 	}
 
 	public void hideDetails() {
 		hideDetails = true;
+	}
+
+	public VisitPhoto getItem(int position) {
+		return visitPhotos.get(position);
 	}
 }

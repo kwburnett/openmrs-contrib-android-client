@@ -5,13 +5,16 @@ import java.util.List;
 
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.data.DataService;
+import org.openmrs.mobile.data.impl.ObsDataService;
 import org.openmrs.mobile.data.impl.VisitPhotoDataService;
+import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.VisitPhoto;
 
 public class ImageGalleryPresenter extends BasePresenter implements ImageGalleryContract.Presenter {
 
 	private ImageGalleryContract.View view;
 	private VisitPhotoDataService visitPhotoDataService;
+	private ObsDataService observationDataService;
 
 	private int numberOfPhotosToFetch, numberOfPhotosFetched;
 	private List<VisitPhoto> visitPhotos;
@@ -20,6 +23,7 @@ public class ImageGalleryPresenter extends BasePresenter implements ImageGallery
 		this.view = view;
 
 		visitPhotoDataService = dataAccess().visitPhoto();
+		observationDataService = dataAccess().obs();
 		visitPhotos = new ArrayList<>();
 	}
 
@@ -47,6 +51,23 @@ public class ImageGalleryPresenter extends BasePresenter implements ImageGallery
 				}
 			});
 		}
+	}
+
+	@Override
+	public void deletePhoto(VisitPhoto visitPhoto) {
+		Observation obs = visitPhoto.getObservation();
+		observationDataService.purge(obs, new DataService.VoidCallback() {
+
+			@Override
+			public void onCompleted() {
+				view.showImageDeleted(true);
+			}
+
+			@Override
+			public void onError(Throwable t) {
+				view.showImageDeleted(false);
+			}
+		});
 	}
 
 	private void updatePhotosIfPhotoFetchCompleted() {

@@ -14,13 +14,15 @@
 
 package org.openmrs.mobile.activities.visit.visitphoto;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.visit.VisitContract;
@@ -49,7 +51,7 @@ public class VisitPhotoRecyclerViewAdapter
 
 	@Override
 	public DownloadVisitPhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.visit_photo_row, parent, false);
+		View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_visit_photo, parent, false);
 		return new DownloadVisitPhotoViewHolder(itemView);
 	}
 
@@ -61,7 +63,9 @@ public class VisitPhotoRecyclerViewAdapter
 		}
 
 		byte[] photoBytes = visitPhoto.getImageColumn().getBlob();
-		holder.image.setImageBitmap(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length));
+		Bitmap bitmap = ThumbnailUtils
+				.extractThumbnail(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length), 100, 100);
+		holder.image.setImageBitmap(bitmap);
 		holder.image.invalidate();
 		map.put(holder.image, visitPhoto);
 
@@ -94,13 +98,11 @@ public class VisitPhotoRecyclerViewAdapter
 	}
 
 	class DownloadVisitPhotoViewHolder extends RecyclerView.ViewHolder {
-		private LinearLayout rowLayout;
 		private ImageView image;
 
 		public DownloadVisitPhotoViewHolder(View itemView) {
 			super(itemView);
-			rowLayout = (LinearLayout)itemView;
-			image = (ImageView)itemView.findViewById(R.id.visitPhoto);
+			image = (ImageView) ((ConstraintLayout) itemView).findViewById(R.id.visit_photo_button);
 		}
 	}
 }

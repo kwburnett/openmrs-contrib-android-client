@@ -43,6 +43,8 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	private int numberOfPhotosToDownload = 0;
 	private int numberOfPhotosDownloaded = 0;
 
+	private boolean shouldRefreshVisitPhotos = false;
+
 	public VisitPhotoPresenter(VisitContract.VisitPhotoView visitPhotoView, String patientUuid, String visitUuid,
 			String providerUuid) {
 		super(visitUuid, visitPhotoView);
@@ -165,7 +167,12 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	@Override
 	public void subscribe() {
 		initVisitPhoto();
-		getPhotoMetadata(false);
+		if (shouldRefreshVisitPhotos) {
+			getPhotoMetadata(true);
+			shouldRefreshVisitPhotos = false;
+		} else {
+			getPhotoMetadata(false);
+		}
 	}
 
 	private void initVisitPhoto() {
@@ -190,11 +197,14 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	}
 
 	@Override
-	public void uploadImage() {
+	public void uploadPhoto(byte[] image, String description) {
+		visitPhoto.setImage(image);
+		visitPhoto.setFileCaption(description);
 		visitPhotoView.showTabSpinner(true);
 		visitPhotoDataService.uploadPhoto(visitPhoto, new DataService.GetCallback<VisitPhoto>() {
 			@Override
 			public void onCompleted(VisitPhoto entity) {
+				visitPhoto = null;
 				visitPhotoView.showTabSpinner(false);
 				visitPhotoView.refresh();
 				subscribe();
@@ -209,11 +219,6 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	}
 
 	@Override
-	public VisitPhoto getVisitPhoto() {
-		return visitPhoto;
-	}
-
-	@Override
 	public boolean isLoading() {
 		return loading;
 	}
@@ -224,7 +229,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	}
 
 	@Override
-	public void deleteImage(VisitPhoto visitPhoto) {
+	public void deletePhoto(VisitPhoto visitPhoto) {
 		visitPhotoView.showTabSpinner(true);
 		Observation obs = visitPhoto.getObservation();
 		obs.setVoided(true);
@@ -250,6 +255,11 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	protected void refreshDependentData() {
 		numberOfPhotosDownloaded = 0;
 		getPhotoMetadata(true);
+	}
+
+	@Override
+	public void refreshPhotosWhenVisible() {
+		shouldRefreshVisitPhotos = true;
 	}
 
 	private void removeRefreshIndicatorIfAllCallsComplete() {

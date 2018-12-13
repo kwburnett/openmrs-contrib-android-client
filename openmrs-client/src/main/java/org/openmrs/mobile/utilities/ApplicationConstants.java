@@ -195,6 +195,13 @@ public abstract class ApplicationConstants {
 		public static final String EXTRA_VISIT_PHOTO_UUID = "visitPhotoUuid";
 		public static final String EXTRA_VISIT_PHOTO_UUIDS = "visitPhotoUuids";
 		public static final String EXTRA_TEMP_VISIT_PHOTO_PATH = "tempVisitPhotoPath";
+		public static final String EXTRA_SHOULD_REFRESH = "shouldRefresh";
+	}
+
+	public abstract static class Activity {
+		public abstract static class RequestCodes {
+			public static final int VIEW_IMAGE_GALLERY = 10000;
+		}
 	}
 
 	public static class ConceptSets {
