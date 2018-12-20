@@ -37,7 +37,7 @@ import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
 import org.openmrs.mobile.activities.auditdata.AuditDataActivity;
 import org.openmrs.mobile.activities.capturevitals.CaptureVitalsActivity;
-import org.openmrs.mobile.activities.imageGallery.ImageGalleryActivity;
+import org.openmrs.mobile.activities.imagegallery.ImageGalleryActivity;
 import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderContract;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;

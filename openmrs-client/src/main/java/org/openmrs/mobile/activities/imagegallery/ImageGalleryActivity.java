@@ -1,4 +1,4 @@
-package org.openmrs.mobile.activities.imageGallery;
+package org.openmrs.mobile.activities.imagegallery;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -144,6 +144,5 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_SHOULD_REFRESH, anyImageWasDeleted);
 		setResult(RESULT_OK, intent);
 		finish();
-		return;
 	}
 }

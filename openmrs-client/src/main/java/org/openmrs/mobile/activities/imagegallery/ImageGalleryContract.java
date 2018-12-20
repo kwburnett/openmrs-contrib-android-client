@@ -1,4 +1,4 @@
-package org.openmrs.mobile.activities.imageGallery;
+package org.openmrs.mobile.activities.imagegallery;
 
 import java.util.List;
 

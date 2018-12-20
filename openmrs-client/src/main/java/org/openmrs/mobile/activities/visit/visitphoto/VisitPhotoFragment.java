@@ -52,7 +52,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.imageGallery.ImageGalleryActivity;
+import org.openmrs.mobile.activities.imagegallery.ImageGalleryActivity;
 import org.openmrs.mobile.activities.visit.VisitContract;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.VisitDashboardDataRefreshEvent;
@@ -65,7 +65,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
