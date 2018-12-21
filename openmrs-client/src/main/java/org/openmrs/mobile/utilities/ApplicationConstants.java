@@ -195,6 +195,7 @@ public abstract class ApplicationConstants {
 		public static final String EXTRA_VISIT_PHOTO_UUID = "visitPhotoUuid";
 		public static final String EXTRA_VISIT_PHOTO_UUIDS = "visitPhotoUuids";
 		public static final String EXTRA_TEMP_VISIT_PHOTO_PATH = "tempVisitPhotoPath";
+		public static final String EXTRA_NO_DELETE = "noDeleteOption";
 		public static final String EXTRA_SHOULD_REFRESH = "shouldRefresh";
 	}
 

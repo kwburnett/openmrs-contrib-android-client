@@ -86,9 +86,9 @@ public interface VisitContract {
 
 		void deleteImage(VisitPhoto visitPhoto);
 
-		void refresh();
+		void reset();
 
-		void showNoVisitPhoto();
+		void refresh();
 
 		String formatVisitImageDescription(String description, String uploadedOn, String uploadedBy);
 

@@ -56,6 +56,9 @@ public class ImageGalleryPresenter extends BasePresenter implements ImageGallery
 	@Override
 	public void deletePhoto(VisitPhoto visitPhoto) {
 		Observation obs = visitPhoto.getObservation();
+		// delete locally saved instance if any (visitphoto not stored online)
+		// This is done first so that the back button press doesn't show the photo again
+		visitPhotoDataService.purgeLocalInstance(visitPhoto);
 		observationDataService.purge(obs, new DataService.VoidCallback() {
 
 			@Override

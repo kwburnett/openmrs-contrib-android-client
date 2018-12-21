@@ -16,6 +16,7 @@ package org.openmrs.mobile.activities.visit.visitphoto;
 
 import org.openmrs.mobile.activities.visit.BaseVisitPresenter;
 import org.openmrs.mobile.activities.visit.VisitContract;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.impl.ObsDataService;
@@ -23,9 +24,11 @@ import org.openmrs.mobile.data.impl.VisitPhotoDataService;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.models.Provider;
+import org.openmrs.mobile.models.User;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitPhoto;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 
 import java.util.Date;
@@ -181,31 +184,55 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		}
 
 		visitPhoto = new VisitPhoto();
-		Visit visit = new Visit();
-		visit.setUuid(visitUuid);
+		Visit visit = null;
+		if (!StringUtils.isNullOrEmpty(visitUuid)) {
+			visit = dataAccess().visit().getLocalByUuid(visitUuid, null);
+		}
+		if (visit == null) {
+			visit = new Visit();
+			visit.setUuid(visitUuid);
+		}
 
-		Provider provider = new Provider();
-		provider.setUuid(providerUuid);
+		Provider provider = null;
+		if (!StringUtils.isNullOrEmpty(providerUuid)) {
+			dataAccess().provider().getLocalByUuid(providerUuid, null);
+		}
+		if (provider == null) {
+			provider = new Provider();
+			provider.setUuid(providerUuid);
+		}
 
-		Patient patient = new Patient();
-		patient.setUuid(patientUuid);
+		Patient patient = null;
+		if (!StringUtils.isNullOrEmpty(patientUuid)) {
+			dataAccess().patient().getLocalByUuid(patientUuid, null);
+		}
+		if (patient == null){
+			patient	= new Patient();
+			patient.setUuid(patientUuid);
+		}
 
 		visitPhoto.setVisit(visit);
 		visitPhoto.setProvider(provider);
 		visitPhoto.setPatient(patient);
-		visitPhoto.setDateCreated(new Date());
+
+		User currentUser = dataAccess().user().getLocalByUuid(OpenMRS.getInstance().getUserUuid(), null);
+		if (currentUser != null) {
+			visitPhoto.setCreator(currentUser);
+		}
 	}
 
 	@Override
 	public void uploadPhoto(byte[] image, String description) {
+		visitPhotoView.showTabSpinner(true);
 		visitPhoto.setImage(image);
 		visitPhoto.setFileCaption(description);
-		visitPhotoView.showTabSpinner(true);
+		visitPhoto.setDateCreated(new Date());
 		visitPhotoDataService.uploadPhoto(visitPhoto, new DataService.GetCallback<VisitPhoto>() {
 			@Override
 			public void onCompleted(VisitPhoto entity) {
 				visitPhoto = null;
 				visitPhotoView.showTabSpinner(false);
+				visitPhotoView.reset();
 				visitPhotoView.refresh();
 				subscribe();
 			}

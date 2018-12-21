@@ -132,6 +132,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		visitPhotoSwipeRefreshLayout.setEnabled(false);
 
 		addEventListeners();
+		reset();
 
 		return root;
 	}
@@ -147,10 +148,14 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public void updateVisitImageMetadata(List<VisitPhoto> visitPhotos) {
 		if (visitPhotos != null && !visitPhotos.isEmpty()) {
+			updateVisitPhotoDisplay(true);
+
 			adapter.setVisitPhotos(visitPhotos);
 
 			GridLayoutManager layoutManager = new GridLayoutManager(getActivity(), NUMBER_OF_IMAGES_PER_ROW);
 			recyclerView.setLayoutManager(layoutManager);
+		} else {
+			updateVisitPhotoDisplay(false);
 		}
 	}
 
@@ -170,18 +175,28 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	}
 
 	@Override
+	public void reset() {
+		visitPhoto = null;
+		photoFile = null;
+		tempPhotoFile = null;
+	}
+
+	@Override
 	public void refresh() {
 		fileCaption.setText(ApplicationConstants.EMPTY_STRING);
-		tempPhotoFile = null;
 		FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 		fragmentTransaction.detach(this).attach(this).commit();
 		mPresenter.subscribe();
 	}
 
-	@Override
-	public void showNoVisitPhoto() {
-		noVisitImage.setVisibility(View.VISIBLE);
-		recyclerView.setVisibility(View.GONE);
+	private void updateVisitPhotoDisplay(boolean visitPhotosArePresent) {
+		if (visitPhotosArePresent) {
+			noVisitImage.setVisibility(View.GONE);
+			recyclerView.setVisibility(View.VISIBLE);
+		} else {
+			noVisitImage.setVisibility(View.VISIBLE);
+			recyclerView.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
@@ -315,6 +330,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			if (photoFile != null) {
 				Intent intent = new Intent(getContext(), ImageGalleryActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH, photoFile.getPath());
+				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_NO_DELETE, true);
 				startActivity(intent);
 			}
 		});
@@ -345,13 +361,12 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		if (requestCode == IMAGE_REQUEST) {
 			if (resultCode == Activity.RESULT_OK) {
 				photoFile = tempPhotoFile;
+				tempPhotoFile = null;
 				visitPhoto = getPortraitImage(photoFile.getPath());
 				Bitmap bitmap =
 						ThumbnailUtils.extractThumbnail(visitPhoto, visitImageView.getWidth(), visitImageView.getHeight());
 				visitImageView.setImageBitmap(bitmap);
 				visitImageView.invalidate();
-			} else {
-				tempPhotoFile = null;
 			}
 		}
 	}

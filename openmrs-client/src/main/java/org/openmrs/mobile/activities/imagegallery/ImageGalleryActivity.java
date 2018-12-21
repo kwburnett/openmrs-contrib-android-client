@@ -27,6 +27,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 	private ImageGalleryContract.Presenter presenter;
 	private String initialPhotoUuid;
 	private boolean anyImageWasDeleted = false;
+	private boolean showDeleteButton = true;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,6 +47,10 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 
 		Intent intent = getIntent();
 		initialPhotoUuid = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID);
+		boolean shouldHideDeleteButton =intent.getBooleanExtra(ApplicationConstants.BundleKeys.EXTRA_NO_DELETE, false);
+		if (shouldHideDeleteButton) {
+			showDeleteButton = false;
+		}
 		if (initialPhotoUuid != null) {
 			ArrayList<String> visitPhotoUuids = intent.getExtras()
 					.getStringArrayList(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS);
@@ -112,8 +117,10 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu to add the actions to the app bar
-		getMenuInflater().inflate(R.menu.menu_image_gallery, menu);
+		if (showDeleteButton) {
+			// Inflate the menu to add the actions to the app bar
+			getMenuInflater().inflate(R.menu.menu_image_gallery, menu);
+		}
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -123,7 +130,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 			case R.id.action_delete_image:
 				int indexOfImageBeingViewed = viewPager.getCurrentItem();
 				VisitPhoto photoBeingViewed = imageGalleryImageAdapter.getItem(indexOfImageBeingViewed);
-//				presenter.deletePhoto(photoBeingViewed);
+				presenter.deletePhoto(photoBeingViewed);
 				imageGalleryImageAdapter.removePhoto(viewPager, indexOfImageBeingViewed);
 				anyImageWasDeleted = true;
 				if (viewPager.getChildCount() == 0) {
