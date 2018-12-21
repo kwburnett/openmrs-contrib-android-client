@@ -194,7 +194,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 					continue;
 				}
 
-				if (encounter.getEncounterType().getUuid()
+				if (encounter.getEncounterType() != null && encounter.getEncounterType().getUuid()
 						.equalsIgnoreCase(ApplicationConstants.EncounterTypeEntity.CLINICAL_NOTE_UUID)) {
 					if (encounter.getObs().size() == 0) {
 						showNoDiagnoses();
