@@ -40,6 +40,8 @@ public class VisitPhotoRecyclerViewAdapter
 	private List<VisitPhoto> visitPhotos;
 	private Map<ImageView, VisitPhoto> map = new HashMap<>();
 
+	private static final int THUMBNAIL_DIMENSION_PX = 100;
+
 	public VisitPhotoRecyclerViewAdapter(VisitContract.VisitPhotoView view) {
 		this.view = view;
 	}
@@ -64,7 +66,8 @@ public class VisitPhotoRecyclerViewAdapter
 
 		byte[] photoBytes = visitPhoto.getImageColumn().getBlob();
 		Bitmap bitmap = ThumbnailUtils
-				.extractThumbnail(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length), 100, 100);
+				.extractThumbnail(BitmapFactory.decodeByteArray(photoBytes, 0, photoBytes.length),
+						THUMBNAIL_DIMENSION_PX, THUMBNAIL_DIMENSION_PX);
 		holder.image.setImageBitmap(bitmap);
 		holder.image.invalidate();
 		map.put(holder.image, visitPhoto);
