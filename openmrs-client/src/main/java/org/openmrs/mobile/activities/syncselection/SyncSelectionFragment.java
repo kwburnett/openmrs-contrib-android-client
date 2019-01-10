@@ -2,7 +2,7 @@ package org.openmrs.mobile.activities.syncselection;
 
 import java.util.List;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,14 +14,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.loginsync.LoginSyncActivity;
-import org.openmrs.mobile.activities.patientlist.PatientListActivity;
-import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.listeners.PatientListSyncSwitchToggle;
 import org.openmrs.mobile.models.PatientList;
 
 public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.Presenter>
 		implements SyncSelectionContract.View {
+
+	private OnFragmentInteractionListener listener;
 
 	private LinearLayoutManager layoutManager;
 	private RecyclerView syncSelectionModelRecyclerView;
@@ -48,7 +47,7 @@ public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.
 
 			@Override
 			public void toggleSyncSelection(PatientList patientList, boolean isSelected) {
-				mPresenter.toggleSyncSelection(patientList, isSelected);
+				presenter.toggleSyncSelection(patientList, isSelected);
 			}
 		});
 		syncSelectionModelRecyclerView.setAdapter(adapter);
@@ -57,17 +56,33 @@ public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.
 		syncSelectionModelRecyclerView.setNestedScrollingEnabled(false);
 	}
 
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
 	private void initViewFields(View rootView) {
 		screenProgressBar = (ProgressBar) rootView.findViewById(R.id.syncSelectionScreenProgressBar);
 		advanceButton = (Button) rootView.findViewById(R.id.moveForwardButton);
 
-		layoutManager = new LinearLayoutManager(this.mContext);
+		layoutManager = new LinearLayoutManager(context);
 		syncSelectionModelRecyclerView = (RecyclerView) rootView.findViewById(R.id.syncSelectionModelRecyclerView);
 	}
 
 	private void registerListeners() {
 		advanceButton.setOnClickListener(v -> {
-			mPresenter.saveUsersSyncSelections();
+			presenter.saveUsersSyncSelections();
 		});
 	}
 
@@ -95,16 +110,14 @@ public class SyncSelectionFragment extends ACBaseFragment<SyncSelectionContract.
 		adapter.setItems(patientLists);
 	}
 
-	public void navigateToNextPage(boolean skipSyncing) {
-		OpenMRS openMRS = OpenMRS.getInstance();
-		Intent intent;
-		if (skipSyncing) {
-			intent = new Intent(openMRS.getApplicationContext(), PatientListActivity.class);
-		} else {
-			intent = new Intent(openMRS.getApplicationContext(), LoginSyncActivity.class);
+	public void syncSelectionSaveComplete(boolean skipSyncing) {
+		if (listener != null) {
+			listener.syncSelectionComplete(skipSyncing);
 		}
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		openMRS.getApplicationContext().startActivity(intent);
-		mContext.finish();
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void syncSelectionComplete(boolean syncSelectionNeeded);
 	}
 }
