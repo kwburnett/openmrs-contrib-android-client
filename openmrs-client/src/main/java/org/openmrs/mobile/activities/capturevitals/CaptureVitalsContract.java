@@ -35,13 +35,13 @@ public interface CaptureVitalsContract {
 
 		void disableButton();
 
-		void goBackToVisitPage();
-
 		void showProgressBar(Boolean visibility);
 
 		void showPageSpinner(boolean visibility);
 
 		void hideSoftKeys();
+
+		void captureVitalsSaveComplete();
 	}
 
 	interface Presenter extends BasePresenterContract {
