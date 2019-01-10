@@ -23,18 +23,17 @@ import android.view.MenuItem;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
+import org.openmrs.mobile.activities.auditdata.AuditDataActivity;
+import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderPresenter;
+import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.TabUtil;
 import org.openmrs.mobile.utilities.ToastUtil;
 
-public class AddEditVisitActivity extends ACBaseActivity {
-
-	public AddEditVisitContract.Presenter addEditVisitPresenter;
-	private String patientUuid, visitUuid, providerUuid, visitStopDate;
-	private Bundle extras;
+public class AddEditVisitActivity extends ACBaseActivity implements AddEditVisitFragment.OnFragmentInteractionListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,40 +49,34 @@ public class AddEditVisitActivity extends ACBaseActivity {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
-		this.extras = getIntent().getExtras();
+		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			this.patientUuid =
+			String patientUuid =
 					extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, ApplicationConstants
 							.EMPTY_STRING);
-			this.visitUuid =
+			String visitUuid =
 					extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, ApplicationConstants.EMPTY_STRING);
-			this.providerUuid = extras.getString(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE,
-					ApplicationConstants.EMPTY_STRING);
-			this.visitStopDate = extras.getString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, ApplicationConstants
-					.EMPTY_STRING);
+			boolean areEndingVisit = extras.getBoolean(ApplicationConstants.BundleKeys.END_VISIT, false);
 			if (StringUtils.notEmpty(patientUuid)) {
 				AddEditVisitFragment addEditVisitFragment =
-						(AddEditVisitFragment)getSupportFragmentManager().findFragmentById(R.id.addeditVisitContentFrame);
+						(AddEditVisitFragment) fragmentManager.findFragmentById(R.id.addeditVisitContentFrame);
 				if (addEditVisitFragment == null) {
-					addEditVisitFragment = AddEditVisitFragment.newInstance();
+					addEditVisitFragment = AddEditVisitFragment.newInstance(patientUuid, visitUuid, areEndingVisit);
 				}
 
 				if (!addEditVisitFragment.isActive()) {
-					addFragmentToActivity(getSupportFragmentManager(), addEditVisitFragment, R.id.addeditVisitContentFrame);
+					addFragmentToActivity(fragmentManager, addEditVisitFragment, R.id.addeditVisitContentFrame);
 				}
 
-				addEditVisitPresenter = new AddEditVisitPresenter(addEditVisitFragment, patientUuid, visitUuid,
-						extras.getBoolean(ApplicationConstants.BundleKeys.END_VISIT, false));
-
 				// patient header
-				PatientHeaderFragment headerFragment = (PatientHeaderFragment)getSupportFragmentManager()
-						.findFragmentById(R.id.patientHeader);
+				PatientHeaderFragment headerFragment =
+						(PatientHeaderFragment) fragmentManager.findFragmentById(R.id.patientHeader);
 				if (headerFragment == null) {
 					headerFragment = PatientHeaderFragment.newInstance();
 				}
 
 				if (!headerFragment.isActive()) {
-					addFragmentToActivity(getSupportFragmentManager(), headerFragment, R.id.patientHeader);
+					addFragmentToActivity(fragmentManager, headerFragment, R.id.patientHeader);
 				}
 
 				new PatientHeaderPresenter(headerFragment, patientUuid);
@@ -99,15 +92,6 @@ public class AddEditVisitActivity extends ACBaseActivity {
 		super.onConfigurationChanged(config);
 		TabUtil.setHasEmbeddedTabs(getSupportActionBar(), getWindowManager(),
 				TabUtil.MIN_SCREEN_WIDTH_FOR_VISITDETAILSACTIVITY);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		outState.putString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		outState.putString(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-		outState.putString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
 	}
 
 	@Override
@@ -134,5 +118,42 @@ public class AddEditVisitActivity extends ACBaseActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void endVisit(String patientUuid) {
+		finish();
+		Intent intent = new Intent(this, PatientDashboardActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
+	}
+
+	@Override
+	public void visitStarted(String patientUuid, String visitUuid) {
+		goToEditVisit(patientUuid, visitUuid);
+	}
+
+	@Override
+	public void visitUpdated(String patientUuid, String visitUuid) {
+		goToEditVisit(patientUuid, visitUuid);
+	}
+
+	@Override
+	public void completeAuditDataBeforeEndingVisit(String patientUuid, String visitUuid) {
+		finish();
+		Intent intent = new Intent(this, AuditDataActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		startActivity(intent);
+		ToastUtil.notifyLong(getString(R.string.complete_audit_data_form));
+	}
+
+	private void goToEditVisit(String patientUuid, String visitUuid) {
+		finish();
+		Intent intent = new Intent(this, VisitActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		startActivity(intent);
 	}
 }

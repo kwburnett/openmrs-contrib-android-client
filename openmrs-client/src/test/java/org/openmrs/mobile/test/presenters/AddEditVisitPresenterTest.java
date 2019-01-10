@@ -39,17 +39,11 @@ import static org.mockito.Mockito.verify;
 @PrepareForTest({OpenMRS.class})
 public class AddEditVisitPresenterTest extends ACUnitTestBase {
 
-    @Mock
     private VisitDataService visitDataService;
-    @Mock
     private VisitTypeDataService visitTypeDataService;
-    @Mock
     private VisitAttributeTypeDataService visitAttributeTypeDataService;
-    @Mock
     private PatientDataService patientDataService;
-    @Mock
     private ConceptAnswerDataService conceptAnswerDataService;
-    @Mock
     private LocationDataService locationDataService;
     @Mock
     private OpenMRS openMRS;
@@ -66,9 +60,14 @@ public class AddEditVisitPresenterTest extends ACUnitTestBase {
 
     @Before
     public void setUp(){
-        presenter = new AddEditVisitPresenter(view, patientUuid, null, false, visitDataService,
-                patientDataService, visitTypeDataService, visitAttributeTypeDataService,
-                conceptAnswerDataService, locationDataService);
+	    visitDataService = dataAccessComponent.visit();
+	    visitTypeDataService = dataAccessComponent.visitType();
+	    visitAttributeTypeDataService = dataAccessComponent.visitAttributeType();
+	    patientDataService = dataAccessComponent.patient();
+	    conceptAnswerDataService = dataAccessComponent.conceptAnswer();
+	    locationDataService = dataAccessComponent.location();
+
+        presenter = new AddEditVisitPresenter(view, patientUuid, null, false, dataAccessComponent);
 
         patient = new Patient();
         patient.setUuid(patientUuid);
@@ -183,7 +182,7 @@ public class AddEditVisitPresenterTest extends ACUnitTestBase {
     public void shouldStartVisit(){
         presenter.startVisit(new ArrayList<>());
         verify(view).setSpinnerVisibility(false);
-        verify(view).showVisitDetails("24-65-9", true);
+        verify(view).startVisitComplete("24-65-9");
     }
 
     //@Test

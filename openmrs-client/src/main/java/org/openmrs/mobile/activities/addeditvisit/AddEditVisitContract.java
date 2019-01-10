@@ -40,15 +40,17 @@ public interface AddEditVisitContract {
 
 		void updateConceptAnswersView(Spinner conceptNamesDropdown, List<ConceptAnswer> conceptAnswers);
 
-		void showPatientDashboard();
+		void endVisitComplete();
 
-		void showVisitDetails(String visitUUID, boolean isNewInstance);
+		void updateVisitComplete(String visitUUID, boolean isNewInstance);
+
+		void startVisitComplete(String visitUuid);
 
 		void showPageSpinner(boolean visibility);
 
 		void loadEndVisitView();
 
-		void loadAuditDataForm(String visitUUID);
+		void auditDataNotCompleted(String visitUuid);
 	}
 
 	interface Presenter extends BasePresenterContract {

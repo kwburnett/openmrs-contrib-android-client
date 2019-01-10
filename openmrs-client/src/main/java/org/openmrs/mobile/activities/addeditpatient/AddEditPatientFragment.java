@@ -143,7 +143,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		if (context instanceof OnFragmentInteractionListener) {
 			listener = (OnFragmentInteractionListener) context;
 		} else {
-			throw new RuntimeException(context.toString() + " must implement OnPatientDashboardInteractionListener");
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
 		}
 	}
 
