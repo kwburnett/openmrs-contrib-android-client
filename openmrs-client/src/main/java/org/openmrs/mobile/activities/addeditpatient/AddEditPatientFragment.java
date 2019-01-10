@@ -16,7 +16,6 @@ package org.openmrs.mobile.activities.addeditpatient;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -49,7 +48,6 @@ import org.joda.time.format.DateTimeFormatter;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
-import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
@@ -83,14 +81,16 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.EMPTY_STRING;
 public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContract.Presenter>
 		implements AddEditPatientContract.View {
 
+	private OnFragmentInteractionListener listener;
+
 	private final static int IMAGE_REQUEST = 1;
 	private static LinearLayout.LayoutParams marginParams;
-	private LocalDate birthdate, patientEncouterDate;
+	private LocalDate birthdate, patientEncounterDate;
 	private DateTime bdt;
 	private EditText edfname, edmname, edlname, eddob, edyr, edmonth, fileNumber;
 	private RadioGroup gen;
 	private Button submitConfirm;
-	private String patientUuuid, patientName;
+	private String patientName;
 	private File output = null;
 	private OpenMRSLogger logger = new OpenMRSLogger();
 	/*
@@ -138,21 +138,32 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	}
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnPatientDashboardInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_add_edit_patient, container, false);
-		if (mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE) != null) {
-			patientUuuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		} else {
-			patientUuuid = EMPTY_STRING;
-		}
 
 		resolveViews(root);
 		addListeners();
 		buildMarginLayout();
 
-		mPresenter.getPatientIdentifierTypes();
-		mPresenter.getLoginLocation();
+		presenter.getPatientIdentifierTypes();
+		presenter.getLoginLocation();
 
 		return root;
 
@@ -160,12 +171,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void finishAddPatientActivity() {
-		mContext.finish();
+		context.finish();
 	}
 
 	@Override
 	public void scrollToTop() {
-		ScrollView scrollView = mContext.findViewById(R.id.patientAddScrollView);
+		ScrollView scrollView = context.findViewById(R.id.patientAddScrollView);
 		scrollView.smoothScrollTo(0, scrollView.getPaddingTop());
 	}
 
@@ -217,7 +228,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 		// Add gender
 		String[] genderChoices = { "M", "F" };
-		int index = gen.indexOfChild(mContext.findViewById(gen.getCheckedRadioButtonId()));
+		int index = gen.indexOfChild(context.findViewById(gen.getCheckedRadioButtonId()));
 		if (index != -1) {
 			person.setGender(genderChoices[index]);
 		} else {
@@ -279,13 +290,15 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void hideSoftKeys() {
-		View view = mContext.getCurrentFocus();
-		if (view == null) {
-			view = new View(mContext);
+		if (context != null) {
+			View view = context.getCurrentFocus();
+			if (view == null) {
+				view = new View(context);
+			}
+			InputMethodManager inputMethodManager =
+					(InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		}
-		InputMethodManager inputMethodManager =
-				(InputMethodManager)mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-		inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 	}
 
 	@Override
@@ -296,16 +309,15 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		similarPatientsDialog.setLeftButtonAction(CustomFragmentDialog.OnClickAction.CANCEL_REGISTERING);
 		similarPatientsDialog.setPatientsList(patients);
 		similarPatientsDialog.setNewPatient(newPatient);
-		((AddEditPatientActivity)mContext)
-				.createAndShowDialog(similarPatientsDialog, ApplicationConstants.DialogTAG.SIMILAR_PATIENTS_TAG);
+		if (context != null && context instanceof AddEditPatientActivity) {
+			((AddEditPatientActivity) context)
+					.createAndShowDialog(similarPatientsDialog, ApplicationConstants.DialogTAG.SIMILAR_PATIENTS_TAG);
+		}
 	}
 
 	@Override
 	public void startPatientDashboardActivity(Patient patient) {
 		//check for patient id if it's empty patient has just been added, open the dashboard
-		Intent intent = new Intent(mContext, PatientDashboardActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patient.getUuid());
-		startActivity(intent);
 		showPageSpinner(false);
 	}
 
@@ -317,9 +329,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	@Override
 	public void loadPersonAttributeTypes(List<PersonAttributeType> personAttributeTypeList) {
 		for (PersonAttributeType personAttributeType : personAttributeTypeList) {
-			LinearLayout personLayout = new LinearLayout(mContext);
+			if (context == null) {
+				break;
+			}
+			LinearLayout personLayout = new LinearLayout(context);
 			personLayout.setOrientation(LinearLayout.VERTICAL);
-			TextInputLayout textInputLayout = new TextInputLayout(mContext);
+			TextInputLayout textInputLayout = new TextInputLayout(context);
 			textInputLayout.setHintTextAppearance(R.style.textInputLayoutHintColor);
 
 			String datatypeClass = personAttributeType.getFormat();
@@ -328,12 +343,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			}
 
 			if (datatypeClass.equalsIgnoreCase("java.lang.Boolean")) {
-				AppCompatRadioButton booleanType = new AppCompatRadioButton(mContext);
+				AppCompatRadioButton booleanType = new AppCompatRadioButton(context);
 				booleanType.setLayoutParams(marginParams);
 				booleanType.setText(personAttributeType.getDisplay());
 
 				// set default value
-				Boolean defaultValue = mPresenter.searchPersonAttributeValueByType(personAttributeType);
+				Boolean defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
 				if (defaultValue != null) {
 					booleanType.setChecked(defaultValue);
 				}
@@ -343,19 +358,19 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.Concept")) {
 				// get coded concept uuid
 				String conceptUuid = personAttributeType.getConcept().getUuid();
-				AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(mContext);
+				AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(context);
 				conceptAnswersDropdown.setLayoutParams(marginParams);
-				mPresenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
+				presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
 				textInputLayout.addView(conceptAnswersDropdown);
 				viewPersonAttributeTypeMap.put(conceptAnswersDropdown, personAttributeType);
 			} else if (datatypeClass.equalsIgnoreCase("java.lang.String")) {
-				TextInputEditText textInputEditText = new TextInputEditText(mContext);
+				TextInputEditText textInputEditText = new TextInputEditText(context);
 				textInputEditText.setTextSize(14);
 				textInputEditText.setFocusable(true);
 				textInputEditText.setHint(personAttributeType.getDisplay());
 				textInputEditText.setLayoutParams(marginParams);
 				// set default value
-				String defaultValue = mPresenter.searchPersonAttributeValueByType(personAttributeType);
+				String defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
 				if (StringUtils.notEmpty(defaultValue)) {
 					textInputEditText.setText(defaultValue);
 				}
@@ -388,22 +403,21 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			conceptAnswer.setDisplay(ApplicationConstants.KIN_RELATIONSHIP);
 		}
 		conceptAnswers.add(0, conceptAnswer);
-		ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(mContext,
-				android.R.layout.simple_spinner_dropdown_item, conceptAnswers);
-		conceptNamesDropdown.setAdapter(conceptNameArrayAdapter);
+		if (context != null) {
+			ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(context,
+					android.R.layout.simple_spinner_dropdown_item, conceptAnswers);
+			conceptNamesDropdown.setAdapter(conceptNameArrayAdapter);
 
-		// set existing patient attribute if any
-		if (!patientUuuid.isEmpty()) {
+			// set existing patient attribute if any
 			try {
-				LinkedTreeMap personAttribute = mPresenter.searchPersonAttributeValueByType(personAttributeType);
+				LinkedTreeMap personAttribute = presenter.searchPersonAttributeValueByType(personAttributeType);
 				String conceptUuid = (String)personAttribute.get("uuid");
-				if (null != conceptUuid) {
+				if (conceptUuid != null) {
 					setDefaultDropdownSelection(conceptNameArrayAdapter, conceptUuid, conceptNamesDropdown);
 				}
 			} catch (Exception e) {
 				Log.e("Error", e.getLocalizedMessage());
 			}
-
 		}
 
 		conceptNamesDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -437,20 +451,20 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void fillFields(final Patient patient) {
-		if (patient != null && patient.getPerson() != null) {
+		if (patient != null && patient.getPerson() != null && context != null) {
 			//Change to Update Patient Form
 			String patientHeaderString = getResources().getString(R.string.action_update_patient_data);
-			mContext.setTitle(patientHeaderString);
-			AddEditPatientActivity addEditPatientActivity = (AddEditPatientActivity)mContext;
+			context.setTitle(patientHeaderString);
+			AddEditPatientActivity addEditPatientActivity = (AddEditPatientActivity) context;
 			addEditPatientActivity.updateToolbar();
 			submitConfirm.setText(patientHeaderString);
 			submitConfirm.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					if (!mPresenter.isRegisteringPatient()) {
+					if (!presenter.isRegisteringPatient()) {
 						buildPersonAttributeValues();
 					}
-					mPresenter.confirmPatient(updatePatient(patient));
+					presenter.confirmPatient(updatePatient(patient));
 				}
 			});
 
@@ -539,16 +553,18 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 					edmonth.getText().clear();
 					edyr.getText().clear();
 
-					DatePickerDialog mDatePicker =
-							new DatePickerDialog(mContext, (datepicker, selectedyear, selectedmonth, selectedday) -> {
-								int adjustedMonth = selectedmonth + 1;
-								eddob.setText(selectedday + "/" + adjustedMonth + "/" + selectedyear);
-								birthdate = new LocalDate(selectedyear, adjustedMonth, selectedday);
-								bdt = birthdate.toDateTimeAtStartOfDay().toDateTime();
-							}, cYear, cMonth, cDay);
-					mDatePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
-					mDatePicker.setTitle("Select Date");
-					mDatePicker.show();
+					if (context != null) {
+						DatePickerDialog mDatePicker =
+								new DatePickerDialog(context, (datepicker, selectedyear, selectedmonth, selectedday) -> {
+									int adjustedMonth = selectedmonth + 1;
+									eddob.setText(selectedday + "/" + adjustedMonth + "/" + selectedyear);
+									birthdate = new LocalDate(selectedyear, adjustedMonth, selectedday);
+									bdt = birthdate.toDateTimeAtStartOfDay().toDateTime();
+								}, cYear, cMonth, cDay);
+						mDatePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+						mDatePicker.setTitle("Select Date");
+						mDatePicker.show();
+					}
 				}
 			});
 		}
@@ -556,10 +572,10 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		submitConfirm.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				if (!mPresenter.isRegisteringPatient()) {
+				if (!presenter.isRegisteringPatient()) {
 					buildPersonAttributeValues();
 				}
-				mPresenter.confirmPatient(createPatient());
+				presenter.confirmPatient(createPatient());
 			}
 		});
 
@@ -603,5 +619,10 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 			marginParams.setMargins(30, 10, 30, 20);
 		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void onFragmentInteraction(String patientUuid);
 	}
 }
