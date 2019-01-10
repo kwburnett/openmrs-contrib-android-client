@@ -258,12 +258,12 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		drawer.closeDrawer(GravityCompat.START);
 		switch (selectedId) {
 			case R.id.navItemFindPatientRecord:
-				Intent intent = new Intent(openMRS.getApplicationContext(), FindPatientRecordActivity.class);
+				Intent intent = new Intent(this, FindPatientRecordActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				break;
 			case R.id.navItemPatientLists:
-				intent = new Intent(openMRS.getApplicationContext(), PatientListActivity.class);
+				intent = new Intent(this, PatientListActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				break;
@@ -276,7 +276,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	}
 
 	public void createSnackbar(String message) {
-		int colorWhite = ContextCompat.getColor(getApplicationContext(), R.color.color_white);
+		int colorWhite = ContextCompat.getColor(this, R.color.color_white);
 		// create instance
 		Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_INDEFINITE);
 		// set action button color
@@ -301,7 +301,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	}
 
 	public void createToast(String message) {
-		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 
 	public static void hideSoftKeyboard(Activity activity) {
