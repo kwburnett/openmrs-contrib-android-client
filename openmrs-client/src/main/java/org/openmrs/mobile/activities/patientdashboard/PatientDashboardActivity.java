@@ -14,18 +14,22 @@
 
 package org.openmrs.mobile.activities.patientdashboard;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
 import android.view.Menu;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
+import org.openmrs.mobile.activities.addeditpatient.AddEditPatientActivity;
+import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderPresenter;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.StringUtils;
 
-public class PatientDashboardActivity extends ACBaseActivity {
+public class PatientDashboardActivity extends ACBaseActivity
+		implements PatientDashboardFragment.OnFragmentInteractionListener {
 
 	public PatientDashboardContract.Presenter mPresenter;
 	private PatientHeaderFragment headerFragment;
@@ -74,10 +78,6 @@ public class PatientDashboardActivity extends ACBaseActivity {
 		return true;
 	}
 
-	public void updateHeaderShadowLine(boolean visible) {
-		headerFragment.updateShadowLine(visible);
-	}
-
 	@Override
 	public void onBackPressed() {
 		if (!isLoading()) {
@@ -99,5 +99,40 @@ public class PatientDashboardActivity extends ACBaseActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+	}
+
+	@Override
+	public void onFragmentInteraction(int action, String patientUuid) {
+		switch (action) {
+			case PatientDashboardFragment.START_VISIT:
+				Intent intent = new Intent(this, AddEditVisitActivity.class);
+				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+				startActivity(intent);
+				break;
+			case PatientDashboardFragment.EDIT_PATIENT:
+				intent = new Intent(this, AddEditPatientActivity.class);
+				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+				startActivity(intent);
+				break;
+		}
+	}
+
+	@Override
+	public void fragmentProcessing(boolean isLoading) {
+		setLoading(isLoading);
+	}
+
+	@Override
+	public void patientContactInformationPresent(boolean isPatientContactInformationPresent) {
+		if (isPatientContactInformationPresent) {
+			headerFragment.updateShadowLine(false);
+		} else {
+			headerFragment.updateShadowLine(true);
+		}
+	}
+
+	@Override
+	public void patientNotAvailable() {
+		onBackPressed();
 	}
 }

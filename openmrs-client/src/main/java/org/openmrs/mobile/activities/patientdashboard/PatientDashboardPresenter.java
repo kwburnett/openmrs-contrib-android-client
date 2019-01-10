@@ -103,7 +103,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 			public void onCompleted(Patient patient) {
 				if (patient == null && !networkUtils.isConnected()) {
 					patientDashboardView.alertOfflineAndPatientNotFound();
-					patientDashboardView.navigateBack();
+					patientDashboardView.patientNotAvailable();
 					return;
 				}
 				setPatient(patient);

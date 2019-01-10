@@ -58,7 +58,7 @@ public interface PatientDashboardContract {
 
 		void showNoPatientData(boolean visible);
 
-		void navigateBack();
+		void patientNotAvailable();
 
 		void alertOfflineAndPatientNotFound();
 
