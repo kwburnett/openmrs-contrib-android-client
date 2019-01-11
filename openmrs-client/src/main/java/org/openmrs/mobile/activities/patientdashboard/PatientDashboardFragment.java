@@ -47,7 +47,7 @@ import org.openmrs.mobile.utilities.ToastUtil;
 import java.util.LinkedList;
 
 public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashboardContract.Presenter>
-		implements PatientDashboardContract.View {
+		implements PatientDashboardContract.View, PatientVisitsRecyclerAdapter.OnAdapterInteractionListener {
 
 	private OnFragmentInteractionListener listener;
 	public static final int START_VISIT = 1;
@@ -160,10 +160,10 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		if (listener != null) {
 			switch (selectedId) {
 				case R.id.start_visit:
-					listener.onFragmentInteraction(START_VISIT, patientUuid);
+					listener.onPatientActionSelected(START_VISIT, patientUuid);
 					break;
 				case R.id.edit_Patient:
-					listener.onFragmentInteraction(EDIT_PATIENT, patientUuid);
+					listener.onPatientActionSelected(EDIT_PATIENT, patientUuid);
 					break;
 			}
 		}
@@ -230,7 +230,8 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 
 		if (context != null) {
 			patientVisitsRecyclerAdapter =
-					new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context, this);
+					new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context,
+							this, this, patient);
 			patientVisitsRecyclerAdapter.setOnLoadMoreListener(() -> {
 				// Add a null for loading indicator
 				patientVisits.add(null);
@@ -244,11 +245,6 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	@Override
 	public void displayRefreshingData(boolean visible) {
 		patientVisitsSwipeRefreshView.setRefreshing(visible);
-	}
-
-	@Override
-	public Patient getPatient() {
-		return patient;
 	}
 
 	@Override
@@ -332,14 +328,23 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		}
 	}
 
+	@Override
+	public void onVisitSelected(String visitUuid) {
+		if (listener != null) {
+			listener.onVisitSelected(patientUuid, visitUuid);
+		}
+	}
+
 	public interface OnFragmentInteractionListener {
 
-		void onFragmentInteraction(int action, String patientUuid);
+		void onPatientActionSelected(int action, String patientUuid);
 
 		void fragmentProcessing(boolean isLoading);
 
 		void patientContactInformationPresent(boolean isPatientContactInformationPresent);
 
 		void patientNotAvailable();
+
+		void onVisitSelected(String patientUuid, String visitUuid);
 	}
 }

@@ -13,6 +13,7 @@
  */
 package org.openmrs.mobile.activities.patientlist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,7 +40,10 @@ import java.util.List;
 /**
  * Main Patient List UI screen.
  */
-public class PatientListFragment extends ACBaseFragment<PatientListContract.Presenter> implements PatientListContract.View {
+public class PatientListFragment extends ACBaseFragment<PatientListContract.Presenter>
+		implements PatientListContract.View, PatientListModelRecyclerViewAdapter.OnAdapterInteractionListener {
+
+	private OnFragmentInteractionListener listener;
 
 	private Spinner patientListDropdown;
 	private PatientListSpinnerAdapter patientListSpinnerAdapter;
@@ -114,6 +118,22 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 		patientListModelRecyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
 	}
 
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -147,7 +167,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		adapter = new PatientListModelRecyclerViewAdapter(context, this);
+		adapter = new PatientListModelRecyclerViewAdapter(this);
 		patientListModelRecyclerView.setAdapter(adapter);
 		patientListModelRecyclerView.addOnScrollListener(recyclerViewOnScrollListener);
 
@@ -304,5 +324,17 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 	private boolean isSelectedPatientListValid() {
 		return selectedPatientList.getUuid() != null && !selectedPatientList.equals(patientListNotSelectedOption);
+	}
+
+	@Override
+	public void patientSelected(String patientUuid) {
+		if (listener != null) {
+			listener.patientSelected(patientUuid);
+		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void patientSelected(String patientUuid);
 	}
 }

@@ -25,13 +25,14 @@ import org.openmrs.mobile.activities.addeditpatient.AddEditPatientActivity;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderPresenter;
+import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.StringUtils;
 
 public class PatientDashboardActivity extends ACBaseActivity
 		implements PatientDashboardFragment.OnFragmentInteractionListener {
 
-	public PatientDashboardContract.Presenter mPresenter;
+	public PatientDashboardContract.Presenter presenter;
 	private PatientHeaderFragment headerFragment;
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +70,7 @@ public class PatientDashboardActivity extends ACBaseActivity
 			}
 		}
 
-		mPresenter = new PatientDashboardPresenter(patientDashboardFragment, openMRS, patientUuid);
+		presenter = new PatientDashboardPresenter(patientDashboardFragment, openMRS, patientUuid);
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class PatientDashboardActivity extends ACBaseActivity
 	}
 
 	@Override
-	public void onFragmentInteraction(int action, String patientUuid) {
+	public void onPatientActionSelected(int action, String patientUuid) {
 		switch (action) {
 			case PatientDashboardFragment.START_VISIT:
 				Intent intent = new Intent(this, AddEditVisitActivity.class);
@@ -134,5 +135,18 @@ public class PatientDashboardActivity extends ACBaseActivity
 	@Override
 	public void patientNotAvailable() {
 		onBackPressed();
+	}
+
+	@Override
+	public void onVisitSelected(String patientUuid, String visitUuid) {
+		if (isLoading()) {
+			createToast(getString(R.string.pending_save));
+		} else {
+			Intent intent = new Intent(this, VisitActivity.class);
+			intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(intent);
+		}
 	}
 }

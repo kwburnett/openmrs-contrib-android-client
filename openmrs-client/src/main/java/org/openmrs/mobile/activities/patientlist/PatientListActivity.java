@@ -13,6 +13,7 @@
  */
 package org.openmrs.mobile.activities.patientlist;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +24,7 @@ import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.dialog.PatientListSyncSelectionDialogFragment;
 import org.openmrs.mobile.activities.dialog.PatientListSyncSelectionDialogPresenter;
+import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
 import org.openmrs.mobile.dagger.DaggerDataAccessComponent;
 import org.openmrs.mobile.dagger.DaggerSyncComponent;
 import org.openmrs.mobile.dagger.SyncComponent;
@@ -30,11 +32,12 @@ import org.openmrs.mobile.dagger.SyncModule;
 import org.openmrs.mobile.data.db.impl.PullSubscriptionDbService;
 import org.openmrs.mobile.data.impl.PatientListDataService;
 import org.openmrs.mobile.sync.SyncManager;
+import org.openmrs.mobile.utilities.ApplicationConstants;
 
 /**
  * Patient List activity
  */
-public class PatientListActivity extends ACBaseActivity {
+public class PatientListActivity extends ACBaseActivity implements PatientListFragment.OnFragmentInteractionListener {
 
 	private PatientListContract.Presenter patientListPresenter;
 
@@ -101,5 +104,12 @@ public class PatientListActivity extends ACBaseActivity {
 		if (drawer.isDrawerOpen(GravityCompat.START)) {
 			drawer.closeDrawer(GravityCompat.START);
 		}
+	}
+
+	@Override
+	public void patientSelected(String patientUuid) {
+		Intent intent = new Intent(this, PatientDashboardActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		startActivity(intent);
 	}
 }

@@ -166,11 +166,6 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 		visitDataService.getByPatient(patient, options, pagingInfo, fetchVisitsCallback);
 	}
 
-	@Override
-	public Patient getPatient() {
-		return patientDashboardView.getPatient();
-	}
-
 	public void setPatient(Patient patient) {
 		this.patient = patient;
 	}
