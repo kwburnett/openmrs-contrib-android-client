@@ -118,10 +118,12 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 
 	@Override
 	public void setNumberOfPatientsView(int length) {
-		numberOfFetchedPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
-		foundPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
-		patientListLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
-		searchQuery.setText(getString(R.string.search_query_label, String.valueOf(OpenMRS.getInstance().getSearchQuery())));
+		if (context != null) {
+			numberOfFetchedPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
+			foundPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+			patientListLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+			searchQuery.setText(getString(R.string.search_query_label, String.valueOf(OpenMRS.getInstance().getSearchQuery())));
+		}
 	}
 
 	@Override
