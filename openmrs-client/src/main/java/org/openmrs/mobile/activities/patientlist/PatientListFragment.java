@@ -292,8 +292,10 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 	@Override
 	public void setNumberOfPatientsView(int length) {
-		numberOfPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
-		numberOfPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+		if (context != null) {
+			numberOfPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
+			numberOfPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+		}
 	}
 
 	@Override
