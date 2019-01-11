@@ -90,12 +90,10 @@ public class VisitActivity extends ACBaseActivity
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
-		boolean isVisitClosed = false;
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			patientUuid = extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
 			visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-			isVisitClosed = presenter.getVisit(visitUuid).getStopDatetime() != null;
 
 			handleViewPager(visitActivityView, patientUuid, visitUuid);
 
@@ -122,11 +120,6 @@ public class VisitActivity extends ACBaseActivity
 		editVisitButton = (FloatingActionButton)findViewById(R.id.edit_visit);
 		visitDetailsMenu = (FloatingActionMenu)findViewById(R.id.visitDetailsMenu);
 		visitDetailsMenu.setClosedOnTouchOutside(true);
-
-		if (isVisitClosed) {
-			captureVitalsButton.setVisibility(View.GONE);
-			endVisitButton.setVisibility(View.GONE);
-		}
 
 		// Font config
 		FontsUtil.setFont((ViewGroup)this.findViewById(android.R.id.content));
@@ -347,5 +340,20 @@ public class VisitActivity extends ACBaseActivity
 	@Override
 	public void showToast(String message, ToastUtil.ToastType toastType) {
 		ToastUtil.showShortToast(this, toastType, message);
+	}
+
+	@Override
+	public void getVisitCompleted(Visit visit) {
+		boolean isVisitClosed = visit.getStopDatetime() != null;
+		if (isVisitClosed) {
+			try {
+				captureVitalsButton.setVisibility(View.GONE);
+				endVisitButton.setVisibility(View.GONE);
+			} catch (Exception e) {
+				// The activity must be detached or something wrong such that these buttons aren't in the right state
+				// But if this is the case, it's not a problem for the app and these buttons aren't even there
+				OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+			}
+		}
 	}
 }

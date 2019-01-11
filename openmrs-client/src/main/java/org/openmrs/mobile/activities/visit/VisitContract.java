@@ -33,11 +33,11 @@ import java.util.List;
 public interface VisitContract {
 
 	interface View extends BaseView<Presenter> {
-
+		void getVisitCompleted(Visit visit);
 	}
 
 	interface Presenter extends BasePresenterContract {
-		Visit getVisit(String visitUuid);
+		void getVisit(String visitUuid);
 	}
 
 	interface VisitDashboardPage {
