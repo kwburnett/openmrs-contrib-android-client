@@ -94,6 +94,7 @@ public class VisitActivity extends ACBaseActivity
 		if (extras != null) {
 			patientUuid = extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
 			visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
+			presenter.getVisit(visitUuid);
 
 			handleViewPager(visitActivityView, patientUuid, visitUuid);
 
