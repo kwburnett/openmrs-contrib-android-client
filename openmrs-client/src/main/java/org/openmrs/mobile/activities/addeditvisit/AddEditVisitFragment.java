@@ -263,7 +263,7 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 				if (visitEndDateInput.getText() != null) {
 					visitEndDate = visitEndDateInput.getText().toString();
 				}
-				presenter.updateVisit(new ArrayList<>(visitAttributeMap.values()));
+				presenter.updateVisit(visitEndDate, new ArrayList<>(visitAttributeMap.values()));
 			}
 		}
 	}

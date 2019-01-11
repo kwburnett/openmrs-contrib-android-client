@@ -13,6 +13,8 @@
  */
 package org.openmrs.mobile.activities.addeditvisit;
 
+import static org.openmrs.mobile.utilities.ApplicationConstants.toastMessages.SAVE_VISIT_END_DATE_ERROR;
+
 import android.support.annotation.NonNull;
 import android.widget.Spinner;
 
@@ -283,15 +285,22 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 	}
 
 	@Override
-	public void updateVisit(List<VisitAttribute> attributes) {
+	public void updateVisit(String visitEndDate, List<VisitAttribute> attributes) {
 		Visit updatedVisit = new Visit();
 		updatedVisit.setUuid(visit.getUuid());
 		updatedVisit.setAttributes(attributes);
 		updatedVisit.setVisitType(visit.getVisitType());
 		updatedVisit.setStartDatetime(visit.getStartDatetime());
 
-		if (visit.getStopDatetime() != null) {
-			updatedVisit.setStopDatetime(visit.getStopDatetime());
+		try {
+			if (!StringUtils.isNullOrEmpty(visitEndDate)) {
+				updatedVisit.setStopDatetime(DateUtils.SIMPLE_DATE_FORMAT.parse(visitEndDate));
+			} else if (visit.getStopDatetime() != null) {
+				updatedVisit.setStopDatetime(visit.getStopDatetime());
+			}
+		} catch (Exception e) {
+			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+			addEditVisitView.showToast(SAVE_VISIT_END_DATE_ERROR, ToastUtil.ToastType.ERROR);
 		}
 
 		updateExistingAttributes(attributes);

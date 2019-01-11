@@ -214,6 +214,7 @@ public abstract class ApplicationConstants {
 		public static final String imageUploadError = "Unable to upload image";
 		public static final String imageDownloadError = "Error downloading visit images";
 		public static final String notConnected = "Not connected";
+		public static final String SAVE_VISIT_END_DATE_ERROR = "Error saving visit end date";
 	}
 
 	public static class entityName {

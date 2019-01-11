@@ -61,7 +61,7 @@ public interface AddEditVisitContract {
 
 		void startVisit(List<VisitAttribute> attributes);
 
-		void updateVisit(List<VisitAttribute> attributes);
+		void updateVisit(String visitEndDate, List<VisitAttribute> attributes);
 
 		Patient getPatient();
 
