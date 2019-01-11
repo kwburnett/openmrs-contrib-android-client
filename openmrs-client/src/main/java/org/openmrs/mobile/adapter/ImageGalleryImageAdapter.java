@@ -69,11 +69,14 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 		TouchImageView imageDisplay;
 		Button buttonClose;
 
+		// This creates a view with the photo that can be zoomed, and
+		// adds the photo information down at the bottom of the screen
 		layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View viewLayout = layoutInflater.inflate(R.layout.layout_image_gallery_image, container, false);
 
 		imageDisplay = (TouchImageView) viewLayout.findViewById(R.id.imageDisplay);
 
+		// Get the image and add it to the zoomable image view
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 		VisitPhoto visitPhoto = visitPhotos.get(position);
@@ -81,6 +84,7 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 				visitPhoto.getImageColumn().getBlob().length, options);
 		imageDisplay.setImageBitmap(bitmap);
 
+		// Get the metadata text of the image (description, provider, etc.) and display it in the right TextView
 		TextView descriptionView = (TextView) viewLayout.findViewById(R.id.photoDetails);
 		String uploadedBy;
 		if (visitPhoto.getCreator() != null) {
@@ -100,6 +104,7 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 			descriptionView.setVisibility(View.GONE);
 		}
 
+		// Add the view to our view pager and keep track of where the view is (for deleting and removal purposes)
 		((ViewPager) container).addView(viewLayout);
 		views[position] = viewLayout;
 

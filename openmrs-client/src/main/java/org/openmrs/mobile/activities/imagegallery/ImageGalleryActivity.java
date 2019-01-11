@@ -47,7 +47,7 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 
 		Intent intent = getIntent();
 		initialPhotoUuid = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID);
-		boolean shouldHideDeleteButton =intent.getBooleanExtra(ApplicationConstants.BundleKeys.EXTRA_NO_DELETE, false);
+		boolean shouldHideDeleteButton = intent.getBooleanExtra(ApplicationConstants.BundleKeys.EXTRA_NO_DELETE, false);
 		if (shouldHideDeleteButton) {
 			showDeleteButton = false;
 		}
@@ -56,12 +56,12 @@ public class ImageGalleryActivity extends ACBaseActivity implements ImageGallery
 					.getStringArrayList(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS);
 			presenter.getVisitPhotos(visitPhotoUuids);
 		} else {
+			// Since we have no photo UUID, we're viewing the photo stored on the phone that hasn't been saved yet
 			VisitPhoto tempVisitPhoto = new VisitPhoto();
 			String tempPhotoPath = intent.getExtras().getString(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH);
 
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = 1;
-			Bitmap tempPhoto = BitmapFactory.decodeFile(tempPhotoPath, options);
+			// To render the image, we need to get the byte array and give it to the ImageView
+			Bitmap tempPhoto = BitmapFactory.decodeFile(tempPhotoPath);
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			tempPhoto.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
 			tempVisitPhoto.setImage(byteArrayOutputStream.toByteArray());
