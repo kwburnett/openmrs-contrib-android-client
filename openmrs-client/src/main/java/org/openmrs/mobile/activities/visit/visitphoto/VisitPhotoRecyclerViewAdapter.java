@@ -40,11 +40,11 @@ public class VisitPhotoRecyclerViewAdapter
 		extends RecyclerView.Adapter<VisitPhotoRecyclerViewAdapter.DownloadVisitPhotoViewHolder> {
 
 	private Activity context;
-	private VisitContract.VisitPhotoView view;
+	private VisitContract.VisitPhotos.View view;
 	private List<VisitPhoto> visitPhotos;
 	private Map<ImageView, VisitPhoto> map = new HashMap<>();
 
-	public VisitPhotoRecyclerViewAdapter(Activity context, VisitContract.VisitPhotoView view) {
+	public VisitPhotoRecyclerViewAdapter(Activity context, VisitContract.VisitPhotos.View view) {
 		this.context = context;
 		this.view = view;
 	}

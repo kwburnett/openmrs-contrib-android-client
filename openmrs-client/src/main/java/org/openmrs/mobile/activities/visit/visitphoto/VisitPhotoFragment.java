@@ -76,7 +76,8 @@ import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter> implements VisitContract.VisitPhotoView {
+public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPage.Presenter>
+		implements VisitContract.VisitPhotos.View {
 
 	//Upload Visit photo
 	private final static int IMAGE_REQUEST = 1;
@@ -107,13 +108,13 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		super.setPresenter(mPresenter);
+		super.setPresenter(presenter);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_visit_photo, container, false);
-		layoutManager = new LinearLayoutManager(this.mContext);
+		layoutManager = new LinearLayoutManager(this.context);
 		recyclerView = (RecyclerView)root.findViewById(R.id.downloadPhotoRecyclerView);
 		recyclerView.setLayoutManager(layoutManager);
 
@@ -138,16 +139,16 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		adapter = new VisitPhotoRecyclerViewAdapter(this.mContext, this);
+		adapter = new VisitPhotoRecyclerViewAdapter(context, this);
 		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
 	public void updateVisitImageMetadata(List<VisitPhoto> visitPhotos) {
-		if (visitPhotos != null && !visitPhotos.isEmpty()) {
+		if (visitPhotos != null && !visitPhotos.isEmpty() && context != null) {
 			adapter.setVisitPhotos(visitPhotos);
 
-			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, visitPhotos.size());
+			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, visitPhotos.size());
 			recyclerView.setLayoutManager(layoutManager);
 		}
 	}
@@ -157,7 +158,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		fileCaption.setText(ApplicationConstants.EMPTY_STRING);
 		FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 		fragmentTransaction.detach(this).attach(this).commit();
-		mPresenter.subscribe();
+		presenter.subscribe();
 	}
 
 	@Override
@@ -186,7 +187,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void capturePhoto() {
 		VisitPhotoFragmentPermissionsDispatcher.externalStorageWithCheck(VisitPhotoFragment.this);
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Context context = mContext;
+		Context context = this.context;
 		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
 			OpenMRS openMRS = OpenMRS.getInstance();
 			File dir = openMRS.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
@@ -205,7 +206,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private void grantUriPermissions(Context context, Intent takePictureIntent, Uri photoURI) {
 		if (OpenMRS.getInstance().isRunningLollipopVersionOrHigher()) {
 			takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		} else {
+		} else if (context != null) {
 			List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(takePictureIntent,
 					PackageManager.MATCH_DEFAULT_ONLY);
 			for (ResolveInfo resolveInfo : resInfoList) {
@@ -231,7 +232,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@OnShowRationale(Manifest.permission.CAMERA)
 	public void showRationaleForCamera(final PermissionRequest request) {
-		new AlertDialog.Builder(mContext)
+		new AlertDialog.Builder(context)
 				.setMessage(R.string.permission_camera_rationale)
 				.setPositiveButton(R.string.button_allow, (dialog, which) -> request.proceed())
 				.setNegativeButton(R.string.button_deny, (dialog, button) -> request.cancel())
@@ -307,20 +308,20 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 				visitPhoto.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
 
-				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setImage(byteArrayOutputStream.toByteArray());
-				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setFileCaption(
+				((VisitPhotoPresenter) presenter).getVisitPhoto().setImage(byteArrayOutputStream.toByteArray());
+				((VisitPhotoPresenter) presenter).getVisitPhoto().setFileCaption(
 						StringUtils.notEmpty(
 								ViewUtils.getInput(fileCaption)) ?
 								ViewUtils.getInput(fileCaption) :
 								getString(R.string.default_file_caption_message));
-				((VisitPhotoPresenter)mPresenter).uploadImage();
+				((VisitPhotoPresenter) presenter).uploadImage();
 			}
 		});
 	}
 
 	@Override
 	public void deleteImage(VisitPhoto visitPhoto) {
-		((VisitPhotoPresenter)mPresenter).deleteImage(visitPhoto);
+		((VisitPhotoPresenter) presenter).deleteImage(visitPhoto);
 	}
 
 	@Override
@@ -347,8 +348,8 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			if (!isVisibleToUser) {
 				try {
 					InputMethodManager inputMethodManager =
-							(InputMethodManager)this.mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputMethodManager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), 0);
+							(InputMethodManager)this.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputMethodManager.hideSoftInputFromWindow(context.getCurrentFocus().getWindowToken(), 0);
 				} catch (Exception e) {
 
 				}
@@ -363,6 +364,6 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onVisitDashboardRefreshEvent(VisitDashboardDataRefreshEvent event) {
-		mPresenter.dataRefreshEventOccurred(event);
+		presenter.dataRefreshEventOccurred(event);
 	}
 }

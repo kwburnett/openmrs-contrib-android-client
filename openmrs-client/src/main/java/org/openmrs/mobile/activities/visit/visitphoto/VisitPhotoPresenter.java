@@ -16,6 +16,7 @@ package org.openmrs.mobile.activities.visit.visitphoto;
 
 import org.openmrs.mobile.activities.visit.BaseVisitPresenter;
 import org.openmrs.mobile.activities.visit.VisitContract;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.impl.ObsDataService;
@@ -31,10 +32,10 @@ import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 import java.util.Date;
 import java.util.List;
 
-public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitContract.VisitPhotoPresenter {
+public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitContract.VisitPhotos.Presenter {
 
-	private VisitContract.VisitPhotoView visitPhotoView;
-	private String patientUuid, visitUuid, providerUuid;
+	private VisitContract.VisitPhotos.View visitPhotoView;
+	private String patientUuid, visitUuid;
 	private boolean loading;
 	private VisitPhotoDataService visitPhotoDataService;
 	private ObsDataService obsDataService;
@@ -43,14 +44,12 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	private int numberOfPhotosToDownload = 0;
 	private int numberOfPhotosDownloaded = 0;
 
-	public VisitPhotoPresenter(VisitContract.VisitPhotoView visitPhotoView, String patientUuid, String visitUuid,
-			String providerUuid) {
+	public VisitPhotoPresenter(VisitContract.VisitPhotos.View visitPhotoView, String patientUuid, String visitUuid) {
 		super(visitUuid, visitPhotoView);
 
 		this.visitPhotoView = visitPhotoView;
 		this.patientUuid = patientUuid;
 		this.visitUuid = visitUuid;
-		this.providerUuid = providerUuid;
 
 		this.visitPhotoDataService = dataAccess().visitPhoto();
 		this.obsDataService = dataAccess().obs();
@@ -178,7 +177,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		visit.setUuid(visitUuid);
 
 		Provider provider = new Provider();
-		provider.setUuid(providerUuid);
+		provider.setUuid(OpenMRS.getInstance().getCurrentUserUuid());
 
 		Patient patient = new Patient();
 		patient.setUuid(patientUuid);
