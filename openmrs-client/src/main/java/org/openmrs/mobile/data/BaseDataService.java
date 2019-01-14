@@ -77,6 +77,13 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 	}
 
 	@Override
+	public E getLocalByUuid(@NonNull String uuid, @Nullable QueryOptions options) {
+		checkNotNull(uuid);
+
+		return dbService.getByUuid(uuid, options);
+	}
+
+	@Override
 	public void getAll(@Nullable QueryOptions options, @Nullable PagingInfo pagingInfo,
 			@NonNull GetCallback<List<E>> callback) {
 		checkNotNull(callback);

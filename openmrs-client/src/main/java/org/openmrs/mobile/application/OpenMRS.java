@@ -415,6 +415,10 @@ public class OpenMRS extends Application {
 		return getPreferences().getString(ApplicationConstants.UserKeys.USER_PERSON_NAME, ApplicationConstants.EMPTY_STRING);
 	}
 
+	public String getUserUuid() {
+		return getPreferences().getString(ApplicationConstants.UserKeys.USER_UUID, ApplicationConstants.EMPTY_STRING);
+	}
+
 	private void clearCurrentLoggedInUserInfo() {
 		SharedPreferences prefs = OpenMRS.getInstance().getPreferences();
 		SharedPreferences.Editor editor = prefs.edit();
