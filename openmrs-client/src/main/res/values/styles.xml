@@ -12,7 +12,7 @@
   ~ Copyright (C) OpenMRS, LLC.  All Rights Reserved.
   -->
 
-<resources xmlns:android="http://schemas.android.com/tools">
+<resources>
 
 	<style name="AppThemeOrig" parent="Theme.AppCompat.Light.DarkActionBar">
 		<item name="colorPrimary">@color/primary</item>
@@ -46,9 +46,12 @@
 		<item name="actionMenuTextColor">@android:color/white</item>
 	</style>
 
-	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+	<style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+		<item name="actionBarTheme">@style/BandaHealth.ActionBarTheme</item>
+		<item name="colorControlNormal">@android:color/white</item>
+	</style>
 
-	<style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+	<style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
 	<style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
 		<item name="android:textSize">@dimen/toolbar_text_size</item>
@@ -107,5 +110,22 @@
 
 	</style>
 
+	<style name="BandaHealth.Theme.Light.TransparentActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+		<item name="colorPrimary">@android:color/transparent</item>
+		<item name="progressBarStyle">@style/ProgressBar.Openmrs</item>
+	</style>
+
+	<style name="BandaHealth.Theme.Dark.TransparentActionBar" parent="Theme.AppCompat">
+		<item name="colorPrimary">@android:color/transparent</item>
+		<item name="progressBarStyle">@style/ProgressBar.Openmrs</item>
+		<item name="android:textColor">@android:color/white</item>
+		<item name="actionBarTheme">@style/BandaHealth.ActionBarTheme</item>
+		<item name="colorControlNormal">@android:color/white</item>
+	</style>
+
+	<style name="BandaHealth.ActionBarTheme" parent="ThemeOverlay.AppCompat.ActionBar">
+		<!-- THIS is where you can color the arrow! -->
+		<item name="colorControlNormal">@android:color/white</item>
+	</style>
 
 </resources>

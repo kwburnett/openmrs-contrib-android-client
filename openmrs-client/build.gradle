@@ -160,4 +160,5 @@ dependencies {
 	)
 
 	testImplementation 'org.robolectric:robolectric:3.4.2'
+	implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }

@@ -16,6 +16,7 @@ package org.openmrs.mobile.activities.visit.visitphoto;
 
 import org.openmrs.mobile.activities.visit.BaseVisitPresenter;
 import org.openmrs.mobile.activities.visit.VisitContract;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.impl.ObsDataService;
@@ -23,9 +24,11 @@ import org.openmrs.mobile.data.impl.VisitPhotoDataService;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.models.Provider;
+import org.openmrs.mobile.models.User;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitPhoto;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 
 import java.util.Date;
@@ -42,6 +45,8 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 
 	private int numberOfPhotosToDownload = 0;
 	private int numberOfPhotosDownloaded = 0;
+
+	private boolean shouldRefreshVisitPhotos = false;
 
 	public VisitPhotoPresenter(VisitContract.VisitPhotoView visitPhotoView, String patientUuid, String visitUuid,
 			String providerUuid) {
@@ -165,7 +170,12 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	@Override
 	public void subscribe() {
 		initVisitPhoto();
-		getPhotoMetadata(false);
+		if (shouldRefreshVisitPhotos) {
+			getPhotoMetadata(true);
+			shouldRefreshVisitPhotos = false;
+		} else {
+			getPhotoMetadata(false);
+		}
 	}
 
 	private void initVisitPhoto() {
@@ -174,28 +184,55 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		}
 
 		visitPhoto = new VisitPhoto();
-		Visit visit = new Visit();
-		visit.setUuid(visitUuid);
+		Visit visit = null;
+		if (!StringUtils.isNullOrEmpty(visitUuid)) {
+			visit = dataAccess().visit().getLocalByUuid(visitUuid, null);
+		}
+		if (visit == null) {
+			visit = new Visit();
+			visit.setUuid(visitUuid);
+		}
 
-		Provider provider = new Provider();
-		provider.setUuid(providerUuid);
+		Provider provider = null;
+		if (!StringUtils.isNullOrEmpty(providerUuid)) {
+			dataAccess().provider().getLocalByUuid(providerUuid, null);
+		}
+		if (provider == null) {
+			provider = new Provider();
+			provider.setUuid(providerUuid);
+		}
 
-		Patient patient = new Patient();
-		patient.setUuid(patientUuid);
+		Patient patient = null;
+		if (!StringUtils.isNullOrEmpty(patientUuid)) {
+			dataAccess().patient().getLocalByUuid(patientUuid, null);
+		}
+		if (patient == null){
+			patient	= new Patient();
+			patient.setUuid(patientUuid);
+		}
 
 		visitPhoto.setVisit(visit);
 		visitPhoto.setProvider(provider);
 		visitPhoto.setPatient(patient);
-		visitPhoto.setDateCreated(new Date());
+
+		User currentUser = dataAccess().user().getLocalByUuid(OpenMRS.getInstance().getUserUuid(), null);
+		if (currentUser != null) {
+			visitPhoto.setCreator(currentUser);
+		}
 	}
 
 	@Override
-	public void uploadImage() {
+	public void uploadPhoto(byte[] image, String description) {
 		visitPhotoView.showTabSpinner(true);
+		visitPhoto.setImage(image);
+		visitPhoto.setFileCaption(description);
+		visitPhoto.setDateCreated(new Date());
 		visitPhotoDataService.uploadPhoto(visitPhoto, new DataService.GetCallback<VisitPhoto>() {
 			@Override
 			public void onCompleted(VisitPhoto entity) {
+				visitPhoto = null;
 				visitPhotoView.showTabSpinner(false);
+				visitPhotoView.reset();
 				visitPhotoView.refresh();
 				subscribe();
 			}
@@ -209,11 +246,6 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	}
 
 	@Override
-	public VisitPhoto getVisitPhoto() {
-		return visitPhoto;
-	}
-
-	@Override
 	public boolean isLoading() {
 		return loading;
 	}
@@ -224,7 +256,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	}
 
 	@Override
-	public void deleteImage(VisitPhoto visitPhoto) {
+	public void deletePhoto(VisitPhoto visitPhoto) {
 		visitPhotoView.showTabSpinner(true);
 		Observation obs = visitPhoto.getObservation();
 		obs.setVoided(true);
@@ -250,6 +282,11 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 	protected void refreshDependentData() {
 		numberOfPhotosDownloaded = 0;
 		getPhotoMetadata(true);
+	}
+
+	@Override
+	public void refreshPhotosWhenVisible() {
+		shouldRefreshVisitPhotos = true;
 	}
 
 	private void removeRefreshIndicatorIfAllCallsComplete() {

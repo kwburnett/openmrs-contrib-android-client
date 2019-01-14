@@ -82,11 +82,13 @@ public interface VisitContract {
 	interface VisitPhotoView extends VisitDashboardPageView {
 		void updateVisitImageMetadata(List<VisitPhoto> visitPhotos);
 
+		void viewImage(String photoUuidToView, List<String> visitPhotoUuids);
+
 		void deleteImage(VisitPhoto visitPhoto);
 
-		void refresh();
+		void reset();
 
-		void showNoVisitPhoto();
+		void refresh();
 
 		String formatVisitImageDescription(String description, String uploadedOn, String uploadedBy);
 
@@ -115,13 +117,13 @@ public interface VisitContract {
 	interface VisitPhotoPresenter extends VisitDashboardPagePresenter {
 		boolean isLoading();
 
+		void refreshPhotosWhenVisible();
+
 		void setLoading(boolean loading);
 
-		void uploadImage();
+		void uploadPhoto(byte[] visitPhoto, String description);
 
-		VisitPhoto getVisitPhoto();
-
-		void deleteImage(VisitPhoto visitPhoto);
+		void deletePhoto(VisitPhoto visitPhoto);
 	}
 
 	interface VisitDetailsPresenter extends VisitDashboardPagePresenter {

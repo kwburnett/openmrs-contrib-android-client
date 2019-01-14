@@ -209,7 +209,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		transaction.commit();
 	}
 
-	private void intitializeToolbar() {
+	protected void intitializeToolbar() {
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
