@@ -27,7 +27,6 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 
 	private Activity activity;
 	private List<VisitPhoto> visitPhotos;
-	private LayoutInflater layoutInflater;
 	private boolean hideDetails = false;
 	private Object[] views;
 
@@ -67,11 +66,10 @@ public class ImageGalleryImageAdapter extends PagerAdapter {
 	@NonNull
 	public Object instantiateItem(@NonNull ViewGroup container, int position) {
 		TouchImageView imageDisplay;
-		Button buttonClose;
 
 		// This creates a view with the photo that can be zoomed, and
 		// adds the photo information down at the bottom of the screen
-		layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View viewLayout = layoutInflater.inflate(R.layout.layout_image_gallery_image, container, false);
 
 		imageDisplay = (TouchImageView) viewLayout.findViewById(R.id.imageDisplay);
