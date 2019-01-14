@@ -50,8 +50,8 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		implements PatientDashboardContract.View, PatientVisitsRecyclerAdapter.OnAdapterInteractionListener {
 
 	private OnFragmentInteractionListener listener;
-	public static final int START_VISIT = 1;
-	public static final int EDIT_PATIENT = 2;
+	public static final int ACTION_START_VISIT = 1;
+	public static final int ACTION_EDIT_PATIENT = 2;
 
 	private FloatingActionButton startVisitButton, editPatient;
 	private Patient patient;
@@ -160,10 +160,10 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		if (listener != null) {
 			switch (selectedId) {
 				case R.id.start_visit:
-					listener.onPatientActionSelected(START_VISIT, patientUuid);
+					listener.onPatientActionSelected(ACTION_START_VISIT, patientUuid);
 					break;
 				case R.id.edit_Patient:
-					listener.onPatientActionSelected(EDIT_PATIENT, patientUuid);
+					listener.onPatientActionSelected(ACTION_EDIT_PATIENT, patientUuid);
 					break;
 			}
 		}

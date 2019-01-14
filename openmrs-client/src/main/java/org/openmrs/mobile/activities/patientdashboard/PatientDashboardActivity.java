@@ -105,12 +105,12 @@ public class PatientDashboardActivity extends ACBaseActivity
 	@Override
 	public void onPatientActionSelected(int action, String patientUuid) {
 		switch (action) {
-			case PatientDashboardFragment.START_VISIT:
+			case PatientDashboardFragment.ACTION_START_VISIT:
 				Intent intent = new Intent(this, AddEditVisitActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				startActivity(intent);
 				break;
-			case PatientDashboardFragment.EDIT_PATIENT:
+			case PatientDashboardFragment.ACTION_EDIT_PATIENT:
 				intent = new Intent(this, AddEditPatientActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				startActivity(intent);
