@@ -61,7 +61,7 @@ import java.util.List;
 
 public class VisitActivity extends ACBaseActivity
 		implements VisitDetailsFragment.OnFragmentInteractionListener, VisitContract.View,
-		VisitPhotoFragment.VisitPhotoListener {
+		VisitPhotoFragment.OnFragmentInteractionListener {
 
 	private static final int END_VISIT_RESULT = 1;
 	public VisitContract.VisitDashboardPage.Presenter visitDetailsMainPresenter;

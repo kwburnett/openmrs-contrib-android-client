@@ -96,7 +96,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private EditText fileCaption;
 	private TextView noVisitImage;
 
-	private VisitPhotoListener listener;
+	private OnFragmentInteractionListener listener;
 
 	public static VisitPhotoFragment newInstance() {
 		return new VisitPhotoFragment();
@@ -155,7 +155,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 			adapter.setVisitPhotos(visitPhotos);
 
-			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(context, visitPhotos.size());
+			GridLayoutManager layoutManager = new GridLayoutManager(context, NUMBER_OF_IMAGES_PER_ROW);
 			recyclerView.setLayoutManager(layoutManager);
 		} else {
 			updateVisitPhotoDisplay(false);
@@ -165,10 +165,10 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
-		if (context instanceof VisitPhotoListener) {
-			listener = (VisitPhotoListener) context;
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
 		} else {
-			throw new RuntimeException(context.toString() + " must implement VisitPhotoListener");
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
 		}
 	}
 
@@ -402,7 +402,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		presenter.dataRefreshEventOccurred(event);
 	}
 
-	public interface VisitPhotoListener {
+	public interface OnFragmentInteractionListener {
 
 		void viewVisitPhotos(String photoUuidToView, List<String> visitPhotoUuids);
 	}

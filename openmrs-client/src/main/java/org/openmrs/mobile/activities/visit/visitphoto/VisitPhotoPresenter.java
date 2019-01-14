@@ -198,7 +198,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		}
 		if (provider == null) {
 			provider = new Provider();
-			provider.setUuid(OpenMRS.getInstance().getCurrentUserUuid());
+			provider.setUuid(providerUuid);
 		}
 
 		Patient patient = null;
