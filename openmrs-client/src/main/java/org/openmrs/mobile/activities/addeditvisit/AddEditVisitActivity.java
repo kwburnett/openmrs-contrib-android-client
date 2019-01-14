@@ -131,12 +131,12 @@ public class AddEditVisitActivity extends ACBaseActivity implements AddEditVisit
 
 	@Override
 	public void visitStarted(String patientUuid, String visitUuid) {
-		goToEditVisit(patientUuid, visitUuid);
+		goToVisitPage(patientUuid, visitUuid);
 	}
 
 	@Override
 	public void visitUpdated(String patientUuid, String visitUuid) {
-		goToEditVisit(patientUuid, visitUuid);
+		goToVisitPage(patientUuid, visitUuid);
 	}
 
 	@Override
@@ -149,7 +149,7 @@ public class AddEditVisitActivity extends ACBaseActivity implements AddEditVisit
 		ToastUtil.notifyLong(getString(R.string.complete_audit_data_form));
 	}
 
-	private void goToEditVisit(String patientUuid, String visitUuid) {
+	private void goToVisitPage(String patientUuid, String visitUuid) {
 		finish();
 		Intent intent = new Intent(this, VisitActivity.class);
 		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
