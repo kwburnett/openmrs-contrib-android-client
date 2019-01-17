@@ -101,7 +101,7 @@ public class OpenMRS extends Application {
 			}
 		}
 
-		logger = new OpenMRSLogger();
+		logger = new BandaHealthLogger();
 
 		syncManager.initializeDataSync();
 		networkManager.initializeNetworkReceiver();

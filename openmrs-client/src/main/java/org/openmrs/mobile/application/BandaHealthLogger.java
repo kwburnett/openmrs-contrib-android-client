@@ -28,17 +28,7 @@ import com.crashlytics.android.Crashlytics;
 
 public class BandaHealthLogger implements Logger {
 
-	private static final int PRIORITY_VERBOSE = 50;
-	private static final int PRIORITY_DEBUG = 40;
-	private static final int PRIORITY_INFORMATION = 30;
-	private static final int PRIORITY_WARNING = 20;
-	private static final int PRIORITY_ERROR = 10;
-
-	private static final String TAG_VERBOSE = "verbose";
-	private static final String TAG_DEBUG = "debug";
-	private static final String TAG_INFORMATION = "information";
-	private static final String TAG_WARNING = "warning";
-	private static final String TAG_ERROR = "error";
+	private static final String TAG = "Banda Health";
 
 	private static BandaHealthLogger logger = null;
 
@@ -48,57 +38,57 @@ public class BandaHealthLogger implements Logger {
 
 	@Override
 	public void v(final String msg) {
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_VERBOSE, msg);
+		Crashlytics.log(Log.VERBOSE, TAG, msg);
 	}
 
 	@Override
 	public void v(final String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_VERBOSE, msg);
+		Crashlytics.log(Log.VERBOSE, TAG, msg);
 	}
 
 	@Override
 	public void d(final String msg) {
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_DEBUG, msg);
+		Crashlytics.log(Log.DEBUG, TAG, msg);
 	}
 
 	@Override
 	public void d(final String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_DEBUG, msg);
+		Crashlytics.log(Log.DEBUG, TAG, msg);
 	}
 
 	@Override
 	public void i(final String msg) {
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_INFORMATION, msg);
+		Crashlytics.log(Log.INFO, TAG, msg);
 	}
 
 	@Override
 	public void i(final String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_INFORMATION, msg);
+		Crashlytics.log(Log.INFO, TAG, msg);
 	}
 
 	@Override
 	public void w(final String msg) {
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_WARNING, msg);
+		Crashlytics.log(Log.WARN, TAG, msg);
 	}
 
 	@Override
 	public void w(final String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_WARNING, msg);
+		Crashlytics.log(Log.WARN, TAG, msg);
 	}
 
 	@Override
 	public void e(final String msg) {
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_ERROR, msg);
+		Crashlytics.log(Log.ERROR, TAG, msg);
 	}
 
 	@Override
 	public void e(final String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(PRIORITY_VERBOSE, TAG_ERROR, msg);
+		Crashlytics.log(Log.ERROR, TAG, msg);
 	}
 
 	@Override
