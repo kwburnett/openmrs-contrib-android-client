@@ -14,7 +14,7 @@
 package org.openmrs.mobile.activities.addeditvisit;
 
 import android.app.DatePickerDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
@@ -37,19 +37,15 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.auditdata.AuditDataActivity;
-import org.openmrs.mobile.activities.patientdashboard.PatientDashboardActivity;
-import org.openmrs.mobile.activities.visit.VisitActivity;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.BaseOpenmrsObject;
 import org.openmrs.mobile.models.ConceptAnswer;
 import org.openmrs.mobile.models.Resource;
 import org.openmrs.mobile.models.VisitAttribute;
 import org.openmrs.mobile.models.VisitAttributeType;
 import org.openmrs.mobile.models.VisitType;
-import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.utilities.StringUtils;
-import org.openmrs.mobile.utilities.ToastUtil;
 import org.openmrs.mobile.utilities.ViewUtils;
 
 import java.util.ArrayList;
@@ -59,6 +55,14 @@ import java.util.Map;
 
 public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Presenter>
 		implements AddEditVisitContract.View {
+
+	private static final String ARG_PATIENT_UUID = "patientUuid";
+	private static final String ARG_VISIT_UUID = "visitUuid";
+	private static final String ARG_ARE_ENDING_VISIT = "areEndingVisit";
+
+	private boolean areEndingVisit;
+
+	private OnFragmentInteractionListener listener;
 
 	private static TableRow.LayoutParams marginParams;
 	private TableLayout visitTableLayout;
@@ -73,8 +77,25 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 	private TextView visitStartDateLabel, visitEndDateLabel;
 	private TableRow visitTypeRow;
 
-	public static AddEditVisitFragment newInstance() {
-		return new AddEditVisitFragment();
+	public static AddEditVisitFragment newInstance(String patientUuid, String visitUuid, Boolean areEndingVisit) {
+		AddEditVisitFragment fragment = new AddEditVisitFragment();
+		Bundle args = new Bundle();
+		args.putString(ARG_PATIENT_UUID, patientUuid);
+		args.putString(ARG_VISIT_UUID, visitUuid);
+		args.putBoolean(ARG_ARE_ENDING_VISIT, areEndingVisit);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (getArguments() != null) {
+			patientUuid = getArguments().getString(ARG_PATIENT_UUID);
+			visitUuid = getArguments().getString(ARG_VISIT_UUID);
+			areEndingVisit = getArguments().getBoolean(ARG_ARE_ENDING_VISIT);
+			presenter = new AddEditVisitPresenter(this, patientUuid, visitUuid, areEndingVisit);
+		}
 	}
 
 	@Nullable
@@ -93,11 +114,6 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 		visitEndDateInput = (EditText)root.findViewById(R.id.visitEndDateInput);
 		visitTypeRow = (TableRow)root.findViewById(R.id.visitTypeRow);
 
-		this.patientUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		this.visitUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-		this.providerUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE);
-		this.visitStopDate = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
-
 		addListeners();
 		buildMarginLayout();
 
@@ -106,23 +122,23 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 
 	private void addListeners() {
 		visitSubmitButton.setOnClickListener(v -> {
-			if (!mPresenter.isProcessing()) {
+			if (!presenter.isProcessing()) {
 				buildVisitAttributeValues();
 			}
 		});
 
 		visitStartDateInput.setOnClickListener(v -> {
 			DateTime dateTime = DateUtils.convertTimeString(
-					DateUtils.convertTime(mPresenter.getVisit().getStartDatetime().getTime(),
+					DateUtils.convertTime(presenter.getVisit().getStartDatetime().getTime(),
 							DateUtils.OPEN_MRS_REQUEST_FORMAT));
 
 			createVisitDatePicker(dateTime, System.currentTimeMillis(), true);
 		});
 
 		visitEndDateInput.setOnClickListener(v -> {
-			if (mPresenter.getVisit().getStopDatetime() != null) {
+			if (presenter.getVisit().getStopDatetime() != null) {
 				DateTime dateTime = DateUtils.convertTimeString(
-						DateUtils.convertTime(mPresenter.getVisit().getStopDatetime().getTime(),
+						DateUtils.convertTime(presenter.getVisit().getStopDatetime().getTime(),
 								DateUtils.OPEN_MRS_REQUEST_FORMAT));
 
 				createVisitDatePicker(dateTime, 0, false);
@@ -131,22 +147,26 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 	}
 
 	private void createVisitDatePicker(DateTime dateTime, long maxDate, boolean startDate) {
+		if (context == null) {
+			return;
+		}
+
 		int currentYear = dateTime.getYear();
 		int currentMonth = dateTime.getMonthOfYear() - 1;
 		int currentDay = dateTime.getDayOfMonth();
 
-		DatePickerDialog mDatePicker = new DatePickerDialog(mContext,
+		DatePickerDialog mDatePicker = new DatePickerDialog(context,
 				(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) -> {
 					if (startDate) {
-						mPresenter.getVisit()
+						presenter.getVisit()
 								.setStartDatetime(DateUtils.constructDate(selectedyear, selectedmonth, selectedday));
-						visitStartDateInput.setText(DateUtils.convertTime(mPresenter.getVisit().getStartDatetime()
+						visitStartDateInput.setText(DateUtils.convertTime(presenter.getVisit().getStartDatetime()
 										.getTime(),
 								DateUtils.OPEN_MRS_REQUEST_PATIENT_FORMAT));
 					} else {
-						mPresenter.getVisit()
+						presenter.getVisit()
 								.setStopDatetime(DateUtils.constructDate(selectedyear, selectedmonth, selectedday));
-						visitEndDateInput.setText(DateUtils.convertTime(mPresenter.getVisit().getStopDatetime().getTime(),
+						visitEndDateInput.setText(DateUtils.convertTime(presenter.getVisit().getStopDatetime().getTime(),
 								DateUtils.OPEN_MRS_REQUEST_PATIENT_FORMAT));
 					}
 				}, currentYear, currentMonth, currentDay);
@@ -158,8 +178,24 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 	}
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
+	@Override
 	public void initView(boolean startVisit) {
-		Toolbar toolbar = (Toolbar)mContext.findViewById(R.id.toolbar);
+		Toolbar toolbar = (Toolbar) context.findViewById(R.id.toolbar);
 		if (startVisit) {
 			toolbar.setTitle(getString(R.string.label_start_visit));
 		} else {
@@ -168,16 +204,16 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 		}
 
 		visitStartDateInput.setText(
-				DateUtils.convertTime(mPresenter.getVisit().getStartDatetime().getTime(),
+				DateUtils.convertTime(presenter.getVisit().getStartDatetime().getTime(),
 						DateUtils.OPEN_MRS_REQUEST_PATIENT_FORMAT));
 
-		if (mPresenter.getVisit().getStopDatetime() != null) {
+		if (presenter.getVisit().getStopDatetime() != null) {
 			visitEndDateLabel.setVisibility(View.VISIBLE);
 			visitEndDateInput.setVisibility(View.VISIBLE);
 			visitEndDateInput.setText(
-					DateUtils.convertTime(mPresenter.getVisit().getStopDatetime().getTime(),
+					DateUtils.convertTime(presenter.getVisit().getStopDatetime().getTime(),
 							DateUtils.OPEN_MRS_REQUEST_PATIENT_FORMAT));
-			if (mPresenter.isEndVisit()) {
+			if (presenter.isEndVisit()) {
 				visitStartDateInput.setVisibility(View.GONE);
 				visitStartDateLabel.setVisibility(View.GONE);
 				loadEndVisitView();
@@ -194,8 +230,8 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 		visitTypeRow.setVisibility(View.GONE);
 
 		visitSubmitButton.setOnClickListener(v -> {
-			if (!mPresenter.isProcessing()) {
-				mPresenter.endVisit();
+			if (!presenter.isProcessing()) {
+				presenter.endVisit();
 			}
 		});
 
@@ -219,94 +255,112 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 			}
 		}
 
-		if (!mPresenter.isProcessing()) {
+		if (!presenter.isProcessing()) {
 			setSpinnerVisibility(true);
-			if (Resource.isLocalUuid(mPresenter.getVisit().getUuid())) {
-				mPresenter.startVisit(new ArrayList<>(visitAttributeMap.values()));
+			if (Resource.isLocalUuid(presenter.getVisit().getUuid())) {
+				presenter.startVisit(new ArrayList<>(visitAttributeMap.values()));
 			} else {
-				mPresenter.updateVisit(new ArrayList<>(visitAttributeMap.values()));
+				String visitEndDate = null;
+				if (visitEndDateInput.getText() != null) {
+					visitEndDate = visitEndDateInput.getText().toString();
+				}
+				presenter.updateVisit(visitEndDate, new ArrayList<>(visitAttributeMap.values()));
 			}
 		}
 	}
 
 	@Override
 	public void loadVisitAttributeTypeFields(List<VisitAttributeType> visitAttributeTypes) {
-		for (VisitAttributeType visitAttributeType : visitAttributeTypes) {
-			TableRow row = new TableRow(mContext);
-			row.setPadding(0, 20, 0, 10);
-			TextView label = new TextView(mContext);
-			label.setText(visitAttributeType.getDisplay() + ":");
-			label.setTextSize(17);
-			label.setTextColor(getResources().getColor(R.color.dark_grey));
-			row.addView(label, 0);
+		if (context == null) {
+			return;
+		}
+		try {
+			for (VisitAttributeType visitAttributeType : visitAttributeTypes) {
+				TableRow row = new TableRow(context);
+				row.setPadding(0, 20, 0, 10);
+				TextView label = new TextView(context);
+				label.setText(visitAttributeType.getDisplay() + ":");
+				label.setTextSize(17);
+				label.setTextColor(getResources().getColor(R.color.dark_grey));
+				row.addView(label, 0);
 
-			String datatypeClass = visitAttributeType.getDatatypeClassname();
-			if (StringUtils.isBlank(datatypeClass)) {
-				continue;
+				String datatypeClass = visitAttributeType.getDatatypeClassname();
+				if (StringUtils.isBlank(datatypeClass)) {
+					continue;
+				}
+
+				if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.BooleanDatatype")) {
+					RadioButton booleanType = new RadioButton(context);
+					booleanType.setLayoutParams(marginParams);
+
+					// set default value
+					Boolean defaultValue = new Boolean(presenter.searchVisitAttributeValueByType(visitAttributeType));
+					if (defaultValue != null) {
+						booleanType.setChecked(defaultValue);
+					}
+
+					row.addView(booleanType, 1);
+					viewVisitAttributeTypeMap.put(booleanType, visitAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.DateDatatype")) {
+					EditText dateType = new EditText(context);
+					dateType.setFocusable(true);
+					dateType.setTextSize(17);
+					dateType.setLayoutParams(marginParams);
+
+					// set default value
+					String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
+					if (StringUtils.notEmpty(defaultValue)) {
+						dateType.setText(defaultValue);
+					}
+					row.addView(dateType, 1);
+					viewVisitAttributeTypeMap.put(dateType, visitAttributeType);
+				} else if (datatypeClass
+						.equalsIgnoreCase("org.openmrs.module.coreapps.customdatatype.CodedConceptDatatype")) {
+					// get coded concept uuid
+					String conceptUuid = visitAttributeType.getDatatypeConfig();
+					Spinner conceptAnswersDropdown = new Spinner(context);
+					conceptAnswersDropdown.setLayoutParams(marginParams);
+					presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
+					row.addView(conceptAnswersDropdown, 1);
+					viewVisitAttributeTypeMap.put(conceptAnswersDropdown, visitAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.FreeTextDatatype")) {
+					EditText freeTextType = new EditText(context);
+					freeTextType.setFocusable(true);
+					freeTextType.setTextSize(17);
+					freeTextType.setLayoutParams(marginParams);
+
+					// set default value
+					String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
+					if (StringUtils.notEmpty(defaultValue)) {
+						freeTextType.setText(defaultValue.trim());
+					}
+
+					row.addView(freeTextType, 1);
+					viewVisitAttributeTypeMap.put(freeTextType, visitAttributeType);
+				}
+
+				visitTableLayout.addView(row);
 			}
-
-			if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.BooleanDatatype")) {
-				RadioButton booleanType = new RadioButton(mContext);
-				booleanType.setLayoutParams(marginParams);
-
-				// set default value
-				Boolean defaultValue = new Boolean(mPresenter.searchVisitAttributeValueByType(visitAttributeType));
-				if (defaultValue != null) {
-					booleanType.setChecked(defaultValue);
-				}
-
-				row.addView(booleanType, 1);
-				viewVisitAttributeTypeMap.put(booleanType, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.DateDatatype")) {
-				EditText dateType = new EditText(mContext);
-				dateType.setFocusable(true);
-				dateType.setTextSize(17);
-				dateType.setLayoutParams(marginParams);
-
-				// set default value
-				String defaultValue = mPresenter.searchVisitAttributeValueByType(visitAttributeType);
-				if (StringUtils.notEmpty(defaultValue)) {
-					dateType.setText(defaultValue);
-				}
-				row.addView(dateType, 1);
-				viewVisitAttributeTypeMap.put(dateType, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.module.coreapps.customdatatype.CodedConceptDatatype")) {
-				// get coded concept uuid
-				String conceptUuid = visitAttributeType.getDatatypeConfig();
-				Spinner conceptAnswersDropdown = new Spinner(mContext);
-				conceptAnswersDropdown.setLayoutParams(marginParams);
-				mPresenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
-				row.addView(conceptAnswersDropdown, 1);
-				viewVisitAttributeTypeMap.put(conceptAnswersDropdown, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.FreeTextDatatype")) {
-				EditText freeTextType = new EditText(mContext);
-				freeTextType.setFocusable(true);
-				freeTextType.setTextSize(17);
-				freeTextType.setLayoutParams(marginParams);
-
-				// set default value
-				String defaultValue = mPresenter.searchVisitAttributeValueByType(visitAttributeType);
-				if (StringUtils.notEmpty(defaultValue)) {
-					freeTextType.setText(defaultValue.trim());
-				}
-
-				row.addView(freeTextType, 1);
-				viewVisitAttributeTypeMap.put(freeTextType, visitAttributeType);
-			}
-
-			visitTableLayout.addView(row);
+		} catch (Exception e) {
+			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
+			// app
+			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
 		}
 	}
 
 	@Override
 	public void updateConceptAnswersView(Spinner conceptNamesDropdown, List<ConceptAnswer> conceptAnswers) {
+		if (context == null) {
+			return;
+		}
+
 		VisitAttributeType visitAttributeType = viewVisitAttributeTypeMap.get(conceptNamesDropdown);
-		ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(mContext,
+		ArrayAdapter<ConceptAnswer> conceptNameArrayAdapter = new ArrayAdapter<>(context,
 				android.R.layout.simple_spinner_dropdown_item, conceptAnswers);
 		conceptNamesDropdown.setAdapter(conceptNameArrayAdapter);
 
 		// set existing visit attribute if any
-		String visitTypeUuid = mPresenter.searchVisitAttributeValueByType(visitAttributeType);
+		String visitTypeUuid = presenter.searchVisitAttributeValueByType(visitAttributeType);
 		if (visitTypeUuid != null) {
 			setDefaultDropdownSelection(conceptNameArrayAdapter, visitTypeUuid, conceptNamesDropdown);
 		}
@@ -344,20 +398,24 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 
 	@Override
 	public void updateVisitTypes(List<VisitType> visitTypes) {
-		ArrayAdapter<VisitType> visitTypeArrayAdapter = new ArrayAdapter<>(mContext,
+		if (context == null) {
+			return;
+		}
+
+		ArrayAdapter<VisitType> visitTypeArrayAdapter = new ArrayAdapter<>(context,
 				android.R.layout.simple_spinner_dropdown_item, visitTypes);
 		visitTypeDropdown.setAdapter(visitTypeArrayAdapter);
 
 		// set existing visit type if any
-		if (mPresenter.getVisit().getVisitType() != null) {
-			setDefaultDropdownSelection(visitTypeArrayAdapter, mPresenter.getVisit().getVisitType().getUuid(),
+		if (presenter.getVisit().getVisitType() != null) {
+			setDefaultDropdownSelection(visitTypeArrayAdapter, presenter.getVisit().getVisitType().getUuid(),
 					visitTypeDropdown);
 		}
 
 		visitTypeDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				mPresenter.getVisit().setVisitType(visitTypes.get(position));
+				presenter.getVisit().setVisitType(visitTypes.get(position));
 			}
 
 			@Override
@@ -377,43 +435,32 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 	}
 
 	@Override
-	public void showPatientDashboard() {
-		mContext.finish();
-		Intent intent = new Intent(mContext, PatientDashboardActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		mContext.startActivity(intent);
+	public void endVisitComplete() {
+		if (listener != null) {
+			listener.endVisit(patientUuid);
+		}
 	}
 
 	@Override
-	public void showVisitDetails(String visitUUID, boolean isNewInstance) {
+	public void startVisitComplete(String visitUuid) {
+		if (listener != null) {
+			listener.visitStarted(patientUuid, visitUuid);
+		}
+	}
+
+	@Override
+	public void updateVisitComplete(String visitUuid, boolean isNewInstance) {
 		visitSubmitButton.setEnabled(false);
-		mContext.finish();
-		Intent intent = new Intent(mContext, VisitActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		if (visitUUID == null) {
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		} else {
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUUID);
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
+		if (listener != null) {
+			listener.visitUpdated(patientUuid, visitUuid);
 		}
-		mContext.startActivity(intent);
 	}
 
 	@Override
-	public void loadAuditDataForm(String visitUUID) {
-		mContext.finish();
-		Intent intent = new Intent(mContext, AuditDataActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		if (visitUUID == null) {
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		} else {
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUUID);
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
+	public void auditDataNotCompleted(String visitUuid) {
+		if (listener != null) {
+			listener.completeAuditDataBeforeEndingVisit(patientUuid, visitUuid);
 		}
-		//intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		mContext.startActivity(intent);
-		ToastUtil.notifyLong(getString(R.string.complete_audit_data_form));
 	}
 
 	@Override
@@ -442,5 +489,16 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 				dropdown.setSelection(count);
 			}
 		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void endVisit(String patientUuid);
+
+		void visitStarted(String patientUuid, String visitUuid);
+
+		void visitUpdated(String patientUuid, String visitUuid);
+
+		void completeAuditDataBeforeEndingVisit(String patientUuid, String visitUuid);
 	}
 }

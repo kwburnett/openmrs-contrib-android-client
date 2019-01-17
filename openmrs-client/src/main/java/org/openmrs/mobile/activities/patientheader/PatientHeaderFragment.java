@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.joda.time.DateTime;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
 import org.openmrs.mobile.application.OpenMRS;
@@ -114,7 +113,7 @@ public class PatientHeaderFragment extends ACBaseFragment<PatientHeaderContract.
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onDataRefreshEvent(DataRefreshEvent event) {
-		mPresenter.dataRefreshEventOccurred(event);
+		presenter.dataRefreshEventOccurred(event);
 	}
 
 	public void showLastSyncInformation() {

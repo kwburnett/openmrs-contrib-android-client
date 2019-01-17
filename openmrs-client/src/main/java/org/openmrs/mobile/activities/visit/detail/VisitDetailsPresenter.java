@@ -33,32 +33,29 @@ import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 
 import java.util.List;
 
-public class VisitDetailsPresenter extends BaseVisitPresenter implements VisitContract.VisitDetailsPresenter {
+public class VisitDetailsPresenter extends BaseVisitPresenter implements VisitContract.VisitDetails.Presenter {
 
-	VisitContract.VisitDetailsView visitDetailsView;
+	VisitContract.VisitDetails.View visitDetailsView;
 	private VisitAttributeTypeDataService visitAttributeTypeDataService;
 	private VisitDataService visitDataService;
 	private ConceptDataService conceptDataService;
-	private String patientUUID, providerUuid, visitStopDate;
+	private String patientUuid;
 
 	private ConceptAnswerDataService conceptAnswerDataService;
 
-	public VisitDetailsPresenter(String patientUuid, String visitUuid, String providerUuid,
-			String visitStopDate, VisitContract.VisitDetailsView visitDetailsView) {
+	public VisitDetailsPresenter(String patientUuid, String visitUuid, VisitContract.VisitDetails.View visitDetailsView) {
 		super(visitUuid, visitDetailsView);
 
 		visitDashboardPageView = visitDetailsView;
 
-		this.providerUuid = providerUuid;
-		this.patientUUID = patientUuid;
-		this.visitStopDate = visitStopDate;
+		this.patientUuid = patientUuid;
 
 		this.visitDataService = dataAccess().visit();
 		this.conceptDataService = dataAccess().concept();
 		this.conceptAnswerDataService = dataAccess().conceptAnswer();
 		this.visitAttributeTypeDataService = dataAccess().visitAttributeType();
 
-		this.visitDetailsView = (VisitContract.VisitDetailsView) visitDashboardPageView;
+		this.visitDetailsView = (VisitContract.VisitDetails.View) visitDashboardPageView;
 	}
 
 	@Override
@@ -97,22 +94,12 @@ public class VisitDetailsPresenter extends BaseVisitPresenter implements VisitCo
 
 	@Override
 	public void getPatientUUID() {
-		visitDetailsView.setPatientUUID(patientUUID);
+		visitDetailsView.setPatientUUID(patientUuid);
 	}
 
 	@Override
 	public void getVisitUUID() {
 		visitDetailsView.setVisitUUID(visitUuid);
-	}
-
-	@Override
-	public void getProviderUUID() {
-		visitDetailsView.setProviderUUID(providerUuid);
-	}
-
-	@Override
-	public void getVisitStopDate() {
-		visitDetailsView.setVisitStopDate(visitStopDate);
 	}
 
 	private void loadVisitAttributeTypes() {

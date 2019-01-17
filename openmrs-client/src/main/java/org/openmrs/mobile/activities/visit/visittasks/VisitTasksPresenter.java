@@ -33,9 +33,9 @@ import org.openmrs.mobile.utilities.ToastUtil;
 
 import java.util.List;
 
-public class VisitTasksPresenter extends BaseVisitPresenter implements VisitContract.VisitTasksPresenter {
+public class VisitTasksPresenter extends BaseVisitPresenter implements VisitContract.VisitTasks.Presenter {
 
-	private VisitContract.VisitTasksView visitTasksView;
+	private VisitContract.VisitTasks.View visitTasksView;
 	private VisitPredefinedTaskDataService visitPredefinedTaskDataService;
 	private VisitTaskDataService visitTaskDataService;
 	private VisitDataService visitDataService;
@@ -44,7 +44,7 @@ public class VisitTasksPresenter extends BaseVisitPresenter implements VisitCont
 	private int numberOfDataCallsCompletedForDataRefresh = 0;
 	private final int TOTAL_NUMBER_OF_REFRESH_DATA_CALLS = 1;
 
-	public VisitTasksPresenter(String patientUuid, String visitUuid, VisitContract.VisitTasksView visitTasksView) {
+	public VisitTasksPresenter(String patientUuid, String visitUuid, VisitContract.VisitTasks.View visitTasksView) {
 		super(visitUuid, visitTasksView);
 
 		this.visitTasksView = visitTasksView;
