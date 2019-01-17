@@ -36,13 +36,13 @@ import java.util.Map;
 public class VisitPhotoRecyclerViewAdapter
 		extends RecyclerView.Adapter<VisitPhotoRecyclerViewAdapter.DownloadVisitPhotoViewHolder> {
 
-	private VisitContract.VisitPhotoView view;
+	private VisitContract.VisitPhotos.View view;
 	private List<VisitPhoto> visitPhotos;
 	private Map<ImageView, VisitPhoto> map = new HashMap<>();
 
 	private static final int THUMBNAIL_DIMENSION_PX = 100;
 
-	public VisitPhotoRecyclerViewAdapter(VisitContract.VisitPhotoView view) {
+	public VisitPhotoRecyclerViewAdapter(VisitContract.VisitPhotos.View view) {
 		this.view = view;
 	}
 

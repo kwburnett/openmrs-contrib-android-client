@@ -53,9 +53,13 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @SuppressStaticInitializationFor("com.activeandroid.content.ContentProvider")
 public abstract class ACUnitTestBase {
 
+    protected DataAccessComponentTest dataAccessComponent;
+
     @Before
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
+        dataAccessComponent = new DataAccessComponentTest();
+        dataAccessComponent.initMocks();
     }
 
     protected void mockActiveAndroidContext() {

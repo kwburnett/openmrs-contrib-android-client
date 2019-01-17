@@ -167,8 +167,10 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 			bundle.setRightButtonText(getString(R.string.dialog_button_confirm));
 
 			mergePatientSummaryDialog = CustomFragmentDialog.newInstance(bundle);
-			mergePatientSummaryDialog.show(
-					getActivity().getSupportFragmentManager(), ApplicationConstants.DialogTAG.MERGE_PATIENT_SUMMARY_TAG);
+			if (context != null) {
+				mergePatientSummaryDialog.show(
+						context.getSupportFragmentManager(), ApplicationConstants.DialogTAG.MERGE_PATIENT_SUMMARY_TAG);
+			}
 		} else {
 			setClinicalNoteText(patientSummaryText);
 			addClinicalNoteListener();
@@ -215,11 +217,14 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	}
 
 	public void setSearchDiagnoses(List<Concept> diagnoses) {
-		CustomDiagnosesDropdownAdapter adapter =
-				new CustomDiagnosesDropdownAdapter(getContext(), android.R.layout.simple_spinner_dropdown_item, diagnoses);
-		filterOutExistingDiagnoses(diagnoses);
-		searchDiagnosis.setAdapter(adapter);
-		searchDiagnosis.showDropDown();
+		if (context != null) {
+			CustomDiagnosesDropdownAdapter adapter =
+					new CustomDiagnosesDropdownAdapter(context, android.R.layout.simple_spinner_dropdown_item,
+							diagnoses);
+			filterOutExistingDiagnoses(diagnoses);
+			searchDiagnosis.setAdapter(adapter);
+			searchDiagnosis.showDropDown();
+		}
 	}
 
 	/**
@@ -388,13 +393,15 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 			noSecondaryDiagnoses.setVisibility(View.GONE);
 		}
 
-		primaryDiagnosesRecycler.setAdapter(
-				new DiagnosisRecyclerViewAdapter(getActivity(), primaryDiagnoses, getEncounter(),
-						getClinicalNoteView().getText().toString(), visit, getDiagnosisView()));
+		if (context != null) {
+			primaryDiagnosesRecycler.setAdapter(
+					new DiagnosisRecyclerViewAdapter(context, primaryDiagnoses, getEncounter(),
+							getClinicalNoteView().getText().toString(), visit, getDiagnosisView()));
 
-		secondaryDiagnosesRecycler.setAdapter(
-				new DiagnosisRecyclerViewAdapter(getActivity(), secondaryDiagnoses, getEncounter(),
-						getClinicalNoteView().getText().toString(), visit, getDiagnosisView()));
+			secondaryDiagnosesRecycler.setAdapter(
+					new DiagnosisRecyclerViewAdapter(context, secondaryDiagnoses, getEncounter(),
+							getClinicalNoteView().getText().toString(), visit, getDiagnosisView()));
+		}
 
 		// clear auto-complete input field
 		searchDiagnosis.setText(ApplicationConstants.EMPTY_STRING);
@@ -467,7 +474,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 
 	@Override
 	public void setPresenter(T presenter) {
-		mPresenter = presenter;
+		this.presenter = presenter;
 	}
 
 	@Override

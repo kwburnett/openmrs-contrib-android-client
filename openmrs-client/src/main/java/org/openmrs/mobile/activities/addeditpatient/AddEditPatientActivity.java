@@ -29,7 +29,7 @@ import org.openmrs.mobile.utilities.ApplicationConstants;
 import java.util.Arrays;
 import java.util.List;
 
-public class AddEditPatientActivity extends ACBaseActivity {
+public class AddEditPatientActivity extends ACBaseActivity implements AddEditPatientFragment.OnFragmentInteractionListener {
 
 	public AddEditPatientContract.Presenter mPresenter;
 	private boolean updatingPatient;
@@ -105,7 +105,7 @@ public class AddEditPatientActivity extends ACBaseActivity {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				finish();
-				Intent intent = new Intent(getApplicationContext(), PatientDashboardActivity.class);
+				Intent intent = new Intent(this, PatientDashboardActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				//fix for now
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -115,5 +115,12 @@ public class AddEditPatientActivity extends ACBaseActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onFragmentInteraction(String patientUuid) {
+		Intent intent = new Intent(this, PatientDashboardActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		startActivity(intent);
 	}
 }

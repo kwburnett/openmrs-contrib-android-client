@@ -40,8 +40,6 @@ public interface PatientDashboardContract {
 
 		void notifyAllPatientVisitsFetched();
 
-		Patient getPatient();
-
 		void setProviderUuid(String providerUuid);
 
 		void setLocation(Location location);
@@ -58,7 +56,7 @@ public interface PatientDashboardContract {
 
 		void showNoPatientData(boolean visible);
 
-		void navigateBack();
+		void patientNotAvailable();
 
 		void alertOfflineAndPatientNotFound();
 
@@ -68,8 +66,6 @@ public interface PatientDashboardContract {
 	interface Presenter extends BasePresenterContract {
 
 		void fetchPatientData();
-
-		Patient getPatient();
 
 		boolean isLoading();
 

@@ -1,16 +1,18 @@
 package org.openmrs.mobile.activities.loginsync;
 
+import android.content.Intent;
 import android.os.Bundle;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
+import org.openmrs.mobile.activities.patientlist.PatientListActivity;
 import org.openmrs.mobile.event.SyncEvent;
 import org.openmrs.mobile.event.SyncPullEvent;
 import org.openmrs.mobile.event.SyncPushEvent;
 
-public class LoginSyncActivity extends ACBaseActivity {
+public class LoginSyncActivity extends ACBaseActivity implements LoginSyncFragment.OnFragmentInteractionListener {
 
 	public LoginSyncContract.Presenter presenter;
 
@@ -25,13 +27,12 @@ public class LoginSyncActivity extends ACBaseActivity {
 
 		// Create fragment
 		LoginSyncFragment loginSyncFragment =
-				(LoginSyncFragment) getSupportFragmentManager().findFragmentById(R.id.loginSyncContentFrame);
+				(LoginSyncFragment) fragmentManager.findFragmentById(R.id.loginSyncContentFrame);
 		if (loginSyncFragment == null) {
 			loginSyncFragment = LoginSyncFragment.newInstance();
 		}
 		if (!loginSyncFragment.isActive()) {
-			addFragmentToActivity(getSupportFragmentManager(),
-					loginSyncFragment, R.id.loginSyncContentFrame);
+			addFragmentToActivity(fragmentManager, loginSyncFragment, R.id.loginSyncContentFrame);
 		}
 
 		presenter = new LoginSyncPresenter(loginSyncFragment, openMRS, openMRS.getSyncManager());
@@ -63,5 +64,13 @@ public class LoginSyncActivity extends ACBaseActivity {
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onSyncEvent(SyncEvent syncEvent) {
 		presenter.onSyncEvent(syncEvent);
+	}
+
+	@Override
+	public void syncIsFinished() {
+		Intent intent = new Intent(this, PatientListActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(intent);
+		finish();
 	}
 }

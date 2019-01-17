@@ -303,9 +303,12 @@ public class PatientListPresenter extends BasePresenter implements PatientListCo
 	private List<PatientList> mapPullSubscriptions(List<PullSubscription> pullSubscriptions) {
 		List<String> patientListUuids = new ArrayList<>();
 		Map<String, PatientList> patientMap = new HashMap<>();
-		for (PatientList patientList : patientLists) {
-			patientListUuids.add(patientList.getUuid());
-			patientMap.put(patientList.getUuid(), patientList);
+		// A bug was thrown because patientLists wasn't initialized at one point, so check for it
+		if (patientLists != null) {
+			for (PatientList patientList : patientLists) {
+				patientListUuids.add(patientList.getUuid());
+				patientMap.put(patientList.getUuid(), patientList);
+			}
 		}
 
 		List<PatientList> syncingPatientLists = new ArrayList<>();

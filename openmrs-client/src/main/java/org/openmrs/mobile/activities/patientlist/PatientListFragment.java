@@ -13,6 +13,7 @@
  */
 package org.openmrs.mobile.activities.patientlist;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,7 +40,10 @@ import java.util.List;
 /**
  * Main Patient List UI screen.
  */
-public class PatientListFragment extends ACBaseFragment<PatientListContract.Presenter> implements PatientListContract.View {
+public class PatientListFragment extends ACBaseFragment<PatientListContract.Presenter>
+		implements PatientListContract.View, PatientListModelRecyclerViewAdapter.OnAdapterInteractionListener {
+
+	private OnFragmentInteractionListener listener;
 
 	private Spinner patientListDropdown;
 	private PatientListSpinnerAdapter patientListSpinnerAdapter;
@@ -61,7 +65,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 		@Override
 		public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-			if (!mPresenter.isLoading()) {
+			if (!presenter.isLoading()) {
 				// you can't scroll up or down. load previous page if any
 				if (!recyclerView.canScrollVertically(1) && !recyclerView.canScrollVertically(-1)) {
 					loadPreviousPage();
@@ -71,10 +75,10 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 		@Override
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-			if (!mPresenter.isLoading()) {
+			if (!presenter.isLoading()) {
 				if (!recyclerView.canScrollVertically(1)) {
 					// load next page
-					mPresenter.loadResults(selectedPatientList.getUuid(), true);
+					presenter.loadResults(selectedPatientList.getUuid(), true);
 				}
 
 				if (!recyclerView.canScrollVertically(-1) && dy < 0) {
@@ -92,26 +96,42 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	}
 
 	private int calculateCurrentPageOnScroll(int currentPosition) {
-		return (currentPosition / mPresenter.getLimit()) + 1;
+		return (currentPosition / presenter.getLimit()) + 1;
 	}
 
 	private void loadPreviousPage() {
 		// load previous page
 		if (currentPage <= 0) {
-			currentPage = mPresenter.getPage();
+			currentPage = presenter.getPage();
 		}
 
 		int previousPage = currentPage - 1;
 		if (previousPage <= 0)
 			previousPage = 1;
 
-		patientListModelRecyclerView.scrollToPosition(((previousPage - 1) * mPresenter.getLimit()) + 1);
+		patientListModelRecyclerView.scrollToPosition(((previousPage - 1) * presenter.getLimit()) + 1);
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		patientListModelRecyclerView.removeOnScrollListener(recyclerViewOnScrollListener);
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
 	}
 
 	@Nullable
@@ -132,14 +152,14 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 		patientListSwipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.patientListSwipeRefreshView);
 		patientListSwipeRefreshLayout.setEnabled(false);
 
-		layoutManager = new LinearLayoutManager(mContext);
+		layoutManager = new LinearLayoutManager(context);
 		patientListModelRecyclerView = (RecyclerView)root.findViewById(R.id.patientListModelRecyclerView);
 
 		patientListNotSelectedOption = new PatientList();
 		patientListNotSelectedOption.setName(getString(R.string.select_patient_list));
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)mContext.findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup) context.findViewById(android.R.id.content));
 
 		return root;
 	}
@@ -147,7 +167,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		adapter = new PatientListModelRecyclerViewAdapter(mContext, this);
+		adapter = new PatientListModelRecyclerViewAdapter(this);
 		patientListModelRecyclerView.setAdapter(adapter);
 		patientListModelRecyclerView.addOnScrollListener(recyclerViewOnScrollListener);
 
@@ -159,8 +179,8 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 			@Override
 			public void onRefresh() {
 				if (isSelectedPatientListValid()) {
-					mPresenter.setExistingPatientListUuid(selectedPatientList.getUuid());
-					mPresenter.dataRefreshWasRequested();
+					presenter.setExistingPatientListUuid(selectedPatientList.getUuid());
+					presenter.dataRefreshWasRequested();
 				} else {
 					displayRefreshingData(false);
 				}
@@ -199,9 +219,11 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	public void updatePatientLists(List<PatientList> patientLists, List<PatientList> syncingPatientLists) {
 		List<PatientList> patientListsToShow = getPatientListDisplayList(patientLists);
 
-		patientListSpinnerAdapter = new PatientListSpinnerAdapter(mContext,
-				patientListsToShow, syncingPatientLists);
-		patientListDropdown.setAdapter(patientListSpinnerAdapter);
+		if (context != null) {
+			patientListSpinnerAdapter = new PatientListSpinnerAdapter(context,
+					patientListsToShow, syncingPatientLists);
+			patientListDropdown.setAdapter(patientListSpinnerAdapter);
+		}
 
 		patientListDropdown.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
@@ -219,7 +241,7 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 					patientListSwipeRefreshLayout.setEnabled(false);
 				} else {
 					showNoPatientListSelected(false);
-					mPresenter.getPatientListData(selectedPatientList.getUuid(), 1);
+					presenter.getPatientListData(selectedPatientList.getUuid(), 1);
 					patientListSwipeRefreshLayout.setEnabled(true);
 				}
 			}
@@ -246,10 +268,12 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 	@Override
 	public void updatePatientListData(List<PatientListContext> patientListData, boolean wasForceRefresh) {
-		if (adapter.getItems() == null || wasForceRefresh) {
-			adapter.setItems(patientListData);
-		} else {
-			adapter.addItems(patientListData);
+		if (adapter != null) {
+			if (adapter.getItems() == null || wasForceRefresh) {
+				adapter.setItems(patientListData);
+			} else {
+				adapter.addItems(patientListData);
+			}
 		}
 	}
 
@@ -268,8 +292,10 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 	@Override
 	public void setNumberOfPatientsView(int length) {
-		numberOfPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
-		numberOfPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+		if (context != null) {
+			numberOfPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
+			numberOfPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+		}
 	}
 
 	@Override
@@ -285,11 +311,13 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 	@Override
 	public void updatePatientListSyncDisplay(List<PatientList> patientList, List<PatientList> syncingPatientLists) {
 		List<PatientList> patientListsToShow = getPatientListDisplayList(patientList);
-		patientListSpinnerAdapter.setItems(patientListsToShow, syncingPatientLists);
+		if (patientListSpinnerAdapter != null) {
+			patientListSpinnerAdapter.setItems(patientListsToShow, syncingPatientLists);
+		}
 	}
 
 	private void updatePagingLabel(int currentPage) {
-		updatePagingLabel(currentPage, mPresenter.getTotalNumberPages());
+		updatePagingLabel(currentPage, presenter.getTotalNumberPages());
 	}
 
 	public void showNoPatientListSelected(boolean visibility) {
@@ -298,5 +326,17 @@ public class PatientListFragment extends ACBaseFragment<PatientListContract.Pres
 
 	private boolean isSelectedPatientListValid() {
 		return selectedPatientList.getUuid() != null && !selectedPatientList.equals(patientListNotSelectedOption);
+	}
+
+	@Override
+	public void patientSelected(String patientUuid) {
+		if (listener != null) {
+			listener.patientSelected(patientUuid);
+		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void patientSelected(String patientUuid);
 	}
 }
