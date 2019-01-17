@@ -25,7 +25,9 @@
 			app:layout_constraintTop_toBottomOf="@id/patientHeader"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			android:theme="@style/BandaHealth.ThemeOverlay.Dark.ActionBar"/>
+			android:theme="@style/BandaHealth.ThemeOverlay.Dark.ActionBar"
+			app:tabIndicatorColor="@color/white"
+			android:elevation="5dp"/>
 
 	<android.support.v4.view.ViewPager
 			android:id="@+id/visitDetailsPager"
