@@ -14,11 +14,19 @@
 
 package org.openmrs.mobile.activities.visit;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
@@ -27,10 +35,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-
-import net.yanzm.mth.MaterialTabHost;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
@@ -57,6 +64,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.VisitPhotoListener {
+
+	private static final int TAB_COUNT = 3;
+	private static final int VISIT_DETAILS_TAB_POSITION = 0;
+	private static final int VISIT_TASKS_TAB_POSITION = 1;
+	private static final int VISIT_IMAGES_TAB_POSITION = 2;
+
 	private static final int END_VISIT_RESULT = 1;
 	public VisitContract.VisitDashboardPagePresenter visitDetailsMainPresenter;
 	private PatientHeaderContract.Presenter patientHeaderPresenter;
@@ -72,7 +85,7 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		View visitActivityView = getLayoutInflater().inflate(R.layout.activity_visit_details, frameLayout);
+		View visitActivityView = getLayoutInflater().inflate(R.layout.activity_visit, frameLayout);
 
 		Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
 		toolbar.setTitle(R.string.nav_visit_details);
@@ -115,6 +128,7 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		endVisitButton = (FloatingActionButton)findViewById(R.id.end_visit);
 		editVisitButton = (FloatingActionButton)findViewById(R.id.edit_visit);
 		visitDetailsMenu = (FloatingActionMenu)findViewById(R.id.visitDetailsMenu);
+		addCustomAnimation(visitDetailsMenu);
 		visitDetailsMenu.setClosedOnTouchOutside(true);
 
 		if (visitClosedDate != null && !visitClosedDate.isEmpty()) {
@@ -128,48 +142,52 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		initializeListeners(endVisitButton, editVisitButton, captureVitalsButton, auditData);
 	}
 
+	private void addCustomAnimation(FloatingActionMenu visitDetailsMenu) {
+		AnimatorSet set = new AnimatorSet();
+
+		ObjectAnimator scaleOutX = ObjectAnimator
+				.ofFloat(visitDetailsMenu.getMenuIconView(), "scaleX", 1.0f, 0.2f);
+		ObjectAnimator scaleOutY = ObjectAnimator
+				.ofFloat(visitDetailsMenu.getMenuIconView(), "scaleY", 1.0f, 0.2f);
+
+		ObjectAnimator scaleInX = ObjectAnimator
+				.ofFloat(visitDetailsMenu.getMenuIconView(), "scaleX", 0.2f, 1.0f);
+		ObjectAnimator scaleInY = ObjectAnimator
+				.ofFloat(visitDetailsMenu.getMenuIconView(), "scaleY", 0.2f, 1.0f);
+
+		scaleOutX.setDuration(300);
+		scaleOutY.setDuration(300);
+
+		scaleInX.setDuration(300);
+		scaleInY.setDuration(300);
+
+		scaleInX.addListener(new AnimatorListenerAdapter() {
+
+			@Override
+			public void onAnimationStart(Animator animation) {
+				visitDetailsMenu.getMenuIconView()
+						.setImageResource(visitDetailsMenu.isOpened() ? R.drawable.ic_close : R.drawable.ic_menu);
+			}
+		});
+
+		set.play(scaleOutX).with(scaleOutY);
+		set.play(scaleInX).with(scaleInY).after(scaleOutX);
+		set.setInterpolator(new OvershootInterpolator(2));
+
+		visitDetailsMenu.setIconToggleAnimatorSet(set);
+	}
+
 	private void handleViewPager(View view, String patientUuid, String visitUuid, String providerUuid,
 			String visitClosedDate) {
-		final VisitPageAdapter visitPageAdapter = new VisitPageAdapter(getSupportFragmentManager(), patientUuid,
+		// Set the view pager up
+		VisitPageAdapter visitPageAdapter = new VisitPageAdapter(getSupportFragmentManager(), patientUuid,
 				visitUuid, providerUuid, visitClosedDate);
-		MaterialTabHost tabHost = (MaterialTabHost)findViewById(R.id.visitDetailsTabHost);
-		initializeViewPagerTabs(tabHost, visitPageAdapter);
-		runAfterPageDisplayedToUser(view, new Runnable() {
+		ViewPager pager = findViewById(R.id.visitDetailsPager);
+		pager.setAdapter(visitPageAdapter);
 
-			@Override
-			public void run() {
-				findViewById(R.id.visitActivityProgressBar).setVisibility(View.GONE);
-				initViewPager(tabHost, visitPageAdapter);
-			}
-		});
-	}
-
-	private void initializeViewPagerTabs(MaterialTabHost tabHost, VisitPageAdapter visitPageAdapter) {
-		tabHost.setType(MaterialTabHost.Type.FullScreenWidth);
-		for (int i = 0; i < visitPageAdapter.getCount(); i++) {
-			tabHost.addTab(getTabNames().get(i).toUpperCase());
-		}
-	}
-
-	private void initViewPager(MaterialTabHost tabHost, VisitPageAdapter visitPageAdapter) {
-		final ViewPager viewPager = (ViewPager)findViewById(R.id.visitDetailsPager);
-		viewPager.setOffscreenPageLimit(visitPageAdapter.getCount() - 1);
-		viewPager.setAdapter(visitPageAdapter);
-		viewPager.addOnPageChangeListener(tabHost);
-		tabHost.setOnTabChangeListener(new MaterialTabHost.OnTabChangeListener() {
-			@Override
-			public void onTabSelected(int position) {
-				viewPager.setCurrentItem(position);
-			}
-		});
-	}
-
-	private ArrayList<String> getTabNames() {
-		ArrayList<String> tabNames = new ArrayList<>();
-		tabNames.add(getString(R.string.visit_scroll_tab_details_label));
-		tabNames.add(getString(R.string.visi_scroll_tab_visit_tasks_label));
-		tabNames.add(getString(R.string.visit_scroll_tab_visit_images_label));
-		return tabNames;
+		// Attach the ViewPager to the TabLayout
+		TabLayout tabLayout = findViewById(R.id.visitDetailsTabLayout);
+		tabLayout.setupWithViewPager(pager);
 	}
 
 	private void attachPresenterToFragment(Fragment fragment) {
@@ -325,5 +343,59 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID, photoUuidToView);
 		intent.putStringArrayListExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS, (ArrayList) visitPhotoUuids);
 		startActivityForResult(intent, ApplicationConstants.Activity.RequestCodes.VIEW_IMAGE_GALLERY);
+	}
+
+	private class VisitPageAdapter extends FragmentPagerAdapter {
+
+		private String patientUuid;
+		private String visitUuid;
+		private String providerUuid;
+		private String visitStopDate;
+
+		VisitPageAdapter(FragmentManager fm, String patientUuid, String visitUuid, String providerUuid, String visitStopDate) {
+			super(fm);
+			this.patientUuid = patientUuid;
+			this.visitUuid = visitUuid;
+			this.providerUuid = providerUuid;
+			this.visitStopDate = visitStopDate;
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			switch (position) {
+				case VISIT_DETAILS_TAB_POSITION:
+					VisitDetailsFragment visitDetailsFragment = VisitDetailsFragment.newInstance();
+					new VisitDetailsPresenter(patientUuid, visitUuid, providerUuid, visitStopDate, visitDetailsFragment);
+					return visitDetailsFragment;
+				case VISIT_TASKS_TAB_POSITION:
+					VisitTasksFragment visitTasksFragment = VisitTasksFragment.newInstance();
+					new VisitTasksPresenter(patientUuid, visitUuid, visitTasksFragment);
+					return visitTasksFragment;
+				case VISIT_IMAGES_TAB_POSITION:
+					VisitPhotoFragment visitPhotoFragment = VisitPhotoFragment.newInstance();
+					new VisitPhotoPresenter(visitPhotoFragment, patientUuid, visitUuid, providerUuid);
+					return visitPhotoFragment;
+			}
+			return null;
+		}
+
+		@Nullable
+		@Override
+		public CharSequence getPageTitle(int position) {
+			switch (position) {
+				case VISIT_DETAILS_TAB_POSITION:
+					return getString(R.string.visit_scroll_tab_details_label);
+				case VISIT_TASKS_TAB_POSITION:
+					return getString(R.string.visit_scroll_tab_visit_tasks_label);
+				case VISIT_IMAGES_TAB_POSITION:
+					return getString(R.string.visit_scroll_tab_visit_images_label);
+			}
+			return null;
+		}
+
+		@Override
+		public int getCount() {
+			return TAB_COUNT;
+		}
 	}
 }
