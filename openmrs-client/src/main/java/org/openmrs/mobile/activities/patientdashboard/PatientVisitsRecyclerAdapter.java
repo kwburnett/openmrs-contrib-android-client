@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.IBaseDiagnosisFragment;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Patient;
@@ -334,27 +335,31 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 		String county, subCounty, address, phone;
 		county = subCounty = address = phone = "";
 
-		for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
-			if (personAttribute.getDisplay() != null) {
-				String displayName = personAttribute.getDisplay().replaceAll("\\s+", "");
-				if (displayName.toLowerCase().startsWith(SUBCOUNTY)) {
-					subCounty = displayName.split("=")[1];
-				} else if (displayName.toLowerCase().startsWith(COUNTY)) {
-					county = displayName.split("=")[1];
-				} else if (displayName.toLowerCase().startsWith(TELEPHONE)) {
-					phone = displayName.split("=")[1];
-				}
-			} else if (personAttribute.getAttributeType() != null) {
-				// this is helpful when a patient has been created offline and not synced up, yet
-				String name = personAttribute.getAttributeType().getName();
-				if (name.toLowerCase().startsWith(SUBCOUNTY)) {
-					subCounty = personAttribute.getStringValue();
-				} else if (name.toLowerCase().startsWith(COUNTY)) {
-					county = personAttribute.getStringValue();
-				} else if (name.toLowerCase().startsWith(TELEPHONE)) {
-					phone = personAttribute.getStringValue();
+		try {
+			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
+				if (personAttribute.getDisplay() != null) {
+					String displayName = personAttribute.getDisplay().replaceAll("\\s+", "");
+					if (displayName.toLowerCase().startsWith(SUBCOUNTY)) {
+						subCounty = displayName.split("=")[1];
+					} else if (displayName.toLowerCase().startsWith(COUNTY)) {
+						county = displayName.split("=")[1];
+					} else if (displayName.toLowerCase().startsWith(TELEPHONE)) {
+						phone = displayName.split("=")[1];
+					}
+				} else if (personAttribute.getAttributeType() != null) {
+					// this is helpful when a patient has been created offline and not synced up, yet
+					String name = personAttribute.getAttributeType().getName();
+					if (name.toLowerCase().startsWith(SUBCOUNTY)) {
+						subCounty = personAttribute.getStringValue();
+					} else if (name.toLowerCase().startsWith(COUNTY)) {
+						county = personAttribute.getStringValue();
+					} else if (name.toLowerCase().startsWith(TELEPHONE)) {
+						phone = personAttribute.getStringValue();
+					}
 				}
 			}
+		} catch (Exception e) {
+			OpenMRS.getInstance().getLogger().e(StringUtils.toJson(patient), e);
 		}
 
 		if (!subCounty.equalsIgnoreCase("")) {

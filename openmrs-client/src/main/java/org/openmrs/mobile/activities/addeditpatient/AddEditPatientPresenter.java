@@ -421,7 +421,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 
 	@Override
 	public <T> T searchPersonAttributeValueByType(PersonAttributeType personAttributeType) {
-		if (getPatient() != null && getPatient().getPerson().getAttributes() != null) {
+		if (getPatient() != null && getPatient().getPerson() != null && getPatient().getPerson().getAttributes() != null) {
 			for (PersonAttribute personAttribute : getPatient().getPerson().getAttributes()) {
 				if (personAttribute.getAttributeType() != null) {
 					if (personAttribute.getAttributeType().getUuid()
