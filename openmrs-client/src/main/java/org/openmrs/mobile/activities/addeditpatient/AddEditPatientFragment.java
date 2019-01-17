@@ -49,7 +49,6 @@ import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.listeners.watcher.PatientBirthdateValidatorWatcher;
 import org.openmrs.mobile.models.BaseOpenmrsObject;
@@ -90,7 +89,6 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	private Button submitConfirm;
 	private String patientName;
 	private File output = null;
-	private OpenMRSLogger logger = new OpenMRSLogger();
 	/*
 	*TextViews defination
 	 *  */
