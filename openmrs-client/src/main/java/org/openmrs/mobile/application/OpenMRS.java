@@ -55,7 +55,7 @@ public class OpenMRS extends Application {
 
 	private static OpenMRS instance;
 	private static boolean ENCRYPTED = true;
-	private OpenMRSLogger logger;
+	private Logger logger;
 
 	public static OpenMRS getInstance() {
 		return instance;
@@ -427,7 +427,7 @@ public class OpenMRS extends Application {
 		syncManager.clearSyncHistory();
 	}
 
-	public OpenMRSLogger getOpenMRSLogger() {
+	public Logger getOpenMRSLogger() {
 		return logger;
 	}
 
