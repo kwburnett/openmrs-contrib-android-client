@@ -37,6 +37,7 @@ import android.widget.TextView;
 import org.joda.time.DateTime;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.BaseOpenmrsObject;
 import org.openmrs.mobile.models.ConceptAnswer;
 import org.openmrs.mobile.models.Resource;
@@ -270,73 +271,80 @@ public class AddEditVisitFragment extends ACBaseFragment<AddEditVisitContract.Pr
 
 	@Override
 	public void loadVisitAttributeTypeFields(List<VisitAttributeType> visitAttributeTypes) {
-		for (VisitAttributeType visitAttributeType : visitAttributeTypes) {
-			if (context == null) {
-				break;
-			}
-			TableRow row = new TableRow(context);
-			row.setPadding(0, 20, 0, 10);
-			TextView label = new TextView(context);
-			label.setText(visitAttributeType.getDisplay() + ":");
-			label.setTextSize(17);
-			label.setTextColor(getResources().getColor(R.color.dark_grey));
-			row.addView(label, 0);
+		if (context == null) {
+			return;
+		}
+		try {
+			for (VisitAttributeType visitAttributeType : visitAttributeTypes) {
+				TableRow row = new TableRow(context);
+				row.setPadding(0, 20, 0, 10);
+				TextView label = new TextView(context);
+				label.setText(visitAttributeType.getDisplay() + ":");
+				label.setTextSize(17);
+				label.setTextColor(getResources().getColor(R.color.dark_grey));
+				row.addView(label, 0);
 
-			String datatypeClass = visitAttributeType.getDatatypeClassname();
-			if (StringUtils.isBlank(datatypeClass)) {
-				continue;
-			}
-
-			if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.BooleanDatatype")) {
-				RadioButton booleanType = new RadioButton(context);
-				booleanType.setLayoutParams(marginParams);
-
-				// set default value
-				Boolean defaultValue = new Boolean(presenter.searchVisitAttributeValueByType(visitAttributeType));
-				if (defaultValue != null) {
-					booleanType.setChecked(defaultValue);
+				String datatypeClass = visitAttributeType.getDatatypeClassname();
+				if (StringUtils.isBlank(datatypeClass)) {
+					continue;
 				}
 
-				row.addView(booleanType, 1);
-				viewVisitAttributeTypeMap.put(booleanType, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.DateDatatype")) {
-				EditText dateType = new EditText(context);
-				dateType.setFocusable(true);
-				dateType.setTextSize(17);
-				dateType.setLayoutParams(marginParams);
+				if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.BooleanDatatype")) {
+					RadioButton booleanType = new RadioButton(context);
+					booleanType.setLayoutParams(marginParams);
 
-				// set default value
-				String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
-				if (StringUtils.notEmpty(defaultValue)) {
-					dateType.setText(defaultValue);
+					// set default value
+					Boolean defaultValue = new Boolean(presenter.searchVisitAttributeValueByType(visitAttributeType));
+					if (defaultValue != null) {
+						booleanType.setChecked(defaultValue);
+					}
+
+					row.addView(booleanType, 1);
+					viewVisitAttributeTypeMap.put(booleanType, visitAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.DateDatatype")) {
+					EditText dateType = new EditText(context);
+					dateType.setFocusable(true);
+					dateType.setTextSize(17);
+					dateType.setLayoutParams(marginParams);
+
+					// set default value
+					String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
+					if (StringUtils.notEmpty(defaultValue)) {
+						dateType.setText(defaultValue);
+					}
+					row.addView(dateType, 1);
+					viewVisitAttributeTypeMap.put(dateType, visitAttributeType);
+				} else if (datatypeClass
+						.equalsIgnoreCase("org.openmrs.module.coreapps.customdatatype.CodedConceptDatatype")) {
+					// get coded concept uuid
+					String conceptUuid = visitAttributeType.getDatatypeConfig();
+					Spinner conceptAnswersDropdown = new Spinner(context);
+					conceptAnswersDropdown.setLayoutParams(marginParams);
+					presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
+					row.addView(conceptAnswersDropdown, 1);
+					viewVisitAttributeTypeMap.put(conceptAnswersDropdown, visitAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.FreeTextDatatype")) {
+					EditText freeTextType = new EditText(context);
+					freeTextType.setFocusable(true);
+					freeTextType.setTextSize(17);
+					freeTextType.setLayoutParams(marginParams);
+
+					// set default value
+					String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
+					if (StringUtils.notEmpty(defaultValue)) {
+						freeTextType.setText(defaultValue.trim());
+					}
+
+					row.addView(freeTextType, 1);
+					viewVisitAttributeTypeMap.put(freeTextType, visitAttributeType);
 				}
-				row.addView(dateType, 1);
-				viewVisitAttributeTypeMap.put(dateType, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.module.coreapps.customdatatype.CodedConceptDatatype")) {
-				// get coded concept uuid
-				String conceptUuid = visitAttributeType.getDatatypeConfig();
-				Spinner conceptAnswersDropdown = new Spinner(context);
-				conceptAnswersDropdown.setLayoutParams(marginParams);
-				presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
-				row.addView(conceptAnswersDropdown, 1);
-				viewVisitAttributeTypeMap.put(conceptAnswersDropdown, visitAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.customdatatype.datatype.FreeTextDatatype")) {
-				EditText freeTextType = new EditText(context);
-				freeTextType.setFocusable(true);
-				freeTextType.setTextSize(17);
-				freeTextType.setLayoutParams(marginParams);
 
-				// set default value
-				String defaultValue = presenter.searchVisitAttributeValueByType(visitAttributeType);
-				if (StringUtils.notEmpty(defaultValue)) {
-					freeTextType.setText(defaultValue.trim());
-				}
-
-				row.addView(freeTextType, 1);
-				viewVisitAttributeTypeMap.put(freeTextType, visitAttributeType);
+				visitTableLayout.addView(row);
 			}
-
-			visitTableLayout.addView(row);
+		} catch (Exception e) {
+			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
+			// app
+			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
 		}
 	}
 

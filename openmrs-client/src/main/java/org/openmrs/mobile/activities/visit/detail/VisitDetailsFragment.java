@@ -542,57 +542,63 @@ public class VisitDetailsFragment extends BaseDiagnosisFragment<VisitContract.Vi
 	public void loadObservationFields(List<Observation> observations, EncounterTypeData type) {
 		List<TableRow> rowsToDisplay = new ArrayList<>();
 
-		for (Observation observation : observations) {
-			if (context == null) {
-				break;
+		if (context == null) {
+			return;
+		}
+		try {
+			for (Observation observation : observations) {
+				if (observation == null || observation.getDisplay() == null) {
+					continue;
+				}
+
+				TableRow row = new TableRow(context);
+				row.setPadding(0, 5, 0, 5);
+				row.setGravity(Gravity.CENTER);
+
+				LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+						LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+				row.setLayoutParams(params);
+
+				ArrayList splitValues = StringUtils.splitStrings(observation.getDisplay(), ":");
+
+				TextView label = new TextView(context);
+				TableRow.LayoutParams labelParams = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
+				labelParams.weight = 1;
+
+				label.setTextSize(14);
+				if (type == EncounterTypeData.VITALS) {
+					label.setText(splitValues.get(0) + " :");
+					label.setGravity(Gravity.RIGHT | Gravity.END);
+				} else {
+					label.setText(splitValues.get(0).toString());
+					label.setGravity(Gravity.LEFT | Gravity.START);
+				}
+				label.setLayoutParams(labelParams);
+				label.setTextColor(getResources().getColor(R.color.black));
+				row.addView(label, 0);
+
+				TextView value = new TextView(context);
+				value.setTextSize(14);
+				if (type == EncounterTypeData.VITALS) {
+					value.setText(splitValues.get(1).toString());
+				} else {
+					value.setText(": " + splitValues.get(1).toString());
+				}
+				value.setLayoutParams(labelParams);
+				row.addView(value, 1);
+
+				rowsToDisplay.add(row);
+
+				if (type == EncounterTypeData.AUDIT_DATA &&
+						observation.getDisplay().contains(ApplicationConstants.EncounterTypeDisplays.AUDIT_DATA_COMPLETENESS)
+						&& (observation.getDisplay().contains("No") || observation.getDisplay() == null)) {
+					auditDataCompleteness.setVisibility(View.VISIBLE);
+				}
 			}
-			if (observation == null || observation.getDisplay() == null) {
-				continue;
-			}
-
-			TableRow row = new TableRow(context);
-			row.setPadding(0, 5, 0, 5);
-			row.setGravity(Gravity.CENTER);
-
-			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			row.setLayoutParams(params);
-
-			ArrayList splitValues = StringUtils.splitStrings(observation.getDisplay(), ":");
-
-			TextView label = new TextView(context);
-			TableRow.LayoutParams labelParams = new TableRow.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
-			labelParams.weight = 1;
-
-			label.setTextSize(14);
-			if (type == EncounterTypeData.VITALS) {
-				label.setText(splitValues.get(0) + " :");
-				label.setGravity(Gravity.RIGHT | Gravity.END);
-			} else {
-				label.setText(splitValues.get(0).toString());
-				label.setGravity(Gravity.LEFT | Gravity.START);
-			}
-			label.setLayoutParams(labelParams);
-			label.setTextColor(getResources().getColor(R.color.black));
-			row.addView(label, 0);
-
-			TextView value = new TextView(context);
-			value.setTextSize(14);
-			if (type == EncounterTypeData.VITALS) {
-				value.setText(splitValues.get(1).toString());
-			} else {
-				value.setText(": " + splitValues.get(1).toString());
-			}
-			value.setLayoutParams(labelParams);
-			row.addView(value, 1);
-
-			rowsToDisplay.add(row);
-
-			if (type == EncounterTypeData.AUDIT_DATA &&
-					observation.getDisplay().contains(ApplicationConstants.EncounterTypeDisplays.AUDIT_DATA_COMPLETENESS)
-					&& (observation.getDisplay().contains("No") || observation.getDisplay() == null)) {
-				auditDataCompleteness.setVisibility(View.VISIBLE);
-			}
+		} catch (Exception e) {
+			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
+			// app
+			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
 		}
 
 		TableLayout layoutThatWillDisplayRows = visitVitalsTableLayout;

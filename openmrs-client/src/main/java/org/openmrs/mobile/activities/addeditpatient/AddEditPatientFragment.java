@@ -328,58 +328,64 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void loadPersonAttributeTypes(List<PersonAttributeType> personAttributeTypeList) {
-		for (PersonAttributeType personAttributeType : personAttributeTypeList) {
-			if (context == null) {
-				break;
-			}
-			LinearLayout personLayout = new LinearLayout(context);
-			personLayout.setOrientation(LinearLayout.VERTICAL);
-			TextInputLayout textInputLayout = new TextInputLayout(context);
-			textInputLayout.setHintTextAppearance(R.style.textInputLayoutHintColor);
+		if (context == null) {
+			return;
+		}
+		try {
+			for (PersonAttributeType personAttributeType : personAttributeTypeList) {
+				LinearLayout personLayout = new LinearLayout(context);
+				personLayout.setOrientation(LinearLayout.VERTICAL);
+				TextInputLayout textInputLayout = new TextInputLayout(context);
+				textInputLayout.setHintTextAppearance(R.style.textInputLayoutHintColor);
 
-			String datatypeClass = personAttributeType.getFormat();
-			if (StringUtils.isBlank(datatypeClass)) {
-				continue;
-			}
-
-			if (datatypeClass.equalsIgnoreCase("java.lang.Boolean")) {
-				AppCompatRadioButton booleanType = new AppCompatRadioButton(context);
-				booleanType.setLayoutParams(marginParams);
-				booleanType.setText(personAttributeType.getDisplay());
-
-				// set default value
-				Boolean defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
-				if (defaultValue != null) {
-					booleanType.setChecked(defaultValue);
+				String datatypeClass = personAttributeType.getFormat();
+				if (StringUtils.isBlank(datatypeClass)) {
+					continue;
 				}
 
-				textInputLayout.addView(booleanType);
-				viewPersonAttributeTypeMap.put(booleanType, personAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("org.openmrs.Concept")) {
-				// get coded concept uuid
-				String conceptUuid = personAttributeType.getConcept().getUuid();
-				AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(context);
-				conceptAnswersDropdown.setLayoutParams(marginParams);
-				presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
-				textInputLayout.addView(conceptAnswersDropdown);
-				viewPersonAttributeTypeMap.put(conceptAnswersDropdown, personAttributeType);
-			} else if (datatypeClass.equalsIgnoreCase("java.lang.String")) {
-				TextInputEditText textInputEditText = new TextInputEditText(context);
-				textInputEditText.setTextSize(14);
-				textInputEditText.setFocusable(true);
-				textInputEditText.setHint(personAttributeType.getDisplay());
-				textInputEditText.setLayoutParams(marginParams);
-				// set default value
-				String defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
-				if (StringUtils.notEmpty(defaultValue)) {
-					textInputEditText.setText(defaultValue);
-				}
-				textInputLayout.addView(textInputEditText);
-				viewPersonAttributeTypeMap.put(textInputEditText, personAttributeType);
-			}
+				if (datatypeClass.equalsIgnoreCase("java.lang.Boolean")) {
+					AppCompatRadioButton booleanType = new AppCompatRadioButton(context);
+					booleanType.setLayoutParams(marginParams);
+					booleanType.setText(personAttributeType.getDisplay());
 
-			personLayout.addView(textInputLayout);
-			personLinearLayout.addView(personLayout);
+					// set default value
+					Boolean defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
+					if (defaultValue != null) {
+						booleanType.setChecked(defaultValue);
+					}
+
+					textInputLayout.addView(booleanType);
+					viewPersonAttributeTypeMap.put(booleanType, personAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("org.openmrs.Concept")) {
+					// get coded concept uuid
+					String conceptUuid = personAttributeType.getConcept().getUuid();
+					AppCompatSpinner conceptAnswersDropdown = new AppCompatSpinner(context);
+					conceptAnswersDropdown.setLayoutParams(marginParams);
+					presenter.getConceptAnswer(conceptUuid, conceptAnswersDropdown);
+					textInputLayout.addView(conceptAnswersDropdown);
+					viewPersonAttributeTypeMap.put(conceptAnswersDropdown, personAttributeType);
+				} else if (datatypeClass.equalsIgnoreCase("java.lang.String")) {
+					TextInputEditText textInputEditText = new TextInputEditText(context);
+					textInputEditText.setTextSize(14);
+					textInputEditText.setFocusable(true);
+					textInputEditText.setHint(personAttributeType.getDisplay());
+					textInputEditText.setLayoutParams(marginParams);
+					// set default value
+					String defaultValue = presenter.searchPersonAttributeValueByType(personAttributeType);
+					if (StringUtils.notEmpty(defaultValue)) {
+						textInputEditText.setText(defaultValue);
+					}
+					textInputLayout.addView(textInputEditText);
+					viewPersonAttributeTypeMap.put(textInputEditText, personAttributeType);
+				}
+
+				personLayout.addView(textInputLayout);
+				personLinearLayout.addView(personLayout);
+			}
+		} catch (Exception e) {
+			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
+			// app
+			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
 		}
 	}
 
