@@ -246,6 +246,11 @@ public class OpenMRSLogger implements Logger {
 		e("no message", throwable);
 	}
 
+	@Override
+	public void setUser(String user) {
+		// Intentionally left blank
+	}
+
 	public String getLogFilename() {
 		return LOG_FILENAME;
 	}

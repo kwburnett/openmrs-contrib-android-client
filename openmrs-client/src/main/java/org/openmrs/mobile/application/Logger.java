@@ -23,4 +23,6 @@ public interface Logger {
 	void e(final String msg, Throwable throwable);
 
 	void e(Throwable throwable);
+
+	void setUser(String user);
 }

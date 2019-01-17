@@ -105,4 +105,9 @@ public class BandaHealthLogger implements Logger {
 	public void e(Throwable throwable) {
 		Crashlytics.logException(throwable);
 	}
+
+	@Override
+	public void setUser(String user) {
+		Crashlytics.setUserIdentifier(user);
+	}
 }
