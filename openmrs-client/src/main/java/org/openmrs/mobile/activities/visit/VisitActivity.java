@@ -370,7 +370,7 @@ public class VisitActivity extends ACBaseActivity
 			} catch (Exception e) {
 				// The activity must be detached or something wrong such that these buttons aren't in the right state
 				// But if this is the case, it's not a problem for the app and these buttons aren't even there
-				OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+				logger.e(e.getMessage(), e);
 			}
 		}
 	}

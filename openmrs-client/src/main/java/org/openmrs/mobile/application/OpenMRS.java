@@ -427,7 +427,7 @@ public class OpenMRS extends Application {
 		syncManager.clearSyncHistory();
 	}
 
-	public Logger getOpenMRSLogger() {
+	public Logger getLogger() {
 		return logger;
 	}
 

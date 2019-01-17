@@ -49,7 +49,6 @@ import org.openmrs.mobile.activities.login.LoginActivity;
 import org.openmrs.mobile.activities.patientlist.PatientListActivity;
 import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
@@ -59,7 +58,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ACBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 	protected final OpenMRS openMRS = OpenMRS.getInstance();
-	protected final Logger logger = openMRS.getOpenMRSLogger();
+	protected final Logger logger = openMRS.getLogger();
 	protected FragmentManager fragmentManager;
 	protected CustomFragmentDialog customFragmentDialog;
 	protected DrawerLayout drawer;

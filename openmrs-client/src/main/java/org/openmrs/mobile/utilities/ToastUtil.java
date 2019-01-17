@@ -31,7 +31,7 @@ import java.util.List;
 
 public final class ToastUtil {
 
-	private static Logger logger = OpenMRS.getInstance().getOpenMRSLogger();
+	private static Logger logger = OpenMRS.getInstance().getLogger();
 	private static List<ToastThread> toastQueue = new ArrayList<ToastThread>();
 
 	private ToastUtil() {

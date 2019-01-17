@@ -76,8 +76,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.openmrs.mobile.utilities.ApplicationConstants.EMPTY_STRING;
-
 public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContract.Presenter>
 		implements AddEditPatientContract.View {
 
@@ -385,7 +383,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		} catch (Exception e) {
 			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
 			// app
-			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+			OpenMRS.getInstance().getLogger().e(e.getMessage(), e);
 		}
 	}
 
