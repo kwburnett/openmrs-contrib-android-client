@@ -103,7 +103,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 			public void onCompleted(Patient patient) {
 				if (patient == null && !networkUtils.isConnected()) {
 					patientDashboardView.alertOfflineAndPatientNotFound();
-					patientDashboardView.navigateBack();
+					patientDashboardView.patientNotAvailable();
 					return;
 				}
 				setPatient(patient);
@@ -164,11 +164,6 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 		}
 		QueryOptions options = builder.build();
 		visitDataService.getByPatient(patient, options, pagingInfo, fetchVisitsCallback);
-	}
-
-	@Override
-	public Patient getPatient() {
-		return patientDashboardView.getPatient();
 	}
 
 	public void setPatient(Patient patient) {

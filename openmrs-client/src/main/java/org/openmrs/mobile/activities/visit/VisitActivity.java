@@ -49,30 +49,39 @@ import org.openmrs.mobile.activities.visit.visitphoto.VisitPhotoPresenter;
 import org.openmrs.mobile.activities.visit.visittasks.VisitTasksFragment;
 import org.openmrs.mobile.activities.visit.visittasks.VisitTasksPresenter;
 import org.openmrs.mobile.application.OpenMRS;
+import org.openmrs.mobile.bundle.CustomDialogBundle;
+import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.TabUtil;
+import org.openmrs.mobile.utilities.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.VisitPhotoListener {
+public class VisitActivity extends ACBaseActivity
+		implements VisitDetailsFragment.OnFragmentInteractionListener, VisitContract.View,
+		VisitPhotoFragment.OnFragmentInteractionListener {
+
 	private static final int END_VISIT_RESULT = 1;
-	public VisitContract.VisitDashboardPagePresenter visitDetailsMainPresenter;
+	public VisitContract.VisitDashboardPage.Presenter visitDetailsMainPresenter;
 	private PatientHeaderContract.Presenter patientHeaderPresenter;
 	private String patientUuid;
 	private String visitUuid;
-	private String providerUuid, visitClosedDate;
 	private Intent intent;
 	private OpenMRS instance = OpenMRS.getInstance();
 	private SharedPreferences sharedPreferences = instance.getPreferences();
 	private FloatingActionButton captureVitalsButton, endVisitButton, editVisitButton, auditData;
 	private FloatingActionMenu visitDetailsMenu;
 
+	private VisitContract.Presenter presenter;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		View visitActivityView = getLayoutInflater().inflate(R.layout.activity_visit_details, frameLayout);
+
+		presenter = new VisitPresenter(this);
 
 		Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
 		toolbar.setTitle(R.string.nav_visit_details);
@@ -88,10 +97,9 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		if (extras != null) {
 			patientUuid = extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
 			visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-			providerUuid = OpenMRS.getInstance().getCurrentProviderUUID();
-			visitClosedDate = extras.getString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
+			presenter.getVisit(visitUuid);
 
-			handleViewPager(visitActivityView, patientUuid, visitUuid, providerUuid, visitClosedDate);
+			handleViewPager(visitActivityView, patientUuid, visitUuid);
 
 			// patient header
 			if (patientHeaderPresenter == null) {
@@ -117,21 +125,14 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		visitDetailsMenu = (FloatingActionMenu)findViewById(R.id.visitDetailsMenu);
 		visitDetailsMenu.setClosedOnTouchOutside(true);
 
-		if (visitClosedDate != null && !visitClosedDate.isEmpty()) {
-			captureVitalsButton.setVisibility(View.GONE);
-			endVisitButton.setVisibility(View.GONE);
-		}
-
 		// Font config
 		FontsUtil.setFont((ViewGroup)this.findViewById(android.R.id.content));
 
 		initializeListeners(endVisitButton, editVisitButton, captureVitalsButton, auditData);
 	}
 
-	private void handleViewPager(View view, String patientUuid, String visitUuid, String providerUuid,
-			String visitClosedDate) {
-		final VisitPageAdapter visitPageAdapter = new VisitPageAdapter(getSupportFragmentManager(), patientUuid,
-				visitUuid, providerUuid, visitClosedDate);
+	private void handleViewPager(View view, String patientUuid, String visitUuid) {
+		final VisitPageAdapter visitPageAdapter = new VisitPageAdapter(getSupportFragmentManager(), patientUuid, visitUuid);
 		MaterialTabHost tabHost = (MaterialTabHost)findViewById(R.id.visitDetailsTabHost);
 		initializeViewPagerTabs(tabHost, visitPageAdapter);
 		runAfterPageDisplayedToUser(view, new Runnable() {
@@ -178,13 +179,12 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		patientUuid = String.valueOf(patientBundle.get(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE));
 		visitUuid = String.valueOf(patientBundle.get(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE));
 		if (fragment instanceof VisitTasksFragment) {
-			visitDetailsMainPresenter = new VisitTasksPresenter(patientUuid, visitUuid, ((VisitTasksFragment)fragment));
+			visitDetailsMainPresenter = new VisitTasksPresenter(patientUuid, visitUuid, ((VisitTasksFragment) fragment));
 		} else if (fragment instanceof VisitPhotoFragment) {
 			visitDetailsMainPresenter =
-					new VisitPhotoPresenter(((VisitPhotoFragment)fragment), patientUuid, visitUuid, providerUuid);
+					new VisitPhotoPresenter(((VisitPhotoFragment)fragment), patientUuid, visitUuid);
 		} else if (fragment instanceof VisitDetailsFragment) {
-			visitDetailsMainPresenter = new VisitDetailsPresenter(patientUuid, visitUuid, providerUuid, visitClosedDate, (
-					(VisitDetailsFragment)fragment));
+			visitDetailsMainPresenter = new VisitDetailsPresenter(patientUuid, visitUuid, ((VisitDetailsFragment) fragment));
 		}
 	}
 
@@ -244,37 +244,29 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 
 		switch (selectedId) {
 			case R.id.edit_visit:
-				intent = new Intent(getApplicationContext(), AddEditVisitActivity.class);
+				intent = new Intent(this, AddEditVisitActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitClosedDate);
 				startActivity(intent);
 				break;
 			case R.id.end_visit:
-				intent = new Intent(getApplicationContext(), AddEditVisitActivity.class);
+				intent = new Intent(this, AddEditVisitActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitClosedDate);
 				intent.putExtra(ApplicationConstants.BundleKeys.END_VISIT, true);
 				startActivityForResult(intent, END_VISIT_RESULT);
 				break;
 			case R.id.capture_vitals:
-				intent = new Intent(getApplicationContext(), CaptureVitalsActivity.class);
+				intent = new Intent(this, CaptureVitalsActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitClosedDate);
 				startActivity(intent);
 				break;
 
 			case R.id.auditDataForm:
-				intent = new Intent(getApplicationContext(), AuditDataActivity.class);
+				intent = new Intent(this, AuditDataActivity.class);
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitClosedDate);
 				startActivity(intent);
 				break;
 		}
@@ -325,5 +317,61 @@ public class VisitActivity extends ACBaseActivity implements VisitPhotoFragment.
 		intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUID, photoUuidToView);
 		intent.putStringArrayListExtra(ApplicationConstants.BundleKeys.EXTRA_VISIT_PHOTO_UUIDS, (ArrayList) visitPhotoUuids);
 		startActivityForResult(intent, ApplicationConstants.Activity.RequestCodes.VIEW_IMAGE_GALLERY);
+	}
+
+	@Override
+	public void fragmentProcessing(boolean isLoading) {
+		setLoading(isLoading);
+	}
+
+	@Override
+	public void addAuditData(String patientUuid, String visitUuid) {
+		intent = new Intent(this, AuditDataActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		startActivity(intent);
+	}
+
+	@Override
+	public void addVisitVitals(String patientUuid, String visitUuid) {
+		intent = new Intent(this, CaptureVitalsActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		startActivity(intent);
+	}
+
+	@Override
+	public void showDialog(CustomDialogBundle bundle, String dialogTag) {
+		createAndShowDialog(bundle, dialogTag);
+	}
+
+	@Override
+	public void setPresenter(VisitContract.Presenter presenter) {
+		this.presenter = presenter;
+	}
+
+	@Override
+	public void runOnUIThread(Runnable runnable) {
+		super.runOnUiThread(runnable);
+	}
+
+	@Override
+	public void showToast(String message, ToastUtil.ToastType toastType) {
+		ToastUtil.showShortToast(this, toastType, message);
+	}
+
+	@Override
+	public void getVisitCompleted(Visit visit) {
+		boolean isVisitClosed = visit.getStopDatetime() != null;
+		if (isVisitClosed) {
+			try {
+				captureVitalsButton.setVisibility(View.GONE);
+				endVisitButton.setVisibility(View.GONE);
+			} catch (Exception e) {
+				// The activity must be detached or something wrong such that these buttons aren't in the right state
+				// But if this is the case, it's not a problem for the app and these buttons aren't even there
+				OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+			}
+		}
 	}
 }

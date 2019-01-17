@@ -3,6 +3,7 @@ package org.openmrs.mobile.activities.loginsync;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;
@@ -34,6 +35,7 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 
 	private final int DELAY = 500;
 	private final double SMOOTHING_FACTOR = 0.005;
+	private long dataSyncStartTime = 0;
 
 	/**
 	 * Conservative estimate of patient information (including context) based on tests with several patients and the
@@ -183,6 +185,7 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	public void startMeasuringConnectivity() {
 		averageNetworkSpeed = null;
 		networkConnectionIsFast = null;
+
 		measureConnectivityTimerTask = new TimerTask() {
 			@Override
 			public void run() {
@@ -199,6 +202,7 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 		if (networkConnectivityCheckTimer == null) {
 			networkConnectivityCheckTimer = new Timer();
 		}
+		dataSyncStartTime = SystemClock.elapsedRealtime();
 		networkConnectivityCheckTimer.schedule(measureConnectivityTimerTask, DELAY, DELAY);
 	}
 
@@ -212,11 +216,20 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 				* AVERAGE_SIZE_OF_PATIENT_PAYLOAD_IN_KB
 				/ averageNetworkSpeed;
 		if (estimatedTimeUntilDownloadCompletes < TimeConstants.SECONDS_PER_MINUTE) {
-			networkConnectionIsFast = true;
+			long dataSyncDuration = SystemClock.elapsedRealtime() - dataSyncStartTime;
+			// If the sync is taking over a minute, it's obviously not a fast connection...
+			if (dataSyncDuration > TimeConstants.MILLIS_PER_MINUTE) {
+				stopMeasuringConnectivity();
+				networkConnectionIsFast = false;
+			} else {
+				networkConnectionIsFast = true;
+			}
 		} else {
-			// If the network speed is fluctuating enough to have the message go from "fast" to "slow", stop the timer
-			// and just keep the message as "slow" to be safe. I'm assuming people like to see things will speed up, not
-			// that they're slowing down
+			/**
+			 * If the network speed is fluctuating enough to have the message go from "fast" to "slow", stop the timer
+			 * and just keep the message as "slow" to be safe. I'm assuming people like to see things will speed up, not
+			 * that they're slowing down.
+			 */
 
 			if (networkConnectionIsFast != null && networkConnectionIsFast) {
 				stopMeasuringConnectivity();

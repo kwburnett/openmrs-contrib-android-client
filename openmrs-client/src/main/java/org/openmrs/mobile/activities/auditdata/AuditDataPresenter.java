@@ -26,8 +26,6 @@ import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 
-import java.util.List;
-
 public class AuditDataPresenter extends BasePresenter implements AuditDataContract.Presenter {
 
 	private AuditDataContract.View auditDataView;
@@ -133,11 +131,11 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 				auditDataView.showProgressBar(true);
 				if (encounter == null) {
 					auditDataView.showProgressBar(false);
-					auditDataView.hideSoftKeys();
 				} else {
-					auditDataView.hideSoftKeys();
-					((AuditDataActivity)auditDataView.getContext()).finish();
+					auditDataView.finishView();
 				}
+				auditDataView.hideSoftKeys();
+				auditDataView.auditDataSaveComplete();
 			}
 
 			@Override

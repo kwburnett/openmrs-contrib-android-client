@@ -34,10 +34,10 @@ import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 import java.util.Date;
 import java.util.List;
 
-public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitContract.VisitPhotoPresenter {
+public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitContract.VisitPhotos.Presenter {
 
-	private VisitContract.VisitPhotoView visitPhotoView;
-	private String patientUuid, visitUuid, providerUuid;
+	private VisitContract.VisitPhotos.View visitPhotoView;
+	private String patientUuid, visitUuid;
 	private boolean loading;
 	private VisitPhotoDataService visitPhotoDataService;
 	private ObsDataService obsDataService;
@@ -48,14 +48,12 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 
 	private boolean shouldRefreshVisitPhotos = false;
 
-	public VisitPhotoPresenter(VisitContract.VisitPhotoView visitPhotoView, String patientUuid, String visitUuid,
-			String providerUuid) {
+	public VisitPhotoPresenter(VisitContract.VisitPhotos.View visitPhotoView, String patientUuid, String visitUuid) {
 		super(visitUuid, visitPhotoView);
 
 		this.visitPhotoView = visitPhotoView;
 		this.patientUuid = patientUuid;
 		this.visitUuid = visitUuid;
-		this.providerUuid = providerUuid;
 
 		this.visitPhotoDataService = dataAccess().visitPhoto();
 		this.obsDataService = dataAccess().obs();
@@ -194,6 +192,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		}
 
 		Provider provider = null;
+		String providerUuid = OpenMRS.getInstance().getCurrentUserUuid();
 		if (!StringUtils.isNullOrEmpty(providerUuid)) {
 			dataAccess().provider().getLocalByUuid(providerUuid, null);
 		}

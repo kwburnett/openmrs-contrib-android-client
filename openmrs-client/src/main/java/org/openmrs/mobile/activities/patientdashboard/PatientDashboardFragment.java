@@ -15,7 +15,6 @@
 package org.openmrs.mobile.activities.patientdashboard;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -34,8 +33,6 @@ import com.github.clans.fab.FloatingActionMenu;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.BaseDiagnosisFragment;
 import org.openmrs.mobile.activities.IBaseDiagnosisView;
-import org.openmrs.mobile.activities.addeditpatient.AddEditPatientActivity;
-import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Location;
@@ -50,12 +47,14 @@ import org.openmrs.mobile.utilities.ToastUtil;
 import java.util.LinkedList;
 
 public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashboardContract.Presenter>
-		implements PatientDashboardContract.View {
+		implements PatientDashboardContract.View, PatientVisitsRecyclerAdapter.OnAdapterInteractionListener {
+
+	private OnFragmentInteractionListener listener;
+	public static final int ACTION_START_VISIT = 1;
+	public static final int ACTION_EDIT_PATIENT = 2;
 
 	private FloatingActionButton startVisitButton, editPatient;
 	private Patient patient;
-	private OpenMRS openMRS = OpenMRS.getInstance();
-	private Intent intent;
 	private Location location;
 	private RelativeLayout dashboardScreen, noPatientDataLayout;
 	private ProgressBar dashboardProgressBar;
@@ -74,6 +73,22 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	}
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
+	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
 		patientVisitsRecyclerView.removeOnScrollListener(patientVisitsOnScrollListener);
@@ -83,8 +98,10 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	}
 
 	@Override
-	public void navigateBack() {
-		mContext.onBackPressed();
+	public void patientNotAvailable() {
+		if (listener != null) {
+			listener.patientNotAvailable();
+		}
 	}
 
 	@Override
@@ -104,8 +121,8 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		initializeListeners(startVisitButton, editPatient);
 
 		//set start index incase it's cached somewhere
-		mPresenter.fetchPatientData();
-		FontsUtil.setFont(mContext.findViewById(android.R.id.content));
+		presenter.fetchPatientData();
+		FontsUtil.setFont(context.findViewById(android.R.id.content));
 
 		return fragmentView;
 	}
@@ -113,7 +130,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	private void initializeListeners(FloatingActionButton... params) {
 		for (FloatingActionButton patientActionButtons : params) {
 			patientActionButtons.setOnClickListener(
-					view -> startSelectedPatientDashboardActivity(patientActionButtons.getId()));
+					view -> floatingActionButtonSelected(patientActionButtons.getId()));
 		}
 
 		patientVisitsOnScrollListener = new RecyclerView.OnScrollListener() {
@@ -127,32 +144,28 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 				super.onScrolled(recyclerView, dx, dy);
 				//Contact address header
 				View patientContactInfo = recyclerView.findViewById(R.id.container_patient_address_info);
-				if (patientContactInfo == null) {
-					((PatientDashboardActivity)mContext).updateHeaderShadowLine(true);
-				} else {
-					((PatientDashboardActivity)mContext).updateHeaderShadowLine(false);
+				if (listener != null) {
+					listener.patientContactInformationPresent(patientContactInfo != null);
 				}
 			}
 		};
 
 		patientVisitsRecyclerView.addOnScrollListener(patientVisitsOnScrollListener);
 
-		patientVisitsSwipeRefreshView.setOnRefreshListener(() -> mPresenter.dataRefreshWasRequested());
+		patientVisitsSwipeRefreshView.setOnRefreshListener(() -> presenter.dataRefreshWasRequested());
 	}
 
-	private void startSelectedPatientDashboardActivity(int selectedId) {
+	private void floatingActionButtonSelected(int selectedId) {
 		patientDashboardMenu.close(true);
-		switch (selectedId) {
-			case R.id.start_visit:
-				intent = new Intent(mContext, AddEditVisitActivity.class);
-				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-				startActivity(intent);
-				break;
-			case R.id.edit_Patient:
-				intent = new Intent(mContext, AddEditPatientActivity.class);
-				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-				startActivity(intent);
-				break;
+		if (listener != null) {
+			switch (selectedId) {
+				case R.id.start_visit:
+					listener.onPatientActionSelected(ACTION_START_VISIT, patientUuid);
+					break;
+				case R.id.edit_Patient:
+					listener.onPatientActionSelected(ACTION_EDIT_PATIENT, patientUuid);
+					break;
+			}
 		}
 	}
 
@@ -175,7 +188,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	public void patientContacts(Patient patient) {
 		this.patient = patient;
 		patientUuid = patient.getUuid();
-		openMRS.setPatientUuid(patientUuid);
+		OpenMRS.getInstance().setPatientUuid(patientUuid);
 	}
 
 	@Override
@@ -206,7 +219,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 			if (visit.getStopDatetime() == null) {
 				//hasActiveVisit = true;
 				startVisitButton.setVisibility(View.GONE);
-				openMRS.setVisitUuid(visit.getUuid());
+				OpenMRS.getInstance().setVisitUuid(visit.getUuid());
 				break;
 			}
 		}
@@ -215,22 +228,18 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 			patientVisitsRecyclerAdapter.destroy();
 		}
 
-		Context context;
-		if (mContext != null) {
-			context = mContext;
-		} else {
-			context = getActivity();
+		if (context != null) {
+			patientVisitsRecyclerAdapter =
+					new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context,
+							this, this, patient);
+			patientVisitsRecyclerAdapter.setOnLoadMoreListener(() -> {
+				// Add a null for loading indicator
+				patientVisits.add(null);
+				patientVisitsRecyclerAdapter.notifyItemInserted(patientVisits.size() - 1);
+				presenter.loadResults();
+			});
+			patientVisitsRecyclerView.setAdapter(patientVisitsRecyclerAdapter);
 		}
-
-		patientVisitsRecyclerAdapter =
-				new PatientVisitsRecyclerAdapter(patientVisitsRecyclerView, patientVisits, context, this);
-		patientVisitsRecyclerAdapter.setOnLoadMoreListener(() -> {
-			// Add a null for loading indicator
-			patientVisits.add(null);
-			patientVisitsRecyclerAdapter.notifyItemInserted(patientVisits.size() - 1);
-			mPresenter.loadResults();
-		});
-		patientVisitsRecyclerView.setAdapter(patientVisitsRecyclerAdapter);
 	}
 
 	@Override
@@ -239,15 +248,10 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 	}
 
 	@Override
-	public Patient getPatient() {
-		return patient;
-	}
-
-	@Override
 	public void setProviderUuid(String providerUuid) {
 		if (StringUtils.isBlank(providerUuid))
 			return;
-		SharedPreferences.Editor editor = openMRS.getPreferences().edit();
+		SharedPreferences.Editor editor = OpenMRS.getInstance().getPreferences().edit();
 		editor.putString(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
 		editor.commit();
 	}
@@ -299,7 +303,7 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 		super.onDestroy();
 
 		patientUuid = ApplicationConstants.EMPTY_STRING;
-		openMRS.setPatientUuid(patientUuid);
+		OpenMRS.getInstance().setPatientUuid(patientUuid);
 	}
 
 	@Override
@@ -319,8 +323,28 @@ public class PatientDashboardFragment extends BaseDiagnosisFragment<PatientDashb
 
 	@Override
 	public void setLoading(boolean loading) {
-		if (mContext != null) {
-			((PatientDashboardActivity)mContext).setLoading(loading);
+		if (listener != null) {
+			listener.fragmentProcessing(loading);
 		}
+	}
+
+	@Override
+	public void onVisitSelected(String visitUuid) {
+		if (listener != null) {
+			listener.onVisitSelected(patientUuid, visitUuid);
+		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void onPatientActionSelected(int action, String patientUuid);
+
+		void fragmentProcessing(boolean isLoading);
+
+		void patientContactInformationPresent(boolean isPatientContactInformationPresent);
+
+		void patientNotAvailable();
+
+		void onVisitSelected(String patientUuid, String visitUuid);
 	}
 }
