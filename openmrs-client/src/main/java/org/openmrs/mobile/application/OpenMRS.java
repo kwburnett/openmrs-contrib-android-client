@@ -373,7 +373,7 @@ public class OpenMRS extends Application {
 				result = DateFormat.getDateTimeInstance().parse(dateString);
 
 			} catch (ParseException e) {
-				logger.w("Could not parse last trim date '" + dateString + "'");
+				logger.w("Could not parse last trim date '" + dateString + "'", e);
 				result = null;
 			}
 		}

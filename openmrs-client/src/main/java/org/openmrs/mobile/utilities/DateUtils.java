@@ -90,7 +90,7 @@ public final class DateUtils {
 					time = formattedDate.getTime();
 				} catch (ParseException e1) {
 					OpenMRS.getInstance().getLogger()
-							.w("Failed to parse date :" + dateAsString + " caused by " + e.toString());
+							.w("Failed to parse date :" + dateAsString + " caused by " + e.toString(), e);
 				}
 			}
 		}
@@ -102,7 +102,7 @@ public final class DateUtils {
 			return parseString(dateAsString, new SimpleDateFormat(OPEN_MRS_REQUEST_FORMAT));
 		} catch(ParseException ex) {
 			OpenMRS.getInstance().getLogger()
-					.w("Failed to parse date :" + dateAsString + " caused by " + ex.toString());
+					.w("Failed to parse date :" + dateAsString + " caused by " + ex.toString(), ex);
 		}
 
 		return null;
@@ -114,7 +114,7 @@ public final class DateUtils {
 			formattedDate = format.parse(dateAsString);
 		} catch (NullPointerException e) {
 			OpenMRS.getInstance().getLogger()
-					.w("Failed to parse date :" + dateAsString + " caused by " + e.toString());
+					.w("Failed to parse date :" + dateAsString + " caused by " + e.toString(), e);
 		}
 		return formattedDate;
 	}
