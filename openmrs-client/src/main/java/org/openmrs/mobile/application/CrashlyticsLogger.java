@@ -14,25 +14,16 @@
 
 package org.openmrs.mobile.application;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
-
 import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 
-public class BandaHealthLogger implements Logger {
+public class CrashlyticsLogger implements Logger {
 
 	private static final String TAG = "Banda Health";
 
-	private static BandaHealthLogger logger = null;
+	private static CrashlyticsLogger logger = null;
 
-	public BandaHealthLogger() {
+	public CrashlyticsLogger() {
 		logger = this;
 	}
 
