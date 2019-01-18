@@ -331,14 +331,14 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 	 */
 	private <T, R> void performOnlineCallback(GetCallback<T> callback, QueryOptions options, Supplier<T> dbSupplier,
 			Supplier<Call<R>> restSupplier, Function<R, T> responseConverter, Consumer<T> dbOperation) {
-		// Perform the rest task
-		restSupplier.get().enqueue(new Callback<R>() {
-			@Override
-			public void onResponse(Call<R> call, Response<R> response) {
-				// The request may have failed but still get here
-				if (response.isSuccessful()) {
-					// This is likely running on the UI thread so spawn another thread to do the db stuff
-					new Thread(() -> {
+		// Spin this up in a new thread so the UI thread isn't held up
+		new Thread(() -> {
+			// Perform the rest task
+			restSupplier.get().enqueue(new Callback<R>() {
+				@Override
+				public void onResponse(Call<R> call, Response<R> response) {
+					// The request may have failed but still get here
+					if (response.isSuccessful()) {
 						// Save the resulting model to the db
 						try {
 							T result = responseConverter.apply(response.body());
@@ -362,13 +362,11 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 							// An exception occurred while trying to save the entity in the db
 							new Handler(Looper.getMainLooper()).post(() -> callback.onError(ex));
 						}
-					}).start();
-				} else {
-					// Something failed. If the issue was a connectivity issue then try to get the entity from the db (if
-					// the Request Strategy is not LOCAL_THEN_REMOTE)
-					if (response.code() >= 502 && response.code() <= 504
-							&& QueryOptions.getRequestStrategy(options) != RequestStrategy.LOCAL_THEN_REMOTE) {
-						new Thread(() -> {
+					} else {
+						// Something failed. If the issue was a connectivity issue then try to get the entity from the db (if
+						// the Request Strategy is not LOCAL_THEN_REMOTE)
+						if (response.code() >= 502 && response.code() <= 504
+								&& QueryOptions.getRequestStrategy(options) != RequestStrategy.LOCAL_THEN_REMOTE) {
 							try {
 								Log.w(TAG, "REST response error; trying local db (" + response.code() +
 										": " + response.message() + "");
@@ -388,19 +386,19 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 								new Handler(Looper.getMainLooper()).post(() ->
 										callback.onError(new DataOperationException(ex)));
 							}
-						}).start();
-					} else {
-						// Some other type of error occurred so just notify the caller about the error
-						callback.onError(new DataOperationException(response.code() + ": " + response.message()));
+						} else {
+							// Some other type of error occurred so just notify the caller about the error
+							new Handler(Looper.getMainLooper()).post(() ->
+									callback.onError(
+											new DataOperationException(response.code() + ": " + response.message())));
+						}
 					}
 				}
-			}
 
-			@Override
-			public void onFailure(Call<R> call, Throwable t) {
-				if (t instanceof IOException) {
-					// Likely a connectivity issue so try to get from the db instead
-					new Thread(() -> {
+				@Override
+				public void onFailure(Call<R> call, Throwable t) {
+					if (t instanceof IOException) {
+						// Likely a connectivity issue so try to get from the db instead
 						try {
 							Log.w(TAG, "REST response error; trying local db", t);
 							T result = dbSupplier.get();
@@ -419,14 +417,14 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 							new Handler(Looper.getMainLooper()).post(() ->
 									callback.onError(new DataOperationException(ex)));
 						}
-					}).start();
-				} else {
-					// Some other type of exception occurred so just notify the caller about the exception
-					Log.e(TAG, "REST request exception", t);
-					callback.onError(new DataOperationException(t));
+					} else {
+						// Some other type of exception occurred so just notify the caller about the exception
+						Log.e(TAG, "REST request exception", t);
+						new Handler(Looper.getMainLooper()).post(() -> callback.onError(new DataOperationException(t)));
+					}
 				}
-			}
-		});
+			});
+		}).start();
 	}
 
 	protected <T> boolean getCachedResult(GetCallback<T> callback, QueryOptions options) {

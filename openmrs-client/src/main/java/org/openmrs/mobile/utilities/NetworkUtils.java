@@ -20,27 +20,66 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class NetworkUtils {
 
-	public static final double UNKNOWN_CONNECTION_SPEED = -1;
+	public enum ConnectionQuality {
+		POOR,
+		MODERATE,
+		GOOD,
+		EXCELLENT,
+		UNKNOWN
+	}
+
+	private OkHttpClient client;
+	private Logger logger;
+
+	// bandwidth in kbps
+	private static final int SPEED_KBPS_POOR_BANDWIDTH = 150;
+	private static final int SPEED_KBPS_AVERAGE_BANDWIDTH = 550;
+	private static final int SPEED_KBPS_EXCELLENT_BANDWIDTH = 2000;
+
+	private ConnectionQuality currentConnectionSpeed = ConnectionQuality.UNKNOWN;
+
+	private boolean areMeasuringConnectivitySpeed = false;
+	private final Double INITIAL_NETWORK_SPEED = 375D; // kbps (equivalent to slow HSDPA)
+	private Double averageNetworkSpeed = INITIAL_NETWORK_SPEED; // kbps (equivalent to slow HSDPA)
+	private final double SMOOTHING_FACTOR = 0.005;
+	private final long DATA_SPEED_POLLING_FREQUENCY = 30000; // 30 seconds
+
+	private TimerTask measureConnectivityTimerTask;
+	private Timer networkConnectivityCheckTimer;
 
 	@Inject
-	public NetworkUtils() {
+	public NetworkUtils(OkHttpClient client) {
+		this.client = client;
+		logger = OpenMRS.getInstance().getLogger();
 	}
 
 	public boolean isConnected() {
-
-		NetworkInfo activeNetworkInfo = getNetworkInfo();
-		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+		try {
+			NetworkInfo activeNetworkInfo = getNetworkInfo();
+			return activeNetworkInfo != null && activeNetworkInfo.isConnected()
+					&& currentConnectionSpeed != ConnectionQuality.POOR;
+		} catch (Exception e) {
+			logger.e(e);
+		}
+		return false;
 	}
 
 	public boolean checkIfServerOnline() {
@@ -76,68 +115,101 @@ public class NetworkUtils {
 		if (!isConnected()) {
 			return null;
 		}
+		return averageNetworkSpeed;
+	}
 
-		NetworkInfo networkInfo = getNetworkInfo();
-		int type = networkInfo.getType();
-		int subType = networkInfo.getSubtype();
+	public void startSamplingConnectivity() {
+		if (areMeasuringConnectivitySpeed) {
+			return;
+		}
+		areMeasuringConnectivitySpeed = true;
 
-		if (type == ConnectivityManager.TYPE_WIFI) {
-			// ~ 20+ Mbps
-			return 2500D;
-		} else if (type == ConnectivityManager.TYPE_MOBILE) {
-			switch(subType){
-				case TelephonyManager.NETWORK_TYPE_1xRTT:
-					// ~ 50-100 kbps
-					return 7D;
-				case TelephonyManager.NETWORK_TYPE_CDMA:
-					// ~ 14-64 kbps
-					return 2D;
-				case TelephonyManager.NETWORK_TYPE_EDGE:
-					// ~ 50-100 kbps
-					return 7D;
-				case TelephonyManager.NETWORK_TYPE_EVDO_0:
-					// ~ 400-1000 kbps
-					return 60D;
-				case TelephonyManager.NETWORK_TYPE_EVDO_A:
-					// ~ 600-1400 kbps
-					return 90D;
-				case TelephonyManager.NETWORK_TYPE_GPRS:
-					// ~ 100 kbps
-					return 12D;
-				case TelephonyManager.NETWORK_TYPE_HSDPA:
-					// ~ 2-14 Mbps
-					return 375D;
-				case TelephonyManager.NETWORK_TYPE_HSPA:
-					// ~ 700-1700 kbps
-					return 100D;
-				case TelephonyManager.NETWORK_TYPE_HSUPA:
-					// ~ 1-23 Mbps
-					return 500D;
-				case TelephonyManager.NETWORK_TYPE_UMTS:
-					// ~ 400-7000 kbps
-					return 100D;
-				case TelephonyManager.NETWORK_TYPE_EHRPD:
-					// ~ 1-2 Mbps
-					return 125D;
-				case TelephonyManager.NETWORK_TYPE_EVDO_B:
-					// ~ 5 Mbps
-					return 625D;
-				case TelephonyManager.NETWORK_TYPE_HSPAP:
-					// ~ 10-20 Mbps
-					return 1250D;
-				case TelephonyManager.NETWORK_TYPE_IDEN:
-					// ~25 kbps
-					return 3D;
-				case TelephonyManager.NETWORK_TYPE_LTE:
-					// ~ 10+ Mbps
-					return 1250D;
-				// Unknown
-				case TelephonyManager.NETWORK_TYPE_UNKNOWN:
-				default:
-					return UNKNOWN_CONNECTION_SPEED;
+		measureConnectivityTimerTask = new TimerTask() {
+			@Override
+			public void run() {
+				if (averageNetworkSpeed.equals(INITIAL_NETWORK_SPEED) || currentConnectionSpeed == ConnectionQuality.POOR
+						|| currentConnectionSpeed == ConnectionQuality.UNKNOWN) {
+					fetchImageForNetworkTesting();
+				}
 			}
+		};
+		if (networkConnectivityCheckTimer == null) {
+			networkConnectivityCheckTimer = new Timer();
+		}
+		networkConnectivityCheckTimer.schedule(measureConnectivityTimerTask, DATA_SPEED_POLLING_FREQUENCY,
+				DATA_SPEED_POLLING_FREQUENCY);
+	}
+
+	public void stopSamplingConnectivity() {
+		areMeasuringConnectivitySpeed = false;
+		measureConnectivityTimerTask.cancel();
+	}
+
+	public void calculateConnectivitySpeed(long requestStartTime, long requestEndTime, long contentLength) {
+		if (!areMeasuringConnectivitySpeed) {
+			return;
+		}
+
+		// calculate how long the request took
+		double timeTakenInNanos = Math.floor(requestEndTime - requestStartTime);  // time taken in nanoseconds
+		double timeTakenInSecs = timeTakenInNanos / 1000000000;  // divide by 1000000000 to get time in seconds
+		// get the download speed by dividing the file size by time taken to download
+		final int kilobytePerSec = (int) Math.round(1024 / timeTakenInSecs);
+		calculateNewAverageNetworkSpeed(kilobytePerSec);
+
+		if (averageNetworkSpeed <= SPEED_KBPS_POOR_BANDWIDTH){
+			currentConnectionSpeed = ConnectionQuality.POOR;
+		} else if (averageNetworkSpeed <= SPEED_KBPS_AVERAGE_BANDWIDTH) {
+			currentConnectionSpeed = ConnectionQuality.MODERATE;
+		} else if (averageNetworkSpeed <= SPEED_KBPS_EXCELLENT_BANDWIDTH) {
+			currentConnectionSpeed = ConnectionQuality.GOOD;
 		} else {
-			return UNKNOWN_CONNECTION_SPEED;
+			currentConnectionSpeed = ConnectionQuality.EXCELLENT;
+		}
+
+		// Uncomment for some statistics
+//		logger.d("Time taken in secs: " + timeTakenInSecs);
+//		logger.d("kilobyte per sec: " + kilobytePerSec);
+//		logger.d("Download Speed: " + kilobytePerSec);
+//		logger.d("File size: " + contentLength);
+	}
+
+	private void calculateNewAverageNetworkSpeed(double networkSpeed) {
+		if (averageNetworkSpeed == null) {
+			averageNetworkSpeed = networkSpeed;
+		} else {
+			averageNetworkSpeed = SMOOTHING_FACTOR * networkSpeed + (1 - SMOOTHING_FACTOR) * averageNetworkSpeed;
+		}
+	}
+
+	private void fetchImageForNetworkTesting() {
+		try {
+			// Spin this up in a new thread so we don't hold the app up
+			new Thread(() -> {
+				// Fetch an image from online
+				Request imageRequest = new Request.Builder()
+						.url("https://img.memecdn.com/Problem_o_102503.gif")
+						.build();
+				long requestStartTime = System.nanoTime();
+				client.newCall(imageRequest).enqueue(new Callback() {
+
+					@Override
+					public void onFailure(Call call, IOException e) {
+						logger.e(e);
+					}
+
+					@Override
+					public void onResponse(Call call, Response response) throws IOException {
+						if (!response.isSuccessful()) {
+							throw new IOException("Unexpected code " + response);
+						}
+
+						calculateConnectivitySpeed(requestStartTime, System.nanoTime(), response.body().contentLength());
+					}
+				});
+			}).start();
+		} catch (Exception e) {
+			logger.e(e);
 		}
 	}
 }

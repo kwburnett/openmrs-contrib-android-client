@@ -1,5 +1,6 @@
 package org.openmrs.mobile.dagger;
 
+import okhttp3.OkHttpClient;
 import org.openmrs.mobile.data.db.Repository;
 import org.openmrs.mobile.data.db.impl.RepositoryImpl;
 
@@ -14,5 +15,10 @@ public class DbModule {
 	@Singleton
 	public Repository providesRepository() {
 		return new RepositoryImpl();
+	}
+
+	@Provides
+	public OkHttpClient provideOkHttpClient() {
+		return new OkHttpClient();
 	}
 }

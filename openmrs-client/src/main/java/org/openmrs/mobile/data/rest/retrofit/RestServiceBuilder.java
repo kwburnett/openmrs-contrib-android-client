@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.Response;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Resource;
@@ -19,6 +21,7 @@ import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.openmrs.mobile.utilities.StringUtils;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Retrofit;
@@ -87,9 +90,31 @@ public class RestServiceBuilder {
 			return chain.proceed(request);
 		});
 
+		// Add logging for each request so we can see what data comes back
 		HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 		logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 		httpClient.addInterceptor(logging);
+
+		// Add interceptor for tracking response size
+		httpClient.addInterceptor(new Interceptor() {
+
+			@Override
+			public Response intercept(Chain chain) throws IOException {
+				Request request = chain.request();
+
+				long requestStartTime = System.nanoTime();
+				Response response = chain.proceed(request);
+
+				long t2 = System.nanoTime();
+				if (app.getNetworkUtils() != null) {
+					app.getNetworkUtils().calculateConnectivitySpeed(requestStartTime, System.nanoTime(),
+							response.body().contentLength());
+				}
+
+				return response;
+			}
+		});
+
 		// set timeouts
 		httpClient.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
 		httpClient.readTimeout(TIMEOUT, TimeUnit.MILLISECONDS);

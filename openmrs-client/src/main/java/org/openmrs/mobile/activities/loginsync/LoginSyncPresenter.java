@@ -25,7 +25,6 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	private double entitiesPushed;
 	private double entitiesPulled;
 	private String currentDownloadingSubscription;
-	private @Nullable Double averageNetworkSpeed;
 	private Timer networkConnectivityCheckTimer;
 	private @Nullable Boolean networkConnectionIsFast;
 	private boolean arePushing = false;
@@ -34,7 +33,6 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	private TimerTask measureConnectivityTimerTask;
 
 	private final int DELAY = 500;
-	private final double SMOOTHING_FACTOR = 0.005;
 	private long dataSyncStartTime = 0;
 
 	/**
@@ -183,13 +181,11 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	}
 
 	public void startMeasuringConnectivity() {
-		averageNetworkSpeed = null;
 		networkConnectionIsFast = null;
 
 		measureConnectivityTimerTask = new TimerTask() {
 			@Override
 			public void run() {
-				calculateNewAverageNetworkSpeed();
 				Boolean previousConnectionSpeedIsFast = networkConnectionIsFast;
 				determineNetworkConnectionSpeed();
 				if (previousConnectionSpeedIsFast == null
@@ -207,47 +203,48 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	}
 
 	private void determineNetworkConnectionSpeed() {
-		if (averageNetworkSpeed == null) {
-			networkConnectionIsFast = null;
-			return;
-		}
+		try {
+			double averageNetworkSpeed = openMRS.getNetworkUtils().getCurrentConnectionSpeed();
 
-		double estimatedTimeUntilDownloadCompletes = AVERAGE_NUMBER_OF_PATIENTS_TO_SYNC
-				* AVERAGE_SIZE_OF_PATIENT_PAYLOAD_IN_KB
-				/ averageNetworkSpeed;
-		if (estimatedTimeUntilDownloadCompletes < TimeConstants.SECONDS_PER_MINUTE) {
-			long dataSyncDuration = SystemClock.elapsedRealtime() - dataSyncStartTime;
-			// If the sync is taking over a minute, it's obviously not a fast connection...
-			if (dataSyncDuration > TimeConstants.MILLIS_PER_MINUTE) {
-				stopMeasuringConnectivity();
-				networkConnectionIsFast = false;
+			double estimatedTimeUntilDownloadCompletes = AVERAGE_NUMBER_OF_PATIENTS_TO_SYNC
+					* AVERAGE_SIZE_OF_PATIENT_PAYLOAD_IN_KB
+					/ averageNetworkSpeed;
+			if (estimatedTimeUntilDownloadCompletes < TimeConstants.SECONDS_PER_MINUTE) {
+				long dataSyncDuration = SystemClock.elapsedRealtime() - dataSyncStartTime;
+				// If the sync is taking over a minute, it's obviously not a fast connection...
+				if (dataSyncDuration > TimeConstants.MILLIS_PER_MINUTE) {
+					stopMeasuringConnectivity();
+					networkConnectionIsFast = false;
+				} else {
+					networkConnectionIsFast = true;
+				}
 			} else {
-				networkConnectionIsFast = true;
-			}
-		} else {
-			/**
-			 * If the network speed is fluctuating enough to have the message go from "fast" to "slow", stop the timer
-			 * and just keep the message as "slow" to be safe. I'm assuming people like to see things will speed up, not
-			 * that they're slowing down.
-			 */
+				/**
+				 * If the network speed is fluctuating enough to have the message go from "fast" to "slow", stop the timer
+				 * and just keep the message as "slow" to be safe. I'm assuming people like to see things will speed up, not
+				 * that they're slowing down.
+				 */
 
-			if (networkConnectionIsFast != null && networkConnectionIsFast) {
-				stopMeasuringConnectivity();
+				if (networkConnectionIsFast != null && networkConnectionIsFast) {
+					stopMeasuringConnectivity();
+				}
+				networkConnectionIsFast = false;
 			}
-			networkConnectionIsFast = false;
+		} catch (Exception e) {
+			openMRS.getLogger().e(e);
 		}
 	}
 
 	private void notifyViewToUpdateConnectionDisplay() {
 		if (arePushing) {
-			if (networkConnectionIsFast) {
+			if (networkConnectionIsFast != null && networkConnectionIsFast) {
 				view.notifySyncPushConnectionIsFast();
 			} else {
 				view.notifySyncPushConnectionIsSlow();
 			}
 		}
 		if (arePulling) {
-			if (networkConnectionIsFast) {
+			if (networkConnectionIsFast != null && networkConnectionIsFast) {
 				view.notifySyncPullConnectionIsFast();
 			} else {
 				view.notifySyncPullConnectionIsSlow();
@@ -257,16 +254,5 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 
 	public void stopMeasuringConnectivity() {
 		measureConnectivityTimerTask.cancel();
-	}
-
-	private void calculateNewAverageNetworkSpeed() {
-		Double networkSpeed = openMRS.getNetworkUtils().getCurrentConnectionSpeed();
-		if (networkSpeed != null && networkSpeed != openMRS.getNetworkUtils().UNKNOWN_CONNECTION_SPEED) {
-			if (averageNetworkSpeed == null) {
-				averageNetworkSpeed = networkSpeed;
-			} else {
-				averageNetworkSpeed = SMOOTHING_FACTOR * networkSpeed + (1 - SMOOTHING_FACTOR) * averageNetworkSpeed;
-			}
-		}
 	}
 }
