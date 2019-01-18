@@ -50,7 +50,7 @@ public class SyncService {
 	@Inject
 	public SyncService(OpenMRS openmrs, SyncLogDbService syncLogDbService, PullSubscriptionDbService subscriptionDbService,
 			DaggerProviderHelper providerHelper, NetworkUtils networkUtils, EventBus eventBus,
-			PatientTrimProvider patientTrimProvider) {
+			PatientTrimProvider patientTrimProvider, Logger logger) {
 		this.openmrs = openmrs;
 		this.syncLogDbService = syncLogDbService;
 		this.subscriptionDbService = subscriptionDbService;
@@ -58,8 +58,7 @@ public class SyncService {
 		this.networkUtils = networkUtils;
 		this.eventBus = eventBus;
 		this.patientTrimProvider = patientTrimProvider;
-
-		logger = openmrs.getLogger();
+		this.logger = logger;
 	}
 
 	public void sync() {
