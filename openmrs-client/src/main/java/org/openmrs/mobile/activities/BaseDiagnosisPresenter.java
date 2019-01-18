@@ -3,6 +3,7 @@ package org.openmrs.mobile.activities;
 import android.util.Log;
 import android.view.View;
 
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.dagger.DaggerDataAccessComponent;
 import org.openmrs.mobile.dagger.DataAccessComponent;
 import org.openmrs.mobile.data.DataService;
@@ -18,6 +19,7 @@ import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitNote;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -132,6 +134,12 @@ public class BaseDiagnosisPresenter {
 	}
 
 	private void getObservation(Observation obs, Encounter encounter, IBaseDiagnosisFragment base) {
+		if (obs.getUuid() == null) {
+			OpenMRS.getInstance().getLogger().e("Observation UUID empty on Base Diagnosis; Observation: " +
+					StringUtils.toJson(obs));
+			return;
+		}
+
 		QueryOptions options = new QueryOptions.Builder()
 				.customRepresentation(RestConstants.Representations.OBSERVATION)
 				.build();

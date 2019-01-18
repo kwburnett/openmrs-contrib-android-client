@@ -306,10 +306,7 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 		if (locationsList != null) {
 			items = getLocationStringList(locationsList);
 			updateLocationsSpinner(items, serverURL);
-		} else {
-
 		}
-
 	}
 
 	private void updateLocationsSpinner(List<HashMap<String, String>> locations, String serverURL) {
@@ -323,11 +320,15 @@ public class LoginFragment extends ACBaseFragment<LoginContract.Presenter> imple
 			locationsSize = locations.size();
 		}
 		String[] spinnerArray = new String[locationsSize];
-		for (int i = 0; i < locationsSize; i++) {
-			spinnerArray[i] = locations.get(i).get("display");
-			if (locations.get(i).get("uuid").contains(OpenMRS.getInstance().getLocation())) {
-				selectedLocation = i;
+		try {
+			for (int i = 0; i < locationsSize; i++) {
+				spinnerArray[i] = locations.get(i).get("display");
+				if (locations.get(i).get("uuid").contains(OpenMRS.getInstance().getLocation())) {
+					selectedLocation = i;
+				}
 			}
+		} catch (Exception e) {
+			logger.e(e);
 		}
 		boolean shouldHideLocationSelectorBecauseOnlyOneChoice = false;
 		if (locationsSize <= 1) {

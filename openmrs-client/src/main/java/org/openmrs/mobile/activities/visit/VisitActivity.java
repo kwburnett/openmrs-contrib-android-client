@@ -83,7 +83,7 @@ public class VisitActivity extends ACBaseActivity
 	private Intent intent;
 	private OpenMRS instance = OpenMRS.getInstance();
 	private SharedPreferences sharedPreferences = instance.getPreferences();
-	private FloatingActionButton captureVitalsButton, endVisitButton, editVisitButton, auditData;
+	private FloatingActionButton captureVitalsButton, endVisitButton, editVisitButton, auditData, refreshVisitButton;
 	private FloatingActionMenu visitDetailsMenu;
 
 	private VisitContract.Presenter presenter;
@@ -130,6 +130,7 @@ public class VisitActivity extends ACBaseActivity
 
 		}
 
+		refreshVisitButton = (FloatingActionButton)findViewById(R.id.refresh_visit);
 		captureVitalsButton = (FloatingActionButton)findViewById(R.id.capture_vitals);
 		auditData = (FloatingActionButton)findViewById(R.id.auditDataForm);
 		endVisitButton = (FloatingActionButton)findViewById(R.id.end_visit);
@@ -141,7 +142,7 @@ public class VisitActivity extends ACBaseActivity
 		// Font config
 		FontsUtil.setFont((ViewGroup)this.findViewById(android.R.id.content));
 
-		initializeListeners(endVisitButton, editVisitButton, captureVitalsButton, auditData);
+		initializeListeners(endVisitButton, editVisitButton, captureVitalsButton, auditData, refreshVisitButton);
 	}
 
 	private void addCustomAnimation(FloatingActionMenu visitDetailsMenu) {
@@ -250,12 +251,11 @@ public class VisitActivity extends ACBaseActivity
 
 	private void initializeListeners(FloatingActionButton... params) {
 		for (FloatingActionButton visitActionButtons : params) {
-			visitActionButtons.setOnClickListener(
-					view -> startSelectedVisitActivity(visitActionButtons.getId()));
+			visitActionButtons.setOnClickListener(view -> handleFabClick(visitActionButtons.getId()));
 		}
 	}
 
-	private void startSelectedVisitActivity(int selectedId) {
+	private void handleFabClick(int selectedId) {
 
 		visitDetailsMenu.close(true);
 
@@ -285,6 +285,10 @@ public class VisitActivity extends ACBaseActivity
 				intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
 				intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
 				startActivity(intent);
+				break;
+
+			case R.id.refresh_visit:
+				visitDetailsMainPresenter.dataRefreshWasRequested();
 				break;
 		}
 	}

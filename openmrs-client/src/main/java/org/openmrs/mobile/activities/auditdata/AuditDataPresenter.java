@@ -15,6 +15,7 @@
 package org.openmrs.mobile.activities.auditdata;
 
 import org.openmrs.mobile.activities.BasePresenter;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.impl.ConceptDataService;
@@ -75,6 +76,10 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 
 	@Override
 	public void fetchVisit(String visitUuid) {
+		if (visitUuid == null) {
+			OpenMRS.getInstance().getLogger().e("Visit UUID empty on Audit Data");
+			return;
+		}
 		auditDataView.showPageSpinner(true);
 		DataService.GetCallback<Visit> fetchEncountersCallback = new DataService.GetCallback<Visit>() {
 			@Override
@@ -103,6 +108,10 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 	}
 
 	private void fetchEncounter(String uuid) {
+		if (uuid == null) {
+			OpenMRS.getInstance().getLogger().e("Encounter UUID empty on Audit Data");
+			return;
+		}
 		auditDataView.showPageSpinner(true);
 		DataService.GetCallback<Encounter> fetchEncountercallback = new DataService.GetCallback<Encounter>() {
 			@Override

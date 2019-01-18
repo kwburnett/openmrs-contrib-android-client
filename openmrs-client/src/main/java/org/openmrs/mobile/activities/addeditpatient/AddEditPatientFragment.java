@@ -167,7 +167,9 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 	@Override
 	public void finishAddPatientActivity() {
-		context.finish();
+		if (context != null) {
+			context.finish();
+		}
 	}
 
 	@Override
@@ -381,7 +383,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		} catch (Exception e) {
 			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
 			// app
-			OpenMRS.getInstance().getLogger().e(e);
+			logger.e(e);
 		}
 	}
 
@@ -511,6 +513,12 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 			fileNumber.setText(identifier);
 
+		} else if (patient == null || patient.getPerson() == null) {
+			if (patient == null) {
+				logger.e("Patient is null");
+			} else {
+				logger.e("Error with patient data: " + StringUtils.toJson(patient));
+			}
 		}
 	}
 
@@ -609,7 +617,6 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 
 			if (personAttribute.getValue() != null) {
 				personAttributeMap.put(set.getValue().getUuid(), personAttribute);
-
 			}
 
 		}
