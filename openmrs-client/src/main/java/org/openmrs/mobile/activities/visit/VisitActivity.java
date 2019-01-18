@@ -111,7 +111,7 @@ public class VisitActivity extends ACBaseActivity
 			visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
 			presenter.getVisit(visitUuid);
 
-			handleViewPager(visitActivityView, patientUuid, visitUuid);
+			handleViewPager(patientUuid, visitUuid);
 
 			// patient header
 			if (patientHeaderPresenter == null) {
@@ -179,7 +179,7 @@ public class VisitActivity extends ACBaseActivity
 		visitDetailsMenu.setIconToggleAnimatorSet(set);
 	}
 
-	private void handleViewPager(View view, String patientUuid, String visitUuid) {
+	private void handleViewPager(String patientUuid, String visitUuid) {
 		// Set the view pager up
 		VisitPageAdapter visitPageAdapter = new VisitPageAdapter(getSupportFragmentManager(), patientUuid, visitUuid);
 		ViewPager pager = findViewById(R.id.visitDetailsPager);
@@ -432,8 +432,9 @@ public class VisitActivity extends ACBaseActivity
 					return getString(R.string.visit_scroll_tab_visit_tasks_label);
 				case VISIT_IMAGES_TAB_POSITION:
 					return getString(R.string.visit_scroll_tab_visit_images_label);
+				default:
+					return null;
 			}
-			return null;
 		}
 
 		@Override
