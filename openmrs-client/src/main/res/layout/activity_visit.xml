@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		xmlns:fab="http://schemas.android.com/apk/res-auto"
+		xmlns:tools="http://schemas.android.com/tools"
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:focusable="true"
+		android:focusableInTouchMode="true">
+
+	<FrameLayout
+			android:id="@+id/patientHeader"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"/>
+
+	<android.support.design.widget.TabLayout
+			android:id="@+id/visitDetailsTabLayout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			app:layout_constraintTop_toBottomOf="@id/patientHeader"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			android:theme="@style/BandaHealth.ThemeOverlay.Dark.ActionBar"
+			app:tabIndicatorColor="@color/white"
+			android:elevation="5dp"/>
+
+	<android.support.v4.view.ViewPager
+			android:id="@+id/visitDetailsPager"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			app:layout_constraintTop_toBottomOf="@+id/visitDetailsTabLayout"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"/>
+
+	<com.github.clans.fab.FloatingActionMenu
+			android:id="@+id/visitDetailsMenu"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			android:layout_gravity="bottom|end"
+			android:layout_margin="0dp"
+			fab:menu_backgroundColor="@color/semi_transparent"
+			fab:menu_icon="@drawable/ic_menu"
+			fab:menu_fab_label="@string/label_close"
+			fab:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+			fab:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+			fab:menu_labels_ellipsize="end"
+			fab:menu_labels_singleLine="true"
+			fab:menu_colorNormal="@color/color_primary_dark"
+			fab:menu_colorPressed="@color/color_primary">
+
+		<!-- andr-115 button hidden for R1 -->
+		<com.github.clans.fab.FloatingActionButton
+				android:id="@+id/capture_vitals"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_vitals"
+				fab:fab_colorNormal="@color/color_primary_dark"
+				fab:fab_colorPressed="@color/color_primary"
+				fab:fab_label="@string/label_capture_vitals"
+				fab:fab_size="mini"
+				android:visibility="gone"/>
+
+		<com.github.clans.fab.FloatingActionButton
+				android:id="@+id/auditDataForm"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_description"
+				fab:fab_label="@string/audit_data_form_label"
+				fab:fab_size="mini"
+				fab:fab_colorNormal="@color/color_primary_dark"
+				fab:fab_colorPressed="@color/color_primary"/>
+
+		<com.github.clans.fab.FloatingActionButton
+				android:id="@+id/edit_visit"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_edit"
+				fab:fab_label="@string/label_edit_visit"
+				fab:fab_size="mini"
+				fab:fab_colorNormal="@color/color_primary_dark"
+				fab:fab_colorPressed="@color/color_primary"/>
+
+		<com.github.clans.fab.FloatingActionButton
+				android:id="@+id/end_visit"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_power_settings_new"
+				fab:fab_label="@string/label_end_visit"
+				fab:fab_size="mini"
+				fab:fab_colorNormal="@color/color_primary_dark"
+				fab:fab_colorPressed="@color/color_primary"/>
+
+	</com.github.clans.fab.FloatingActionMenu>
+
+</android.support.constraint.ConstraintLayout>

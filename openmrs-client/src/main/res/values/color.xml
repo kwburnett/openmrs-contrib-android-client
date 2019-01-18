@@ -42,6 +42,6 @@
 	<color name="color_white">#ffffff</color>
 	<color name="color_light_grey">#e1e1e1</color>
 
-	<color name="semi_transparent">#30000000</color>
+	<color name="semi_transparent">#80FFFFFF</color>
 
 </resources>
