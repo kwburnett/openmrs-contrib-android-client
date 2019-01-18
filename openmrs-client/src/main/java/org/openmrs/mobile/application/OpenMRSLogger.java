@@ -179,65 +179,115 @@ public class OpenMRSLogger implements Logger {
 
 	@Override
 	public void v(final String msg) {
-		Log.v(mTAG, getMessage(msg));
+		v(mTAG, msg);
+	}
+
+	@Override
+	public void v(String tag, String msg) {
+		Log.v(tag, getMessage(msg));
 		saveToFile();
 	}
 
 	@Override
-	public void v(final String msg, Throwable tr) {
-		Log.v(mTAG, getMessage(msg), tr);
+	public void v(final String msg, Throwable throwable) {
+		v(mTAG, msg, throwable);
+	}
+
+	@Override
+	public void v(String tag, String msg, Throwable throwable) {
+		Log.v(tag, getMessage(msg), throwable);
 		saveToFile();
 	}
 
 	@Override
 	public void d(final String msg) {
+		d(mTAG, msg);
+	}
+
+	@Override
+	public void d(String tag, String msg) {
 		if (IS_DEBUGGING_ON) {
-			Log.d(mTAG, getMessage(msg));
+			Log.d(tag, getMessage(msg));
 			saveToFile();
 		}
 	}
 
 	@Override
-	public void d(final String msg, Throwable tr) {
+	public void d(final String msg, Throwable throwable) {
+		d(mTAG, msg, throwable);
+	}
+
+	@Override
+	public void d(String tag, String msg, Throwable throwable) {
 		if (IS_DEBUGGING_ON) {
-			Log.d(mTAG, getMessage(msg), tr);
+			Log.d(tag, getMessage(msg), throwable);
 			saveToFile();
 		}
 	}
 
 	@Override
 	public void i(final String msg) {
-		Log.i(mTAG, getMessage(msg));
+		i(mTAG, msg);
+	}
+
+	@Override
+	public void i(String tag, String msg) {
+		Log.i(tag, getMessage(msg));
 		saveToFile();
 	}
 
 	@Override
-	public void i(final String msg, Throwable tr) {
-		Log.i(mTAG, getMessage(msg), tr);
+	public void i(final String msg, Throwable throwable) {
+		i(mTAG, msg, throwable);
+	}
+
+	@Override
+	public void i(String tag, String msg, Throwable throwable) {
+		Log.i(tag, getMessage(msg), throwable);
 		saveToFile();
 	}
 
 	@Override
 	public void w(final String msg) {
-		Log.w(mTAG, getMessage(msg));
+		w(mTAG, msg);
+	}
+
+	@Override
+	public void w(String tag, String msg) {
+		Log.w(tag, getMessage(msg));
 		saveToFile();
 	}
 
 	@Override
-	public void w(final String msg, Throwable tr) {
-		Log.w(mTAG, getMessage(msg), tr);
+	public void w(final String msg, Throwable throwable) {
+		w(mTAG, msg, throwable);
+	}
+
+	@Override
+	public void w(String tag, String msg, Throwable throwable) {
+		Log.w(tag, getMessage(msg), throwable);
 		saveToFile();
 	}
 
 	@Override
 	public void e(final String msg) {
-		Log.e(mTAG, getMessage(msg));
+		e(mTAG, msg);
+	}
+
+	@Override
+	public void e(String tag, String msg) {
+		Log.e(tag, getMessage(msg));
 		saveToFile();
 	}
 
 	@Override
-	public void e(final String msg, Throwable tr) {
-		Log.e(mTAG, getMessage(msg), tr);
+	public void e(final String msg, Throwable throwable) {
+		e(mTAG, msg, throwable);
+	}
+
+	@Override
+	public void e(String tag, String msg, Throwable throwable) {
+		Log.e(tag, getMessage(msg), throwable);
 		saveToFile();
 	}
 
