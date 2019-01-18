@@ -305,6 +305,7 @@
 	<string name="label_start_visit">Start Visit</string>
 	<string name="label_edit_visit">Edit Visit</string>
 	<string name="label_capture_vitals">Capture Vitals</string>
+	<string name="label_refresh_visit">Refresh Visit</string>
 	<string name="default_file_caption_message">Uploaded from android client</string>
 	<string name="edit_patient">Edit Patient</string>
 

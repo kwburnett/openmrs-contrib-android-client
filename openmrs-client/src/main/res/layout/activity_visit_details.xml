@@ -89,6 +89,16 @@
 			fab:menu_colorNormal="@color/color_primary_dark"
 			fab:menu_colorPressed="@color/color_primary">
 
+		<com.github.clans.fab.FloatingActionButton
+				android:id="@+id/refresh_visit"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/ic_sync_white_24"
+				fab:fab_colorNormal="@color/color_primary_dark"
+				fab:fab_colorPressed="@color/color_primary"
+				fab:fab_label="@string/label_refresh_visit"
+				fab:fab_size="mini"/>
+
 		<!-- andr-115 button hidden for R1 -->
 		<com.github.clans.fab.FloatingActionButton
 				android:id="@+id/capture_vitals"
