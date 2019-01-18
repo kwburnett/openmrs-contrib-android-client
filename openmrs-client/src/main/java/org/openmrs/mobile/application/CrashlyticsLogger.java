@@ -21,12 +21,6 @@ public class CrashlyticsLogger implements Logger {
 
 	private static final String TAG = "Banda Health";
 
-	private static CrashlyticsLogger logger = null;
-
-	public CrashlyticsLogger() {
-		logger = this;
-	}
-
 	@Override
 	public void v(final String msg) {
 		Crashlytics.log(Log.VERBOSE, TAG, msg);
