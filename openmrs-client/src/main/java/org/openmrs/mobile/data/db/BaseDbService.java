@@ -179,6 +179,20 @@ public abstract class BaseDbService<E extends BaseOpenmrsObject> implements DbSe
 		postDeleteAll();
 	}
 
+	@Override
+	public void deleteWhereUuidEmpty() {
+		if (entityTable == null) {
+			return;
+		}
+
+		preDelete("null");
+
+		repository.deleteAll(entityTable, entityTable.getProperty("uuid").eq(""));
+		repository.deleteAll(entityTable, entityTable.getProperty("uuid").isNull());
+
+		postDelete("null");
+	}
+
 	protected List<E> executeQuery(@Nullable QueryOptions options, @Nullable PagingInfo pagingInfo,
 			@Nullable Function<From<E>, ModelQueriable<E>> where) {
 		return executeQuery(options, pagingInfo, getEntityClass(), where);

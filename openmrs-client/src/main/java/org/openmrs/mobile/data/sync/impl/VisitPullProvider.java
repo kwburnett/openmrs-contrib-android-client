@@ -147,6 +147,7 @@ public class VisitPullProvider {
 			Visit visit = visitDbService.getByUuid(visitRecord.getUuid(), null);
 
 			databaseHelper.diffDelete(VisitTask.class, VisitTask_Table.visit_uuid.eq(visitRecord.getUuid()), visitTasks);
+			visitDbService.deleteWhereUuidEmpty();
 
 			List<VisitTask> visitTaskList = new ArrayList<>();
 			for (RecordInfo visitTasksRecord : visitTasks) {
@@ -183,8 +184,8 @@ public class VisitPullProvider {
 			observationsOperators.add(Observation_Table.concept_uuid.in(
 					Arrays.asList(ApplicationConstants.ConceptSets.VISIT_DOCUMENT_UUID.split(","))));
 
-			databaseHelper
-					.diffDelete(Observation.class, observationsOperators, observationInfo);
+			databaseHelper.diffDelete(Observation.class, observationsOperators, observationInfo);
+			obsDbService.deleteWhereUuidEmpty();
 
 			List<VisitPhoto> visitPhotos = new ArrayList<>();
 			List<Observation> observations = new ArrayList<>();
@@ -241,6 +242,7 @@ public class VisitPullProvider {
 
 			// Delete any missing encounters
 			databaseHelper.diffDelete(Encounter.class, Encounter_Table.visit_uuid.eq(visitRecord.getUuid()), encounterInfo);
+			encounterDbService.deleteWhereUuidEmpty();
 
 			// Pull any updated encounter information
 			List<Encounter> encounters = new ArrayList<>();
