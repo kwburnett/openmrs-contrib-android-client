@@ -39,7 +39,7 @@ public class VisitPhotoRestServiceImpl extends BaseRestService<VisitPhoto, Visit
 				RequestBody.create(MediaType.parse("text/plain"), visitPhoto.getProvider().getUuid());
 		RequestBody fileCaption = RequestBody.create(MediaType.parse("text/plain"), visitPhoto.getFileCaption());
 		RequestBody file = RequestBody.create(MediaType.parse("image/jpeg"), visitPhoto.getImageColumn().getBlob());
-		MultipartBody.Part uploadFile = MultipartBody.Part.createFormData("file", "create.jpg", file);
+		MultipartBody.Part uploadFile = MultipartBody.Part.createFormData("file", "create.jpeg", file);
 
 		return restService.uploadVisitPhoto(buildRestRequestPath(), patient, visit,
 				provider, fileCaption, uploadFile);

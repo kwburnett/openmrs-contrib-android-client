@@ -17,8 +17,8 @@ package org.openmrs.mobile.utilities;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -28,7 +28,7 @@ public final class TabUtil {
 	public static final int MIN_SCREEN_WIDTH_FOR_FINDPATIENTSACTIVITY = 480;
 	public static final int MIN_SCREEN_WIDTH_FOR_PATIENTDASHBOARDACTIVITY = 960;
 	public static final int MIN_SCREEN_WIDTH_FOR_VISITDETAILSACTIVITY = 960;
-	private static OpenMRSLogger mLogger = OpenMRS.getInstance().getOpenMRSLogger();
+	private static Logger mLogger = OpenMRS.getInstance().getLogger();
 
 	private TabUtil() {
 	}

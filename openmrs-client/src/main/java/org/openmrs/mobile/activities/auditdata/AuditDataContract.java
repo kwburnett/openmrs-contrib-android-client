@@ -40,13 +40,15 @@ public interface AuditDataContract {
 
 		void showProgressBar(Boolean visibility);
 
-		void goBackToVisitPage();
-
 		void updateSubmitButtonText();
 
 		void showPageSpinner(boolean visibility);
 
 		void hideSoftKeys();
+
+		void auditDataSaveComplete();
+
+		void finishView();
 
 		void setInpatientTypeServices(List<ConceptAnswer> conceptAnswers);
 

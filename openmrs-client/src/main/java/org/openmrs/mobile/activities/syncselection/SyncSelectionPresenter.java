@@ -93,7 +93,7 @@ public class SyncSelectionPresenter extends BasePresenter implements SyncSelecti
 		}
 
 		boolean skipSyncing = pullSubscriptionsToAdd.isEmpty();
-		view.navigateToNextPage(skipSyncing);
+		view.syncSelectionSaveComplete(skipSyncing);
 	}
 
 	private void updateAdvanceButtonText() {

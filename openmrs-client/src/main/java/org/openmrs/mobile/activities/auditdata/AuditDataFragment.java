@@ -14,7 +14,7 @@
 
 package org.openmrs.mobile.activities.auditdata;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -39,7 +39,6 @@ import org.joda.time.LocalDateTime;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Concept;
 import org.openmrs.mobile.models.ConceptAnswer;
@@ -61,17 +60,10 @@ import java.util.List;
 
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_NEGATIVE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_NO;
-import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_ANTICIPATED_DEATH;
-import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_EXPECTED_DEATH;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_FIRST_RESPIRATORY_RATE_ICU;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_INTUBATION_AT_GCS;
-import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_PREVENTABLE_DEATH;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE;
 
-
-import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts
-		.CONCEPT_UNEXPECTED_DEATH_MEDICAL_INTERVENTION;
-import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormConcepts.CONCEPT_UNEXPECTED_DEATH_NOT_PREVENTABLE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.SCHEDULED_IN_CLINIC;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.NOT_SCHEDULED_IN_CLINIC;
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_POSITIVE;
@@ -117,12 +109,17 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.ValidationFieldV
 public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presenter>
 		implements AuditDataContract.View {
 
+	private static final String ARG_PATIENT_UUID = "patientUuid";
+	private static final String ARG_VISIT_UUID = "visitUuid";
+
+	private OnFragmentInteractionListener listener;
+
 	private Visit visit;
 	//private Patient patient;
 	private View fragmentView;
 	private EditText cd4, hBa1c, firstIcuHeartRate, firstIcuRespiratoryRate, firstGcsScore;
 	private String encounterUuid = null;
-	private String visitUuid, patientUuid, visitStopDate, locationUuid;
+	private String visitUuid, patientUuid, locationUuid;
 	private OpenMRS instance = OpenMRS.getInstance();
 
 	private Observation deathInHospitalObservation, palliativeConsultObservation, preopRiskAssessmentObservation,
@@ -173,19 +170,29 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	// andr-414
 	private String classificationOfDeathTypeSelectedUuid;
 
-	public static AuditDataFragment newInstance() {
-		return new AuditDataFragment();
+	public static AuditDataFragment newInstance(String patientUuid, String visitUuid) {
+		AuditDataFragment fragment = new AuditDataFragment();
+		Bundle args = new Bundle();
+		args.putString(ARG_PATIENT_UUID, patientUuid);
+		args.putString(ARG_VISIT_UUID, visitUuid);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (getArguments() != null) {
+			patientUuid = getArguments().getString(ARG_PATIENT_UUID);
+			visitUuid = getArguments().getString(ARG_VISIT_UUID);
+			presenter = new AuditDataPresenter(this, visitUuid);
+		}
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-		this.patientUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		this.visitUuid = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-		this.visitStopDate = mContext.getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
-
 		fragmentView = inflater.inflate(R.layout.fragment_audit_form, container, false);
-		mPresenter.fetchInpatientTypeServices();
+		presenter.fetchInpatientTypeServices();
 
 		initViewFields();
 
@@ -220,9 +227,25 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 		displayExtraFormFields = false;
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
+		FontsUtil.setFont((ViewGroup)this.context.findViewById(android.R.id.content));
 
 		return fragmentView;
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
 	}
 
 	private void addListeners() {
@@ -447,9 +470,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		classificationOfDeathList.add(new ConceptAnswer("0d29fff3-58f5-474c-9ce3-93c1b71f2aab",
 				getString(R.string.unexpected_death_medical_intervention_name)));
 
-		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(getContext(), android.R.layout
-				.simple_spinner_dropdown_item, classificationOfDeathList);
-		classificationOfDeathType.setAdapter(adapter);
+		if (context != null) {
+			ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(context, android.R.layout
+					.simple_spinner_dropdown_item, classificationOfDeathList);
+			classificationOfDeathType.setAdapter(adapter);
+		}
 
 		int selectedPosition = classificationOfDeathType.getSelectedItemPosition();
 
@@ -905,15 +930,6 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	}
 
 	@Override
-	public void goBackToVisitPage() {
-		Intent intent = new Intent(mContext, VisitActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
-		mContext.startActivity(intent);
-	}
-
-	@Override
 	public void updateSubmitButtonText() {
 		submitForm.setText(R.string.update_audit_data);
 	}
@@ -931,8 +947,21 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	@Override
 	public void hideSoftKeys() {
-		goBackToVisitPage();
-		ACBaseActivity.hideSoftKeyboard(mContext);
+		ACBaseActivity.hideSoftKeyboard(context);
+	}
+
+	@Override
+	public void auditDataSaveComplete() {
+		if (listener != null) {
+			listener.auditDataSaveComplete(patientUuid, visitUuid);
+		}
+	}
+
+	@Override
+	public void finishView() {
+		if (listener != null) {
+			listener.finishView();
+		}
 	}
 
 	@Override
@@ -943,9 +972,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		conceptAnswerList.addAll(conceptAnswers);
 
 		int selectedInpatientServiceTypePosition = inpatientServiceType.getSelectedItemPosition();
-		ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(mContext, android.R.layout
-				.simple_spinner_dropdown_item, conceptAnswerList);
-		inpatientServiceType.setAdapter(adapter);
+		if (context != null) {
+			ArrayAdapter<ConceptAnswer> adapter = new ArrayAdapter<>(context, android.R.layout
+					.simple_spinner_dropdown_item, conceptAnswerList);
+			inpatientServiceType.setAdapter(adapter);
+		}
 
 		if (selectedInpatientServiceTypePosition >= 0) {
 			inpatientServiceType.setSelection(selectedInpatientServiceTypePosition);
@@ -1601,7 +1632,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 		for (Observation observationToVoid : observationsToVoid) {
 			if (observationToVoid != null &&
-					mPresenter.isObservationExistingForCurrentEncounter(observationToVoid)) {
+					presenter.isObservationExistingForCurrentEncounter(observationToVoid)) {
 				setObservationVoided(observationToVoid);
 				observations.add(observationToVoid);
 			}
@@ -1612,7 +1643,6 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		encounter.setLocation(location);
 		encounter.setProvider(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
 		encounter.setEncounterType(auditFormEncounterType);
-
 
 		if (visit != null) {
 			encounter.setVisit(visit);
@@ -1627,7 +1657,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			}
 		}
 
-		mPresenter.saveUpdateEncounter(encounter, isNewEncounter);
+		presenter.saveUpdateEncounter(encounter, isNewEncounter);
 	}
 
 	public void voidExtraICUObservations() {
@@ -1707,5 +1737,12 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			return false;
 		}
 		return true;
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void auditDataSaveComplete(String patientUuid, String visitUuid);
+
+		void finishView();
 	}
 }

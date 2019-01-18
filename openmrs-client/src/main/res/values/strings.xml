@@ -179,6 +179,7 @@
 	<string name="create_account">No account yet? Create one</string>
 	<string name="search_hint">Search patients</string>
 	<string name="sync_hint">Sync selections</string>
+	<string name="action_delete_image">Delete</string>
 
 	<string name="nav_register_patient">Register Patient</string>
 	<string name="nav_open_visit_tasks">Open Visit Tasks</string>
@@ -284,7 +285,9 @@
 	<string name="visit_type">Visit Type:</string>
 	<string name="enter_caption">Enter caption</string>
 	<string name="visit_photo">Visit Photo</string>
-	
+	<string name="photo_was_deleted">Photo deleted</string>
+	<string name="photo_was_not_deleted">Problem deleting photo&#8230;</string>
+
 	<string name="findPatientsTitle">Search patients</string>
 	<string name="patientNotFound">Patient not found</string>
 	<string name="patientsFoundTitle">No. of Patients Found</string>
@@ -302,6 +305,7 @@
 	<string name="label_start_visit">Start Visit</string>
 	<string name="label_edit_visit">Edit Visit</string>
 	<string name="label_capture_vitals">Capture Vitals</string>
+	<string name="label_refresh_visit">Refresh Visit</string>
 	<string name="default_file_caption_message">Uploaded from android client</string>
 	<string name="edit_patient">Edit Patient</string>
 
@@ -325,7 +329,7 @@
 	<string name="nav_login">Login</string>
 	<string name="selectPatientList">Please select a patient list</string>
 	<string name="visit_scroll_tab_details_label">Information</string>
-	<string name="visi_scroll_tab_visit_tasks_label">Tasks</string>
+	<string name="visit_scroll_tab_visit_tasks_label">Tasks</string>
 	<string name="visit_scroll_tab_visit_images_label">Imaging</string>
 	<string name="visit_scroll_tab_patient_details_label">Patient Details</string>
 	
@@ -462,4 +466,7 @@
 	<string name="skip_patient_list_sync_selections">Skip</string>
 	<string name="save_patient_list_sync_selections">Save Selections</string>
 	<string name="phonenumber_required">Telephone number is Required</string>
+
+	<string name="checked_text_view">Checked Text View</string>
+	<string name="patient_list_syncing">Patient list is syncing</string>
 </resources>

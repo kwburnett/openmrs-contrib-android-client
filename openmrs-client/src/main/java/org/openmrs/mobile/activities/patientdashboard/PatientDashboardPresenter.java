@@ -101,9 +101,9 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 		patientDataService.getByUuid(patientUuid, options, new DataService.GetCallback<Patient>() {
 			@Override
 			public void onCompleted(Patient patient) {
-				if (patient == null && !networkUtils.isConnectedOrConnecting()) {
+				if (patient == null && !networkUtils.isConnected()) {
 					patientDashboardView.alertOfflineAndPatientNotFound();
-					patientDashboardView.navigateBack();
+					patientDashboardView.patientNotAvailable();
 					return;
 				}
 				setPatient(patient);
@@ -112,7 +112,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 
 			@Override
 			public void onError(Throwable t) {
-				if (t instanceof DataOperationException && !openMRS.getNetworkUtils().isConnectedOrConnecting()) {
+				if (t instanceof DataOperationException && !openMRS.getNetworkUtils().isConnected()) {
 					patientDashboardView.showNoPatientData(true);
 				} else {
 					patientDashboardView.showPageSpinner(false);
@@ -149,7 +149,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 			public void onError(Throwable t) {
 				t.printStackTrace();
 				// If we're online and we're not on the first page of results, assume it's because we have all results
-				if (openMRS.getNetworkUtils().isConnectedOrConnecting() && pagingIndex > INITIAL_PAGING_INDEX) {
+				if (openMRS.getNetworkUtils().isConnected() && pagingIndex > INITIAL_PAGING_INDEX) {
 					patientDashboardView.notifyAllPatientVisitsFetched();
 				}
 				patientDashboardView.showPageSpinner(false);
@@ -164,11 +164,6 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 		}
 		QueryOptions options = builder.build();
 		visitDataService.getByPatient(patient, options, pagingInfo, fetchVisitsCallback);
-	}
-
-	@Override
-	public Patient getPatient() {
-		return patientDashboardView.getPatient();
 	}
 
 	public void setPatient(Patient patient) {
@@ -241,7 +236,7 @@ public class PatientDashboardPresenter extends BasePresenter implements PatientD
 
 	@Override
 	public void dataRefreshWasRequested() {
-		if (openMRS.getNetworkUtils().isConnectedOrConnecting()) {
+		if (openMRS.getNetworkUtils().isConnected()) {
 			eventBus.post(new DataRefreshEvent(ApplicationConstants.EventMessages.DataRefresh.REFRESH));
 			currentPagingIndex = INITIAL_PAGING_INDEX;
 			fetchPatientData(true);

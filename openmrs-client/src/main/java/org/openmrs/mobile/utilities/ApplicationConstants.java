@@ -192,6 +192,17 @@ public abstract class ApplicationConstants {
 		public static final String VISIT_CLOSED_DATE = "visitClosedDate";
 		public static final String AUDIT_DATA_AVAILABILITY = "auditDataAvailability";
 		public static final String LOCATION_UUID_BUNDLE = "locationUuid";
+		public static final String EXTRA_VISIT_PHOTO_UUID = "visitPhotoUuid";
+		public static final String EXTRA_VISIT_PHOTO_UUIDS = "visitPhotoUuids";
+		public static final String EXTRA_TEMP_VISIT_PHOTO_PATH = "tempVisitPhotoPath";
+		public static final String EXTRA_NO_DELETE = "noDeleteOption";
+		public static final String EXTRA_SHOULD_REFRESH = "shouldRefresh";
+	}
+
+	public abstract static class Activity {
+		public abstract static class RequestCodes {
+			public static final int VIEW_IMAGE_GALLERY = 10000;
+		}
 	}
 
 	public static class ConceptSets {
@@ -214,6 +225,7 @@ public abstract class ApplicationConstants {
 		public static final String imageUploadError = "Unable to upload image";
 		public static final String imageDownloadError = "Error downloading visit images";
 		public static final String notConnected = "Not connected";
+		public static final String SAVE_VISIT_END_DATE_ERROR = "Error saving visit end date";
 	}
 
 	public static class entityName {

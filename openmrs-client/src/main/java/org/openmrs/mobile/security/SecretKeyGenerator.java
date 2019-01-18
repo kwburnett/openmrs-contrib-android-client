@@ -37,7 +37,7 @@ public final class SecretKeyGenerator {
 			// Do *not* seed secureRandom! Automatically seeded from system entropy.
 			keyGenerator = KeyGenerator.getInstance("AES");
 		} catch (NoSuchAlgorithmException e) {
-			OpenMRS.getInstance().getOpenMRSLogger().d("Failed to generate DB secret key" + e.toString());
+			OpenMRS.getInstance().getLogger().d("Failed to generate DB secret key" + e.toString(), e);
 		}
 		keyGenerator.init(outputKeyLength, secureRandom);
 		SecretKey key = keyGenerator.generateKey();

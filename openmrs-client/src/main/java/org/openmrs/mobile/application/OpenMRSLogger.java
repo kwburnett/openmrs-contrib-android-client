@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 
-public class OpenMRSLogger {
+public class OpenMRSLogger implements Logger {
 
 	private static final boolean IS_DEBUGGING_ON = true;
 	private static final String LOG_FILENAME = "OpenMRS.log";
@@ -177,16 +177,19 @@ public class OpenMRSLogger {
 		}
 	}
 
+	@Override
 	public void v(final String msg) {
 		Log.v(mTAG, getMessage(msg));
 		saveToFile();
 	}
 
+	@Override
 	public void v(final String msg, Throwable tr) {
 		Log.v(mTAG, getMessage(msg), tr);
 		saveToFile();
 	}
 
+	@Override
 	public void d(final String msg) {
 		if (IS_DEBUGGING_ON) {
 			Log.d(mTAG, getMessage(msg));
@@ -194,6 +197,7 @@ public class OpenMRSLogger {
 		}
 	}
 
+	@Override
 	public void d(final String msg, Throwable tr) {
 		if (IS_DEBUGGING_ON) {
 			Log.d(mTAG, getMessage(msg), tr);
@@ -201,34 +205,50 @@ public class OpenMRSLogger {
 		}
 	}
 
+	@Override
 	public void i(final String msg) {
 		Log.i(mTAG, getMessage(msg));
 		saveToFile();
 	}
 
+	@Override
 	public void i(final String msg, Throwable tr) {
 		Log.i(mTAG, getMessage(msg), tr);
 		saveToFile();
 	}
 
+	@Override
 	public void w(final String msg) {
 		Log.w(mTAG, getMessage(msg));
 		saveToFile();
 	}
 
+	@Override
 	public void w(final String msg, Throwable tr) {
 		Log.w(mTAG, getMessage(msg), tr);
 		saveToFile();
 	}
 
+	@Override
 	public void e(final String msg) {
 		Log.e(mTAG, getMessage(msg));
 		saveToFile();
 	}
 
+	@Override
 	public void e(final String msg, Throwable tr) {
 		Log.e(mTAG, getMessage(msg), tr);
 		saveToFile();
+	}
+
+	@Override
+	public void e(Throwable throwable) {
+		e("no message", throwable);
+	}
+
+	@Override
+	public void setUser(String user) {
+		// Intentionally left blank
 	}
 
 	public String getLogFilename() {

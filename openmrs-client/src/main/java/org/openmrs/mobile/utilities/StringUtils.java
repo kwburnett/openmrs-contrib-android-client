@@ -17,6 +17,9 @@ package org.openmrs.mobile.utilities;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 public final class StringUtils {
 	private static final String NULL_AS_STRING = "null";
 	private static final String SPACE_CHAR = " ";
@@ -144,5 +147,12 @@ public final class StringUtils {
 		}
 
 		return display.split("=")[index].trim();
+	}
+
+	public static <T> String toJson(T object) {
+		if (object == null) {
+			return "";
+		}
+		return (new Gson()).toJson(object, new TypeToken<T>() {}.getType());
 	}
 }

@@ -72,7 +72,7 @@ public class CaptureVitalsPresenter extends BasePresenter implements CaptureVita
 				} else {
 					captureVitalsView.hideSoftKeys();
 					captureVitalsView.disableButton();
-					((CaptureVitalsActivity)captureVitalsView.getContext()).finish();
+					captureVitalsView.captureVitalsSaveComplete();
 				}
 			}
 

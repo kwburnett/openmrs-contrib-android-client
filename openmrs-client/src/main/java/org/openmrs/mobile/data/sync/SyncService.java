@@ -145,7 +145,7 @@ public class SyncService {
 									record.getKey()) + "'", ex);
 				} finally {
 					// Check to see if we're still online, if not, then stop the sync
-					if (!networkUtils.isConnectedOrConnecting()) {
+					if (!networkUtils.isConnected()) {
 						break;
 					}
 				}
@@ -213,7 +213,7 @@ public class SyncService {
 										sub.getSubscriptionKey()) + "'", ex);
 					} finally {
 						// Check to see if we're still online, if not, then stop the sync
-						if (!networkUtils.isConnectedOrConnecting()) {
+						if (!networkUtils.isConnected()) {
 							eventBus.post(new SyncEvent(ApplicationConstants.EventMessages.Sync.CANT_SYNC_NO_NETWORK,
 									null, null));
 							break;

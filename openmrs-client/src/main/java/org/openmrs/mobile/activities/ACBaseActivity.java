@@ -40,13 +40,15 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.activities.findpatientrecord.FindPatientRecordActivity;
 import org.openmrs.mobile.activities.login.LoginActivity;
 import org.openmrs.mobile.activities.patientlist.PatientListActivity;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
@@ -56,7 +58,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ACBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 	protected final OpenMRS openMRS = OpenMRS.getInstance();
-	protected final OpenMRSLogger openMRSLogger = openMRS.getOpenMRSLogger();
+	protected final Logger logger = openMRS.getLogger();
 	protected FragmentManager fragmentManager;
 	protected CustomFragmentDialog customFragmentDialog;
 	protected DrawerLayout drawer;
@@ -72,6 +74,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Fabric.with(this, new Crashlytics());
 		setContentView(R.layout.activity_acbase);
 		fragmentManager = getSupportFragmentManager();
 		frameLayout = (FrameLayout)findViewById(R.id.content_frame);
@@ -209,7 +212,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		transaction.commit();
 	}
 
-	private void intitializeToolbar() {
+	protected void intitializeToolbar() {
 		toolbar = (Toolbar)findViewById(R.id.toolbar);
 		if (toolbar != null) {
 			setSupportActionBar(toolbar);
@@ -258,12 +261,12 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		drawer.closeDrawer(GravityCompat.START);
 		switch (selectedId) {
 			case R.id.navItemFindPatientRecord:
-				Intent intent = new Intent(openMRS.getApplicationContext(), FindPatientRecordActivity.class);
+				Intent intent = new Intent(this, FindPatientRecordActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				break;
 			case R.id.navItemPatientLists:
-				intent = new Intent(openMRS.getApplicationContext(), PatientListActivity.class);
+				intent = new Intent(this, PatientListActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 				startActivity(intent);
 				break;
@@ -276,7 +279,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	}
 
 	public void createSnackbar(String message) {
-		int colorWhite = ContextCompat.getColor(getApplicationContext(), R.color.color_white);
+		int colorWhite = ContextCompat.getColor(this, R.color.color_white);
 		// create instance
 		Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_INDEFINITE);
 		// set action button color
@@ -301,7 +304,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	}
 
 	public void createToast(String message) {
-		Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
 
 	public static void hideSoftKeyboard(Activity activity) {

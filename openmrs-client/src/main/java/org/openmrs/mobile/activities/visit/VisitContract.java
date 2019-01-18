@@ -32,110 +32,120 @@ import java.util.List;
 
 public interface VisitContract {
 
-	interface VisitDashboardPageView extends BaseView<VisitDashboardPagePresenter> {
-
-		void displayRefreshingData(boolean visible);
-
-		void onVisitDashboardRefreshEvent(VisitDashboardDataRefreshEvent event);
+	interface View extends BaseView<Presenter> {
+		void getVisitCompleted(Visit visit);
 	}
 
-	interface VisitTasksView extends VisitDashboardPageView {
-
-		void setOpenVisitTasks(List<VisitTask> visitTaskList);
-
-		void setClosedVisitTasks(List<VisitTask> visitTaskList);
-
-		void setPredefinedTasks(List<VisitPredefinedTask> predefinedTasks);
-
-		void setSelectedVisitTask(VisitTask visitTask);
-
-		void setUnSelectedVisitTask(VisitTask visitTask);
-
-		void setVisit(Visit visit);
-
-		void clearTextField();
-
-		void showTabSpinner(boolean visibility);
-
+	interface Presenter extends BasePresenterContract {
+		void getVisit(String visitUuid);
 	}
 
-	interface VisitDetailsView extends VisitDashboardPageView, IBaseDiagnosisView {
+	interface VisitDashboardPage {
 
-		void setVisit(Visit visit);
+		interface View extends BaseView<Presenter> {
 
-		void setPatientUUID(String uuid);
+			void displayRefreshingData(boolean visible);
 
-		void setVisitUUID(String uuid);
+			void onVisitDashboardRefreshEvent(VisitDashboardDataRefreshEvent event);
+		}
 
-		void setProviderUUID(String uuid);
+		interface Presenter extends BasePresenterContract {
 
-		void setVisitStopDate(String visitStopDate);
+			void dataRefreshWasRequested();
 
-		void setConcept(Concept concept);
-
-		void setAttributeTypes(List<VisitAttributeType> visitAttributeTypes);
-
-		void showTabSpinner(boolean visibility);
-
+			void dataRefreshEventOccurred(VisitDashboardDataRefreshEvent event);
+		}
 	}
 
-	interface VisitPhotoView extends VisitDashboardPageView {
-		void updateVisitImageMetadata(List<VisitPhoto> visitPhotos);
+	interface VisitTasks {
 
-		void deleteImage(VisitPhoto visitPhoto);
+		interface View extends VisitDashboardPage.View {
 
-		void refresh();
+			void setOpenVisitTasks(List<VisitTask> visitTaskList);
 
-		void showNoVisitPhoto();
+			void setClosedVisitTasks(List<VisitTask> visitTaskList);
 
-		String formatVisitImageDescription(String description, String uploadedOn, String uploadedBy);
+			void setPredefinedTasks(List<VisitPredefinedTask> predefinedTasks);
 
-		void showTabSpinner(boolean visibility);
+			void setSelectedVisitTask(VisitTask visitTask);
+
+			void setUnSelectedVisitTask(VisitTask visitTask);
+
+			void setVisit(Visit visit);
+
+			void clearTextField();
+
+			void showTabSpinner(boolean visibility);
+		}
+
+		interface Presenter extends VisitDashboardPage.Presenter {
+
+			void addVisitTasks(VisitTask visitTasks);
+
+			void updateVisitTask(VisitTask visitTask);
+
+			void createVisitTasksObject(String visitTask);
+		}
 	}
 
-	/*
-	* Presenters
-	*/
-	interface VisitDashboardPagePresenter extends BasePresenterContract {
+	interface VisitDetails {
 
-		void dataRefreshWasRequested();
+		interface View extends VisitDashboardPage.View, IBaseDiagnosisView {
 
-		void dataRefreshEventOccurred(VisitDashboardDataRefreshEvent event);
+			void setVisit(Visit visit);
+
+			void setPatientUUID(String uuid);
+
+			void setVisitUUID(String uuid);
+
+			void setConcept(Concept concept);
+
+			void setAttributeTypes(List<VisitAttributeType> visitAttributeTypes);
+
+			void showTabSpinner(boolean visibility);
+		}
+
+		interface Presenter extends VisitDashboardPage.Presenter {
+
+			void getVisit();
+
+			void getPatientUUID();
+
+			void getVisitUUID();
+
+			void getConceptAnswer(String uuid, String searchValue, TextView textView);
+		}
 	}
 
-	interface VisitTasksPresenter extends VisitDashboardPagePresenter {
+	interface VisitPhotos {
 
-		void addVisitTasks(VisitTask visitTasks);
+		interface View extends VisitDashboardPage.View {
 
-		void updateVisitTask(VisitTask visitTask);
+			void updateVisitImageMetadata(List<VisitPhoto> visitPhotos);
 
-		void createVisitTasksObject(String visitTask);
-	}
+			void viewImage(String photoUuidToView, List<String> visitPhotoUuids);
 
-	interface VisitPhotoPresenter extends VisitDashboardPagePresenter {
-		boolean isLoading();
+			void deleteImage(VisitPhoto visitPhoto);
 
-		void setLoading(boolean loading);
+			void reset();
 
-		void uploadImage();
+			void refresh();
 
-		VisitPhoto getVisitPhoto();
+			String formatVisitImageDescription(String description, String uploadedOn, String uploadedBy);
 
-		void deleteImage(VisitPhoto visitPhoto);
-	}
+			void showTabSpinner(boolean visibility);
+		}
 
-	interface VisitDetailsPresenter extends VisitDashboardPagePresenter {
+		interface Presenter extends VisitDashboardPage.Presenter {
+			boolean isLoading();
 
-		void getVisit();
+			void refreshPhotosWhenVisible();
 
-		void getPatientUUID();
+			void setLoading(boolean loading);
 
-		void getVisitUUID();
+			void uploadPhoto(byte[] visitPhoto, String description);
 
-		void getProviderUUID();
-
-		void getVisitStopDate();
-
-		void getConceptAnswer(String uuid, String searchValue, TextView textView);
+			void deletePhoto(VisitPhoto visitPhoto);
+		}
 	}
 }

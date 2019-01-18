@@ -14,6 +14,7 @@
 
 package org.openmrs.mobile.activities.capturevitals;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
@@ -26,16 +27,14 @@ import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderContract;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderFragment;
 import org.openmrs.mobile.activities.patientheader.PatientHeaderPresenter;
+import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.TabUtil;
+import org.openmrs.mobile.utilities.ToastUtil;
 
-public class CaptureVitalsActivity extends ACBaseActivity {
+public class CaptureVitalsActivity extends ACBaseActivity implements CaptureVitalsFragment.OnFragmentInteractionListener {
 
-	public CaptureVitalsContract.Presenter mPresenter;
 	private PatientHeaderContract.Presenter patientHeaderPresenter;
-	private String patientUuid;
-	private String visitUuid;
-	private String providerUuid, visitStopDate;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -51,22 +50,20 @@ public class CaptureVitalsActivity extends ACBaseActivity {
 			getSupportActionBar().setDisplayShowHomeEnabled(true);
 		}
 
-		// Create fragment
-		CaptureVitalsFragment captureVitalsFragment =
-				(CaptureVitalsFragment)getSupportFragmentManager().findFragmentById(R.id.contentFrame);
-		if (captureVitalsFragment == null) {
-			captureVitalsFragment = CaptureVitalsFragment.newInstance();
-		}
-		if (!captureVitalsFragment.isActive()) {
-			addFragmentToActivity(getSupportFragmentManager(), captureVitalsFragment, R.id.contentFrame);
-		}
-
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			this.patientUuid = extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-			this.visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-			this.providerUuid = extras.getString(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE);
-			this.visitStopDate = extras.getString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
+			String patientUuid = extras.getString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
+			String visitUuid = extras.getString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
+
+			// Create fragment
+			CaptureVitalsFragment captureVitalsFragment =
+					(CaptureVitalsFragment)getSupportFragmentManager().findFragmentById(R.id.contentFrame);
+			if (captureVitalsFragment == null) {
+				captureVitalsFragment = CaptureVitalsFragment.newInstance(patientUuid, visitUuid);
+			}
+			if (!captureVitalsFragment.isActive()) {
+				addFragmentToActivity(getSupportFragmentManager(), captureVitalsFragment, R.id.contentFrame);
+			}
 
 			// patient header
 			if (patientHeaderPresenter == null) {
@@ -82,11 +79,9 @@ public class CaptureVitalsActivity extends ACBaseActivity {
 
 				patientHeaderPresenter = new PatientHeaderPresenter(headerFragment, patientUuid);
 			}
-
+		} else {
+			ToastUtil.error(getString(R.string.no_patient_selected));
 		}
-
-		mPresenter = new CaptureVitalsPresenter(captureVitalsFragment);
-
 	}
 
 	@Override
@@ -94,15 +89,6 @@ public class CaptureVitalsActivity extends ACBaseActivity {
 		super.onConfigurationChanged(config);
 		TabUtil.setHasEmbeddedTabs(getSupportActionBar(), getWindowManager(),
 				TabUtil.MIN_SCREEN_WIDTH_FOR_VISITDETAILSACTIVITY);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putString(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		outState.putString(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		outState.putString(ApplicationConstants.BundleKeys.PROVIDER_UUID_BUNDLE, providerUuid);
-		outState.putString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
 	}
 
 	@Override
@@ -131,4 +117,12 @@ public class CaptureVitalsActivity extends ACBaseActivity {
 		}
 	}
 
+	@Override
+	public void captureVitalsSaveComplete(String patientUuid, String visitUuid) {
+		finish();
+		Intent intent = new Intent(this, VisitActivity.class);
+		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
+		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
+		startActivity(intent);
+	}
 }

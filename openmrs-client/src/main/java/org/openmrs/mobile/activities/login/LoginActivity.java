@@ -14,13 +14,17 @@
 
 package org.openmrs.mobile.activities.login;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
+import org.openmrs.mobile.activities.loginsync.LoginSyncActivity;
+import org.openmrs.mobile.activities.syncselection.SyncSelectionActivity;
+import org.openmrs.mobile.bundle.CustomDialogBundle;
 
-public class LoginActivity extends ACBaseActivity {
+public class LoginActivity extends ACBaseActivity implements LoginFragment.OnFragmentInteractionListener {
 
 	public LoginContract.Presenter presenter;
 
@@ -48,5 +52,28 @@ public class LoginActivity extends ACBaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		return true;
+	}
+
+	@Override
+	public void showWarningDialog(CustomDialogBundle bundle, String dialogTag) {
+		createAndShowDialog(bundle, dialogTag);
+	}
+
+	@Override
+	public void fragmentIsFinished() {
+		finish();
+	}
+
+	@Override
+	public void userIsAuthenticated(boolean isFirstLogin) {
+		Intent intent;
+		if (isFirstLogin) {
+			intent = new Intent(this, SyncSelectionActivity.class);
+		} else {
+			intent = new Intent(this, LoginSyncActivity.class);
+		}
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(intent);
+		finish();
 	}
 }

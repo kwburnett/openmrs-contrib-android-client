@@ -1,8 +1,7 @@
 package org.openmrs.mobile.activities.patientdashboard;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +16,6 @@ import android.widget.TextView;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.IBaseDiagnosisFragment;
-import org.openmrs.mobile.activities.visit.VisitActivity;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Observation;
@@ -33,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.CLINICAL_NOTE;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS;
 import static org.openmrs.mobile.utilities.ApplicationConstants.ObservationLocators.SECONDARY_DIAGNOSIS;
@@ -42,17 +39,17 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.entityName.SUBCO
 import static org.openmrs.mobile.utilities.ApplicationConstants.entityName.TELEPHONE;
 
 public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+	private OnAdapterInteractionListener listener;
+
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(DateUtils.PATIENT_DASHBOARD_VISIT_DATE_FORMAT);
 
 	private final int VIEW_TYPE_HEADER = 0;
 	private final int VIEW_TYPE_ITEM = 1;
 	private final int VIEW_TYPE_PROGRESS = 2;
 
-	private Context context;
 	private List<Visit> visits;
 	private LayoutInflater layoutInflater;
-	private OpenMRS instance = OpenMRS.getInstance();
-	private PatientDashboardActivity patientDashboardActivity;
 	private Visit activeVisit;
 	private View activeVisitView;
 	private IBaseDiagnosisFragment baseDiagnosisFragment;
@@ -64,6 +61,7 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 	private boolean loading, fullDataSetHasBeenLoaded = false;
 	private OnLoadMoreListener onLoadMoreListener;
 
+	private Context context;
 	private LinearLayoutManager primaryDiagnosisLayoutManager, secondaryDiagnosisLayoutManager;
 	private LinearLayout diagnosesLayout, pastDiagnosisLayout;
 	private RelativeLayout singleVisitTitle;
@@ -71,13 +69,17 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 	private TextView primaryDiagnosis;
 	private TextView secondaryDiagnosis, noPatientVisits;
 	private View initialDiagnosesView;
+	private Patient patient;
 
 	public PatientVisitsRecyclerAdapter(RecyclerView visitsRecyclerView, LinkedList<Visit> visits,
-			Context context, IBaseDiagnosisFragment baseDiagnosisFragment) {
+			Context context, IBaseDiagnosisFragment baseDiagnosisFragment, OnAdapterInteractionListener listener,
+			Patient patient) {
 		this.visits = visits;
 		this.context = context;
+		this.patient = patient;
+		this.listener = listener;
+
 		this.layoutInflater = LayoutInflater.from(context);
-		this.patientDashboardActivity = (PatientDashboardActivity)context;
 		final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
 		visitsRecyclerView.setLayoutManager(linearLayoutManager);
 		this.baseDiagnosisFragment = baseDiagnosisFragment;
@@ -129,6 +131,9 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 
 	@Override
 	public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+		if (parent.getContext() == null) {
+			return null;
+		}
 		if (viewType == VIEW_TYPE_HEADER) {
 			View personAddressView =
 					LayoutInflater.from(parent.getContext()).inflate(R.layout.container_patient_address_info, parent,
@@ -321,52 +326,40 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 	}
 
 	private void loadVisitDetails(Visit visit) {
-		if (patientDashboardActivity != null && !patientDashboardActivity.isLoading()) {
-			setVisitStopDate(visit);
-			Intent intent = new Intent(context, VisitActivity.class);
-			intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, OpenMRS.getInstance()
-					.getPatientUuid());
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visit.getUuid());
-			intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE,
-					visit.getStopDatetime() == null ? null : DateUtils.convertTime(
-							visit.getStopDatetime().getTime(),
-							DateUtils.PATIENT_DASHBOARD_VISIT_DATE_FORMAT));
-
-			intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-
-			context.startActivity(intent);
-		} else {
-			patientDashboardActivity.createToast(context.getString(R.string.pending_save));
+		if (listener != null) {
+			listener.onVisitSelected(visit.getUuid());
 		}
 	}
 
 	private void updateContactInformation(RecyclerViewHeader header) {
-		Patient patient = patientDashboardActivity.mPresenter.getPatient();
-
 		String county, subCounty, address, phone;
 		county = subCounty = address = phone = "";
 
-		for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
-			if (personAttribute.getDisplay() != null) {
-				String displayName = personAttribute.getDisplay().replaceAll("\\s+", "");
-				if (displayName.toLowerCase().startsWith(SUBCOUNTY)) {
-					subCounty = displayName.split("=")[1];
-				} else if (displayName.toLowerCase().startsWith(COUNTY)) {
-					county = displayName.split("=")[1];
-				} else if (displayName.toLowerCase().startsWith(TELEPHONE)) {
-					phone = displayName.split("=")[1];
-				}
-			} else if (personAttribute.getAttributeType() != null) {
-				// this is helpful when a patient has been created offline and not synced up, yet
-				String name = personAttribute.getAttributeType().getName();
-				if (name.toLowerCase().startsWith(SUBCOUNTY)) {
-					subCounty = personAttribute.getStringValue();
-				} else if (name.toLowerCase().startsWith(COUNTY)) {
-					county = personAttribute.getStringValue();
-				} else if (name.toLowerCase().startsWith(TELEPHONE)) {
-					phone = personAttribute.getStringValue();
+		try {
+			for (PersonAttribute personAttribute : patient.getPerson().getAttributes()) {
+				if (personAttribute.getDisplay() != null) {
+					String displayName = personAttribute.getDisplay().replaceAll("\\s+", "");
+					if (displayName.toLowerCase().startsWith(SUBCOUNTY)) {
+						subCounty = displayName.split("=")[1];
+					} else if (displayName.toLowerCase().startsWith(COUNTY)) {
+						county = displayName.split("=")[1];
+					} else if (displayName.toLowerCase().startsWith(TELEPHONE)) {
+						phone = displayName.split("=")[1];
+					}
+				} else if (personAttribute.getAttributeType() != null) {
+					// this is helpful when a patient has been created offline and not synced up, yet
+					String name = personAttribute.getAttributeType().getName();
+					if (name.toLowerCase().startsWith(SUBCOUNTY)) {
+						subCounty = personAttribute.getStringValue();
+					} else if (name.toLowerCase().startsWith(COUNTY)) {
+						county = personAttribute.getStringValue();
+					} else if (name.toLowerCase().startsWith(TELEPHONE)) {
+						phone = personAttribute.getStringValue();
+					}
 				}
 			}
+		} catch (Exception e) {
+			OpenMRS.getInstance().getLogger().e(StringUtils.toJson(patient), e);
 		}
 
 		if (!subCounty.equalsIgnoreCase("")) {
@@ -429,13 +422,6 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 		}
 	}
 
-	private void setVisitStopDate(Visit visit) {
-		SharedPreferences.Editor editor = instance.getPreferences().edit();
-		editor.putString(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE,
-				visit.getStopDatetime() == null ? null : DATE_FORMAT.format(visit.getStopDatetime()));
-		editor.commit();
-	}
-
 	@Override
 	public int getItemCount() {
 		return visits == null ? 0 : visits.size() + 1;//Add an index for the header
@@ -472,5 +458,10 @@ public class PatientVisitsRecyclerAdapter extends RecyclerView.Adapter<RecyclerV
 			super(view);
 			progressBar = (ProgressBar)view.findViewById(R.id.progressBarItem);
 		}
+	}
+
+	public interface OnAdapterInteractionListener {
+
+		void onVisitSelected(String visitUuid);
 	}
 }
