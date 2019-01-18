@@ -14,7 +14,6 @@
 
 package org.openmrs.mobile.activities.addeditpatient;
 
-import android.util.Log;
 import android.widget.Spinner;
 
 import org.openmrs.mobile.activities.BasePresenter;
@@ -207,7 +206,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 			@Override
 			public void onError(Throwable t) {
 				patientRegistrationView.showPageSpinner(false);
-				Log.e("User Error", "Error", t.fillInStackTrace());
+				logger.e("User Error", "Error", t.fillInStackTrace());
 				patientRegistrationView.showToast(ApplicationConstants.entityName.PATIENTS + ApplicationConstants
 						.toastMessages.fetchErrorMessage, ToastUtil.ToastType.ERROR);
 			}
@@ -290,7 +289,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 			@Override
 			public void onError(Throwable t) {
 				patientRegistrationView.showPageSpinner(false);
-				Log.e("User Error", "Error", t.fillInStackTrace());
+				logger.e("User Error", "Error", t);
 				patientRegistrationView.showToast(ApplicationConstants.entityName.PATIENTS + ApplicationConstants
 						.toastMessages.fetchErrorMessage, ToastUtil.ToastType.ERROR);
 			}
@@ -347,7 +346,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 
 					@Override
 					public void onError(Throwable t) {
-						Log.e("Identifier Type Error", "Error", t.fillInStackTrace());
+						logger.e("Identifier Type Error", "Error", t);
 						patientRegistrationView
 								.showToast(ApplicationConstants.entityName.IDENTIFIER_TPYES
 										+ ApplicationConstants.toastMessages

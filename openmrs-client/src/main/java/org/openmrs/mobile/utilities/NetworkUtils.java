@@ -20,7 +20,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -66,9 +65,9 @@ public class NetworkUtils {
 	private Timer networkConnectivityCheckTimer;
 
 	@Inject
-	public NetworkUtils(OkHttpClient client) {
+	public NetworkUtils(OkHttpClient client, Logger logger) {
 		this.client = client;
-		logger = OpenMRS.getInstance().getLogger();
+		this.logger = logger;
 	}
 
 	public boolean isConnected() {
@@ -93,10 +92,10 @@ public class NetworkUtils {
 				urlc.connect();
 				return (urlc.getResponseCode() == 200);
 			} catch (IOException e) {
-				Log.e("Error", "Error: ", e);
+				logger.e("Network Utils", "Error: ", e);
 			}
 		} else {
-			Log.d("error", "No network present");
+			logger.d("Network Utils", "No network present");
 		}
 		return false;
 	}
@@ -169,7 +168,7 @@ public class NetworkUtils {
 
 		// Uncomment for some statistics
 //		logger.d("Time taken in secs: " + timeTakenInSecs);
-//		logger.d("kilobyte per sec: " + kilobytePerSec);
+		logger.i("Average connection speed: " + averageNetworkSpeed);
 //		logger.d("Download Speed: " + kilobytePerSec);
 //		logger.d("File size: " + contentLength);
 	}

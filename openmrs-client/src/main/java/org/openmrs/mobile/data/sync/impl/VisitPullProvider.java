@@ -1,11 +1,11 @@
 package org.openmrs.mobile.data.sync.impl;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.data.DatabaseHelper;
 import org.openmrs.mobile.data.PagingInfo;
 import org.openmrs.mobile.data.QueryOptions;
@@ -63,6 +63,7 @@ public class VisitPullProvider {
 	private PatientDbService patientDbService;
 
 	private DatabaseHelper databaseHelper;
+	private Logger logger;
 
 	@Inject
 	public VisitPullProvider(VisitDbService visitDbService,
@@ -70,7 +71,7 @@ public class VisitPullProvider {
 			EncounterRestServiceImpl encounterRestService, ObsDbService obsDbService, ObsRestServiceImpl obsRestService,
 			VisitPhotoDbService visitPhotoDbService, VisitPhotoRestServiceImpl visitPhotoRestService,
 			VisitTaskDbService visitTaskDbService, VisitTaskRestServiceImpl visitTaskRestService,
-			DatabaseHelper databaseHelper, PatientDbService patientDbService) {
+			DatabaseHelper databaseHelper, PatientDbService patientDbService, Logger logger) {
 		this.visitDbService = visitDbService;
 		this.visitRestService = visitRestService;
 		this.encounterDbService = encounterDbService;
@@ -83,6 +84,7 @@ public class VisitPullProvider {
 		this.visitTaskRestService = visitTaskRestService;
 		this.databaseHelper = databaseHelper;
 		this.patientDbService = patientDbService;
+		this.logger = logger;
 	}
 
 	public void pull(@NonNull PullSubscription subscription, @NonNull List<RecordInfo> patientInfo) {
@@ -212,7 +214,7 @@ public class VisitPullProvider {
 					try {
 						visitPhoto.setImage(image.bytes());
 					} catch (IOException ex) {
-						Log.e(TAG, "Error downloading visit image: ", ex);
+						logger.e(TAG, "Error downloading visit image: ", ex);
 					}
 
 					visitPhotos.add(visitPhoto);

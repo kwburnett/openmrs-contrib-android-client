@@ -1,8 +1,8 @@
 package org.openmrs.mobile.activities;
 
-import android.util.Log;
 import android.view.View;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.dagger.DaggerDataAccessComponent;
 import org.openmrs.mobile.dagger.DataAccessComponent;
@@ -38,6 +38,7 @@ public class BaseDiagnosisPresenter {
 	private DataAccessComponent dataAccess;
 	private Timer diagnosisTimer;
 	private boolean cancelRunningRequest;
+	protected Logger logger;
 
 	public BaseDiagnosisPresenter() {
 		dataAccess = DaggerDataAccessComponent.create();
@@ -45,6 +46,8 @@ public class BaseDiagnosisPresenter {
 		this.conceptDataService = dataAccess.concept();
 		this.obsDataService = dataAccess.obs();
 		this.visitNoteDataService = dataAccess.visitNote();
+
+		logger = OpenMRS.getInstance().getLogger();
 	}
 
 	public void findConcept(String searchQuery, IBaseDiagnosisFragment base) {
@@ -68,7 +71,7 @@ public class BaseDiagnosisPresenter {
 					@Override
 					public void onError(Throwable t) {
 						base.getLoadingProgressBar().setVisibility(View.GONE);
-						Log.e(TAG, "Error finding concept: " + t.getLocalizedMessage(), t);
+						logger.e(TAG, "Error finding concept: " + t.getLocalizedMessage(), t);
 					}
 				});
 	}
@@ -125,7 +128,7 @@ public class BaseDiagnosisPresenter {
 
 			@Override
 			public void onError(Throwable t) {
-				Log.e(TAG, "Error saving visit note: " + t.getLocalizedMessage(), t);
+				logger.e(TAG, "Error saving visit note: " + t.getLocalizedMessage(), t);
 				base.getBaseDiagnosisView().showTabSpinner(false);
 				cancelRunningRequest(false);
 				base.setLoading(false);
@@ -135,7 +138,7 @@ public class BaseDiagnosisPresenter {
 
 	private void getObservation(Observation obs, Encounter encounter, IBaseDiagnosisFragment base) {
 		if (obs.getUuid() == null) {
-			OpenMRS.getInstance().getLogger().e("Observation UUID empty on Base Diagnosis; Observation: " +
+			logger.e("Observation UUID empty on Base Diagnosis; Observation: " +
 					StringUtils.toJson(obs));
 			return;
 		}
@@ -157,7 +160,7 @@ public class BaseDiagnosisPresenter {
 
 					@Override
 					public void onError(Throwable t) {
-						Log.e(TAG, "Error getting Observation: " + t.getLocalizedMessage(), t);
+						logger.e(TAG, "Error getting Observation: " + t.getLocalizedMessage(), t);
 						base.getBaseDiagnosisView().showTabSpinner(false);
 					}
 				});
