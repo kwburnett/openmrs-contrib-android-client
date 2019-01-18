@@ -37,6 +37,9 @@ public class ImageGalleryPresenter extends BasePresenter implements ImageGallery
 		numberOfPhotosToFetch = visitPhotoUuids.size();
 		visitPhotos.clear();
 		for (String visitPhotoUuid : visitPhotoUuids) {
+			if (visitPhotoUuid == null) {
+				continue;
+			}
 			visitPhotoDataService.getByUuid(visitPhotoUuid, null, new DataService.GetCallback<VisitPhoto>() {
 
 				@Override
