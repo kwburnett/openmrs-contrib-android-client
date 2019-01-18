@@ -23,15 +23,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.openmrs.mobile.R;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class ToastUtil {
 
-	private static OpenMRSLogger logger = OpenMRS.getInstance().getOpenMRSLogger();
+	private static Logger logger = OpenMRS.getInstance().getLogger();
 	private static List<ToastThread> toastQueue = new ArrayList<ToastThread>();
 
 	private ToastUtil() {

@@ -218,7 +218,7 @@ public class VisitTasksFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			} catch (Exception e) {
 				// There was probably an instance with the context being null in the for loop, so log it and don't crash the
 				// app
-				OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+				OpenMRS.getInstance().getLogger().e(e.getMessage(), e);
 			}
 		}
 	}

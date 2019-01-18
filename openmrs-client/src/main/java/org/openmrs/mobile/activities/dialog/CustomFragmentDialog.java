@@ -59,7 +59,6 @@ import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitPredefinedTask;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.FontsUtil;
-import org.openmrs.mobile.utilities.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -156,7 +155,7 @@ public class CustomFragmentDialog extends DialogFragment {
 			public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
 				if (keyCode == KeyEvent.KEYCODE_BACK && getActivity().getClass().equals(LoginActivity.class)) {
 					if (OpenMRS.getInstance().getServerUrl().equals(ApplicationConstants.EMPTY_STRING)) {
-						OpenMRS.getInstance().getOpenMRSLogger().d("Exit application");
+						OpenMRS.getInstance().getLogger().d("Exit application");
 						getActivity().onBackPressed();
 						dismiss();
 					} else {

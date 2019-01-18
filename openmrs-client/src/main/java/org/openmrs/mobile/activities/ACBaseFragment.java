@@ -19,6 +19,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import org.openmrs.mobile.R;
+import org.openmrs.mobile.application.Logger;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.ToastUtil;
 
@@ -26,6 +28,7 @@ public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fr
 
 	protected T presenter;
 	protected FragmentActivity context;
+	protected Logger logger = OpenMRS.getInstance().getLogger();
 
 	@Override
 	public void onAttach(Context context) {

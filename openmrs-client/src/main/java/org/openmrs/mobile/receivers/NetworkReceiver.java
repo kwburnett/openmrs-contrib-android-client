@@ -30,6 +30,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 		}
 
 		boolean connected = networkInfo.isConnected();
-		openMRS.getOpenMRSLogger().d("CONNECTED " + connected);
+		openMRS.getLogger().d("CONNECTED " + connected);
 	}
 }

@@ -68,5 +68,7 @@ public class AuthorizationManager {
 
 	public void trackUserInteraction() {
 		lastUserInteraction = DateTime.now();
+		String userName = openMRS.getUsername();
+		openMRS.getLogger().setUser(userName);
 	}
 }

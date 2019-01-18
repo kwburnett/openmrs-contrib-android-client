@@ -40,13 +40,15 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.activities.findpatientrecord.FindPatientRecordActivity;
 import org.openmrs.mobile.activities.login.LoginActivity;
 import org.openmrs.mobile.activities.patientlist.PatientListActivity;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.utilities.ApplicationConstants;
@@ -56,7 +58,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ACBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
 	protected final OpenMRS openMRS = OpenMRS.getInstance();
-	protected final OpenMRSLogger openMRSLogger = openMRS.getOpenMRSLogger();
+	protected final Logger logger = openMRS.getLogger();
 	protected FragmentManager fragmentManager;
 	protected CustomFragmentDialog customFragmentDialog;
 	protected DrawerLayout drawer;
@@ -72,6 +74,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Fabric.with(this, new Crashlytics());
 		setContentView(R.layout.activity_acbase);
 		fragmentManager = getSupportFragmentManager();
 		frameLayout = (FrameLayout)findViewById(R.id.content_frame);

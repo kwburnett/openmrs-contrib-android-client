@@ -49,7 +49,6 @@ import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.application.OpenMRS;
-import org.openmrs.mobile.application.OpenMRSLogger;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
 import org.openmrs.mobile.listeners.watcher.PatientBirthdateValidatorWatcher;
 import org.openmrs.mobile.models.BaseOpenmrsObject;
@@ -76,8 +75,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.openmrs.mobile.utilities.ApplicationConstants.EMPTY_STRING;
-
 public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContract.Presenter>
 		implements AddEditPatientContract.View {
 
@@ -92,7 +89,6 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 	private Button submitConfirm;
 	private String patientName;
 	private File output = null;
-	private OpenMRSLogger logger = new OpenMRSLogger();
 	/*
 	*TextViews defination
 	 *  */
@@ -385,7 +381,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		} catch (Exception e) {
 			// There was probably an instance with the context being null in the for loop, so log it and don't crash the
 			// app
-			OpenMRS.getInstance().getOpenMRSLogger().e(e.getMessage(), e);
+			OpenMRS.getInstance().getLogger().e(e);
 		}
 	}
 
