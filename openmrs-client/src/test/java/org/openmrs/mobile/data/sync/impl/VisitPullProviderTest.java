@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.openmrs.mobile.BuildConfig;
+import org.openmrs.mobile.application.CrashlyticsLogger;
 import org.openmrs.mobile.data.CoreTestData;
 import org.openmrs.mobile.data.DBFlowRule;
 import org.openmrs.mobile.data.DatabaseHelper;
@@ -71,6 +72,8 @@ public class VisitPullProviderTest {
 	@Mock VisitPhotoDbService visitPhotoDbService;
 	@Mock VisitPhotoRestServiceImpl visitPhotoRestService;
 	@Mock PatientDbService patientDbService;
+	@Mock
+	CrashlyticsLogger logger;
 
 	Repository repository = new RepositoryImpl();
 
@@ -84,7 +87,7 @@ public class VisitPullProviderTest {
 
 		provider = new VisitPullProvider(visitDbService, visitRestService, encounterDbService, encounterRestService,
 				obsDbService, obsRestService, visitPhotoDbService, visitPhotoRestService, visitTaskDbService,
-				visitTaskRestService, databaseHelper, patientDbService);
+				visitTaskRestService, databaseHelper, patientDbService, logger);
 	}
 
 	@After
