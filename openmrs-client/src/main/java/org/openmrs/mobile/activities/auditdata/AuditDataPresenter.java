@@ -77,7 +77,7 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 	@Override
 	public void fetchVisit(String visitUuid) {
 		if (visitUuid == null) {
-			OpenMRS.getInstance().getLogger().e("Visit UUID empty on Audit Data");
+			logger.e("Visit UUID empty on Audit Data");
 			return;
 		}
 		auditDataView.showPageSpinner(true);
@@ -109,7 +109,7 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 
 	private void fetchEncounter(String uuid) {
 		if (uuid == null) {
-			OpenMRS.getInstance().getLogger().e("Encounter UUID empty on Audit Data");
+			logger.e("Encounter UUID empty on Audit Data");
 			return;
 		}
 		auditDataView.showPageSpinner(true);

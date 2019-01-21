@@ -299,7 +299,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 				updatedVisit.setStopDatetime(visit.getStopDatetime());
 			}
 		} catch (Exception e) {
-			OpenMRS.getInstance().getLogger().e(e.getMessage(), e);
+			logger.e(e.getMessage(), e);
 			addEditVisitView.showToast(SAVE_VISIT_END_DATE_ERROR, ToastUtil.ToastType.ERROR);
 		}
 

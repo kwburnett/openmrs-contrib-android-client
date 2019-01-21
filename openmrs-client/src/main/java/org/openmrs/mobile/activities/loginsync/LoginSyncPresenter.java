@@ -231,7 +231,7 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 				networkConnectionIsFast = false;
 			}
 		} catch (Exception e) {
-			openMRS.getLogger().e(e);
+			logger.e(e);
 		}
 	}
 

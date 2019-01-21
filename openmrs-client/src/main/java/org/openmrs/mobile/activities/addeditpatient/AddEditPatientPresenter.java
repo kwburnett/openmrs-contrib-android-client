@@ -185,7 +185,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 	@Override
 	public void getPatientToUpdate(String patientToUpdateUuid) {
 		if (patientToUpdateUuid == null) {
-			OpenMRS.getInstance().getLogger().e("Patient to update UUID empty on Add/Edit Patient");
+			logger.e("Patient to update UUID empty on Add/Edit Patient");
 			return;
 		}
 		patientRegistrationView.showPageSpinner(true);
@@ -303,7 +303,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 	@Override
 	public void getConceptAnswer(String uuid, Spinner dropdown) {
 		if (uuid == null) {
-			OpenMRS.getInstance().getLogger().e("Concept Answer UUID empty on Add/Edit Patient");
+			logger.e("Concept Answer UUID empty on Add/Edit Patient");
 			return;
 		}
 		conceptDataService.getByUuid(uuid, QueryOptions.FULL_REP, new DataService.GetCallback<Concept>() {
