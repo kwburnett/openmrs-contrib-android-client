@@ -2,6 +2,7 @@ package org.openmrs.mobile.data.impl;
 
 import android.support.annotation.NonNull;
 
+import com.google.common.base.Supplier;
 import org.openmrs.mobile.data.BaseDataService;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.DatabaseHelper;
@@ -17,6 +18,7 @@ import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitNote;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDbService, VisitNoteRestServiceImpl>
 		implements DataService<VisitNote> {
@@ -34,21 +36,29 @@ public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDb
 	}
 
 	public void save(VisitNote visitNote, @NonNull GetCallback<VisitNote> callback) {
-		executeSingleCallback(callback,
-				QueryOptions.REMOTE,
-				() -> {
-					// clean up encounter diagnoses. helpful if a diagnosis has been removed while offline
-					databaseHelper.diffDelete(EncounterDiagnosis.class,
-							EncounterDiagnosis_Table.visitNote_uuid.eq(visitNote.getUuid()),
-							visitNote.getEncounterDiagnoses());
+		Supplier<VisitNote> dbQuery = new Supplier<VisitNote>() {
 
-					visitNote.processRelationships();
-					VisitNote result = dbService.save(visitNote);
+			@Override
+			public VisitNote get() {
+				// clean up encounter diagnoses. helpful if a diagnosis has been removed while offline
+				databaseHelper.diffDelete(EncounterDiagnosis.class,
+						EncounterDiagnosis_Table.visitNote_uuid.eq(visitNote.getUuid()),
+						visitNote.getEncounterDiagnoses());
+
+				visitNote.processRelationships();
+				VisitNote result = dbService.getByUuid(visitNote.getUuid(), null);
+				if (result == null || visitNote.getDateChanged().after(result.getDateChanged())) {
+					result = dbService.save(visitNote);
 					if (!networkUtils.isConnected()) {
 						syncLogService.save(result, SyncAction.UPDATED);
 					}
-					return result;
-				}, () -> restService.save(visitNote),
+				}
+				return result;
+			}
+		};
+		dbQuery.get();
+
+		executeSingleCallback(callback, QueryOptions.REMOTE, dbQuery, () -> restService.save(visitNote),
 				(e) -> {
 					if (e.getEncounter() != null) {
 						obsDbService.removeLocalObservationsNotFoundInREST(e.getEncounter());
@@ -56,6 +66,7 @@ public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDb
 
 					// save new obs
 					e.getEncounter().processRelationships();
+					if (e.getEncounter().getDateChanged().before(visitNote.getDateChanged()))
 					encounterDbService.save(e.getEncounter());
 					// visit note no longer required
 					dbService.deleteLocalRelatedObjects(visitNote);

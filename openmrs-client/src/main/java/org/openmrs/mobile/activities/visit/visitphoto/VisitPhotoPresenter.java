@@ -194,7 +194,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 		Provider provider = null;
 		String providerUuid = OpenMRS.getInstance().getCurrentUserUuid();
 		if (!StringUtils.isNullOrEmpty(providerUuid)) {
-			dataAccess().provider().getLocalByUuid(providerUuid, null);
+			provider = dataAccess().provider().getLocalByUuid(providerUuid, null);
 		}
 		if (provider == null) {
 			provider = new Provider();
@@ -203,7 +203,7 @@ public class VisitPhotoPresenter extends BaseVisitPresenter implements VisitCont
 
 		Patient patient = null;
 		if (!StringUtils.isNullOrEmpty(patientUuid)) {
-			dataAccess().patient().getLocalByUuid(patientUuid, null);
+			patient = dataAccess().patient().getLocalByUuid(patientUuid, null);
 		}
 		if (patient == null){
 			patient	= new Patient();
