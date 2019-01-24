@@ -17,12 +17,34 @@ package org.openmrs.mobile.utilities;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.OneToMany;
 
 public final class StringUtils {
 	private static final String NULL_AS_STRING = "null";
 	private static final String SPACE_CHAR = " ";
+	private static final Gson gson = new GsonBuilder()
+			.setExclusionStrategies(new ExclusionStrategy() {
+
+				@Override
+				public boolean shouldSkipField(FieldAttributes f) {
+					ForeignKey foreignKeyAnnotation = f.getAnnotation(ForeignKey.class);
+					OneToMany oneToManyAnnotation = f.getAnnotation(OneToMany.class);
+					return foreignKeyAnnotation != null || oneToManyAnnotation != null;
+				}
+
+				@Override
+				public boolean shouldSkipClass(Class<?> clazz) {
+					return false;
+				}
+			})
+			.serializeNulls()
+			.create();
 
 	public static boolean notNull(String string) {
 		return null != string && !NULL_AS_STRING.equals(string.trim());
@@ -153,6 +175,6 @@ public final class StringUtils {
 		if (object == null) {
 			return "";
 		}
-		return (new Gson()).toJson(object, new TypeToken<T>() {}.getType());
+		return gson.toJson(object, new TypeToken<T>() {}.getType());
 	}
 }

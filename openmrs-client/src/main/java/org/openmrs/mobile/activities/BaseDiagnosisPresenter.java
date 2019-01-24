@@ -22,6 +22,7 @@ import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,6 +40,7 @@ public class BaseDiagnosisPresenter {
 	private Timer diagnosisTimer;
 	private boolean cancelRunningRequest;
 	protected Logger logger;
+	private Date timeOfMostRecentSave;
 
 	public BaseDiagnosisPresenter() {
 		dataAccess = DaggerDataAccessComponent.create();
@@ -110,19 +112,25 @@ public class BaseDiagnosisPresenter {
 	}
 
 	private void saveVisitNote(VisitNote visitNote, IBaseDiagnosisFragment base) {
+		timeOfMostRecentSave = new Date();
 		visitNoteDataService.save(visitNote, new DataService.GetCallback<VisitNote>() {
 			@Override
 			public void onCompleted(VisitNote entity) {
 				cancelRunningRequest(false);
 				base.setLoading(false);
-				base.setEncounter(entity.getEncounter());
+				// In case the user has continued editing the note after the request has returned, don't override their
+				// changes (they will be shown after the next changes are saved)
+				if (timeOfMostRecentSave == null || (entity.getEncounter() != null
+						&& timeOfMostRecentSave.after(entity.getEncounter().getDateChanged()))) {
+					base.setEncounter(entity.getEncounter());
 
-				if (entity.getObservation() != null) {
-					base.setObservation(entity.getObservation());
-				}
+					if (entity.getObservation() != null) {
+						base.setObservation(entity.getObservation());
+					}
 
-				if (entity.getW12() != null) {
-					base.createPatientSummaryMergeDialog(entity.getW12());
+					if (entity.getW12() != null) {
+						base.createPatientSummaryMergeDialog(entity.getW12());
+					}
 				}
 			}
 
