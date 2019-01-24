@@ -73,7 +73,7 @@ public class VisitPullProviderTest {
 	@Mock VisitPhotoRestServiceImpl visitPhotoRestService;
 	@Mock PatientDbService patientDbService;
 	@Mock
-	CrashlyticsLogger logger;
+	protected CrashlyticsLogger logger;
 
 	Repository repository = new RepositoryImpl();
 

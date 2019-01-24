@@ -105,7 +105,6 @@ public class RestServiceBuilder {
 				long requestStartTime = System.nanoTime();
 				Response response = chain.proceed(request);
 
-				long t2 = System.nanoTime();
 				if (app.getNetworkUtils() != null && response.body() != null) {
 					app.getNetworkUtils().calculateConnectivitySpeed(requestStartTime, System.nanoTime(),
 							response.body().contentLength());

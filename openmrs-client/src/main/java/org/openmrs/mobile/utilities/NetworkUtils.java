@@ -135,13 +135,16 @@ public class NetworkUtils {
 		if (networkConnectivityCheckTimer == null) {
 			networkConnectivityCheckTimer = new Timer();
 		}
+		measureConnectivityTimerTask.run();
 		networkConnectivityCheckTimer.schedule(measureConnectivityTimerTask, DATA_SPEED_POLLING_FREQUENCY,
 				DATA_SPEED_POLLING_FREQUENCY);
 	}
 
 	public void stopSamplingConnectivity() {
 		areMeasuringConnectivitySpeed = false;
-		measureConnectivityTimerTask.cancel();
+		if (measureConnectivityTimerTask != null) {
+			measureConnectivityTimerTask.cancel();
+		}
 	}
 
 	public void calculateConnectivitySpeed(long requestStartTime, long requestEndTime, long contentLength) {
@@ -151,10 +154,11 @@ public class NetworkUtils {
 
 		// calculate how long the request took
 		double timeTakenInNanos = Math.floor(requestEndTime - requestStartTime);  // time taken in nanoseconds
-		double timeTakenInSecs = timeTakenInNanos / 1000000000;  // divide by 1000000000 to get time in seconds
-		// get the download speed by dividing the file size by time taken to download
-		final int kilobytePerSec = (int) Math.round(1024 / timeTakenInSecs);
-		calculateNewAverageNetworkSpeed(kilobytePerSec);
+		double timeTakenInSecs = timeTakenInNanos / 1000000000D;  // divide by 1000000000 to get time in seconds
+		// get the download speed by dividing the file size by time taken to download (Bps)
+		// then divide by 1024 to get to KBps, then multiply by 8 (number of bits in a byte) to get Kbps
+		final int speed = (int) Math.round(contentLength / timeTakenInSecs / 1024D * 8D);
+		calculateNewAverageNetworkSpeed(speed);
 
 		if (averageNetworkSpeed <= SPEED_KBPS_POOR_BANDWIDTH){
 			currentConnectionSpeed = ConnectionQuality.POOR;
@@ -169,7 +173,7 @@ public class NetworkUtils {
 		// Uncomment for some statistics
 //		logger.d("Time taken in secs: " + timeTakenInSecs);
 		logger.i("Average connection speed: " + averageNetworkSpeed);
-//		logger.d("Download Speed: " + kilobytePerSec);
+//		logger.d("Download Speed: " + speed);
 //		logger.d("File size: " + contentLength);
 	}
 
@@ -187,7 +191,8 @@ public class NetworkUtils {
 			new Thread(() -> {
 				// Fetch an image from online
 				Request imageRequest = new Request.Builder()
-						.url("https://img.memecdn.com/Problem_o_102503.gif")
+//						.url("https://drive.google.com/uc?id=18T9gRM4VXqojAfBs_MEKYexpvtqyXLf0&export=download") // 100K
+						.url("https://drive.google.com/uc?id=1PIMBHloabfXH988qTv5qSt3WxrKkcVTn&export=download") // 10K
 						.build();
 				long requestStartTime = System.nanoTime();
 				client.newCall(imageRequest).enqueue(new Callback() {
@@ -206,6 +211,7 @@ public class NetworkUtils {
 						}
 
 						calculateConnectivitySpeed(requestStartTime, System.nanoTime(), response.body().contentLength());
+						response.body().close();
 					}
 				});
 			}).start();
