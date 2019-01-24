@@ -200,7 +200,9 @@ public class NetworkUtils {
 					@Override
 					public void onResponse(Call call, Response response) throws IOException {
 						if (!response.isSuccessful()) {
-							throw new IOException("Unexpected code " + response);
+							throw new IOException(
+									"The request to fetch an image to determine network speed returned an unexpected code: "
+											+ response);
 						}
 
 						calculateConnectivitySpeed(requestStartTime, System.nanoTime(), response.body().contentLength());
