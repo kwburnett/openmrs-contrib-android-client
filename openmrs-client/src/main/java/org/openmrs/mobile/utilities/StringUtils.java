@@ -33,6 +33,8 @@ public final class StringUtils {
 
 				@Override
 				public boolean shouldSkipField(FieldAttributes f) {
+					// To avoid infinite loops when converting to GSON, skip foreign keys and properties that point
+					// to other entities by checking these annotations as defined in the Java entity classes
 					ForeignKey foreignKeyAnnotation = f.getAnnotation(ForeignKey.class);
 					OneToMany oneToManyAnnotation = f.getAnnotation(OneToMany.class);
 					return foreignKeyAnnotation != null || oneToManyAnnotation != null;

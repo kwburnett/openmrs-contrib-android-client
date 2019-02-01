@@ -372,7 +372,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				} else {
 					// Something failed. If the issue was a connectivity issue then try to get the entity from the db (if
 					// the Request Strategy is not LOCAL_THEN_REMOTE)
-					if ((response.code() >= 502 && response.code() <= 504 || response.code() == 500)
+					if (((response.code() >= 502 && response.code() <= 504) || response.code() == 500)
 							&& QueryOptions.getRequestStrategy(options) != RequestStrategy.LOCAL_THEN_REMOTE) {
 						new Thread(() -> {
 							try {
