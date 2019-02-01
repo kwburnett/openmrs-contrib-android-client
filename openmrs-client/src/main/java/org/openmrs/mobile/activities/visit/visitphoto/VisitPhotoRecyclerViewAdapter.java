@@ -60,7 +60,7 @@ public class VisitPhotoRecyclerViewAdapter
 	@Override
 	public void onBindViewHolder(DownloadVisitPhotoViewHolder holder, int position) {
 		VisitPhoto visitPhoto = visitPhotos.get(position);
-		if (visitPhoto == null) {
+		if (visitPhoto == null || visitPhoto.getImageColumn() == null) {
 			return;
 		}
 

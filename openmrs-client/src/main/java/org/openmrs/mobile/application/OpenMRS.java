@@ -101,8 +101,6 @@ public class OpenMRS extends Application {
 			}
 		}
 
-		logger = new CrashlyticsLogger();
-
 		syncManager.initializeDataSync();
 		networkManager.initializeNetworkReceiver();
 	}
@@ -118,6 +116,7 @@ public class OpenMRS extends Application {
 		databaseHelper = applicationComponent.databaseHelper();
 		networkManager = applicationComponent.networkManager();
 		eventBus = applicationComponent.eventBus();
+		logger = applicationComponent.logger();
 	}
 
 	protected void initializeDB() {

@@ -14,7 +14,6 @@
 
 package org.openmrs.mobile.activities.addeditpatient;
 
-import android.util.Log;
 import android.widget.Spinner;
 
 import org.openmrs.mobile.activities.BasePresenter;
@@ -186,7 +185,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 	@Override
 	public void getPatientToUpdate(String patientToUpdateUuid) {
 		if (patientToUpdateUuid == null) {
-			OpenMRS.getInstance().getLogger().e("Patient to update UUID empty on Add/Edit Patient");
+			logger.e("Patient to update UUID empty on Add/Edit Patient");
 			return;
 		}
 		patientRegistrationView.showPageSpinner(true);
@@ -207,7 +206,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 			@Override
 			public void onError(Throwable t) {
 				patientRegistrationView.showPageSpinner(false);
-				Log.e("User Error", "Error", t.fillInStackTrace());
+				logger.e("User Error", "Error", t.fillInStackTrace());
 				patientRegistrationView.showToast(ApplicationConstants.entityName.PATIENTS + ApplicationConstants
 						.toastMessages.fetchErrorMessage, ToastUtil.ToastType.ERROR);
 			}
@@ -290,7 +289,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 			@Override
 			public void onError(Throwable t) {
 				patientRegistrationView.showPageSpinner(false);
-				Log.e("User Error", "Error", t.fillInStackTrace());
+				logger.e("User Error", "Error", t);
 				patientRegistrationView.showToast(ApplicationConstants.entityName.PATIENTS + ApplicationConstants
 						.toastMessages.fetchErrorMessage, ToastUtil.ToastType.ERROR);
 			}
@@ -304,7 +303,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 	@Override
 	public void getConceptAnswer(String uuid, Spinner dropdown) {
 		if (uuid == null) {
-			OpenMRS.getInstance().getLogger().e("Concept Answer UUID empty on Add/Edit Patient");
+			logger.e("Concept Answer UUID empty on Add/Edit Patient");
 			return;
 		}
 		conceptDataService.getByUuid(uuid, QueryOptions.FULL_REP, new DataService.GetCallback<Concept>() {
@@ -347,7 +346,7 @@ public class AddEditPatientPresenter extends BasePresenter implements AddEditPat
 
 					@Override
 					public void onError(Throwable t) {
-						Log.e("Identifier Type Error", "Error", t.fillInStackTrace());
+						logger.e("Identifier Type Error", "Error", t);
 						patientRegistrationView
 								.showToast(ApplicationConstants.entityName.IDENTIFIER_TPYES
 										+ ApplicationConstants.toastMessages

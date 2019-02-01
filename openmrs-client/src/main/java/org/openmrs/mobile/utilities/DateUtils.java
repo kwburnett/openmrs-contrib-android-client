@@ -15,7 +15,6 @@
 package org.openmrs.mobile.utilities;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -169,7 +168,7 @@ public final class DateUtils {
 			birthDate = new DateTime(SIMPLE_DATE_FORMAT.parse(dateOfBirth));
 			currentTime = new DateTime();
 			if (birthDate.isAfter(currentTime)) {
-				Log.w(TAG, "Can't be born in the future");
+				OpenMRS.getInstance().getLogger().w(TAG, "Can't be born in the future");
 				return ApplicationConstants.EMPTY_STRING;
 			}
 
@@ -177,7 +176,7 @@ public final class DateUtils {
 			ageInMonths = Months.monthsBetween(birthDate.toLocalDate(),currentTime.toLocalDate()).getMonths();
 			ageInDays = Days.daysBetween(birthDate.toLocalDate(),currentTime.toLocalDate()).getDays();
 		} catch (ParseException e) {
-			Log.e(TAG, "Error parsing date: " + dateOfBirth, e);
+			OpenMRS.getInstance().getLogger().e(TAG, "Error parsing date: " + dateOfBirth, e);
 			return ApplicationConstants.EMPTY_STRING;
 		}
 

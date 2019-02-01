@@ -2,7 +2,6 @@ package org.openmrs.mobile.data.rest;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import org.openmrs.mobile.data.PagingInfo;
 import org.openmrs.mobile.data.QueryOptions;
@@ -33,7 +32,7 @@ public abstract class BaseEntityRestService<E extends BaseOpenmrsEntity, RS> ext
 		checkNotNull(patientUuid);
 
 		if (getByPatientMethod == null) {
-			Log.w("Rest Service", "Attempt to call 'getByPatient' REST method but REST service method could not be found for "
+			logger.w("Rest Service", "Attempt to call 'getByPatient' REST method but REST service method could not be found for "
 					+ "entity '" + entityClass.getName() + "'");
 
 			return null;
@@ -50,7 +49,7 @@ public abstract class BaseEntityRestService<E extends BaseOpenmrsEntity, RS> ext
 				call = (Call<Results<E>>)result;
 			}
 		} catch (Exception nex) {
-			Log.e("Rest Service", "Exception executing REST getByPatient method", nex);
+			logger.e("Rest Service", "Exception executing REST getByPatient method", nex);
 
 			call = null;
 		}

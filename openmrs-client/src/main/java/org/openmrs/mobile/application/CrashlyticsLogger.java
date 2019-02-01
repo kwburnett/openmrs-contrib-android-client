@@ -22,58 +22,108 @@ public class CrashlyticsLogger implements Logger {
 	private static final String TAG = "Banda Health";
 
 	@Override
-	public void v(final String msg) {
-		Crashlytics.log(Log.VERBOSE, TAG, msg);
+	public void v(String msg) {
+		v(TAG, msg);
 	}
 
 	@Override
-	public void v(final String msg, Throwable throwable) {
+	public void v(String tag, String msg) {
+		Crashlytics.log(Log.VERBOSE, tag, msg);
+	}
+
+	@Override
+	public void v(String msg, Throwable throwable) {
+		v(TAG, msg, throwable);
+	}
+
+	@Override
+	public void v(String tag, String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.VERBOSE, TAG, msg);
+		Crashlytics.log(Log.VERBOSE, tag, msg);
 	}
 
 	@Override
-	public void d(final String msg) {
-		Crashlytics.log(Log.DEBUG, TAG, msg);
+	public void d(String msg) {
+		d(TAG, msg);
 	}
 
 	@Override
-	public void d(final String msg, Throwable throwable) {
+	public void d(String tag, String msg) {
+		Crashlytics.log(Log.DEBUG, tag, msg);
+	}
+
+	@Override
+	public void d(String msg, Throwable throwable) {
+		d(TAG, msg, throwable);
+	}
+
+	@Override
+	public void d(String tag, String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.DEBUG, TAG, msg);
+		Crashlytics.log(Log.DEBUG, tag, msg);
 	}
 
 	@Override
-	public void i(final String msg) {
-		Crashlytics.log(Log.INFO, TAG, msg);
+	public void i(String msg) {
+		i(TAG, msg);
 	}
 
 	@Override
-	public void i(final String msg, Throwable throwable) {
+	public void i(String tag, String msg) {
+		Crashlytics.log(Log.INFO, tag, msg);
+	}
+
+	@Override
+	public void i(String msg, Throwable throwable) {
+		i(TAG, msg, throwable);
+	}
+
+	@Override
+	public void i(String tag, String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.INFO, TAG, msg);
+		Crashlytics.log(Log.INFO, tag, msg);
 	}
 
 	@Override
-	public void w(final String msg) {
-		Crashlytics.log(Log.WARN, TAG, msg);
+	public void w(String msg) {
+		w(TAG, msg);
 	}
 
 	@Override
-	public void w(final String msg, Throwable throwable) {
+	public void w(String tag, String msg) {
+		Crashlytics.log(Log.WARN, tag, msg);
+	}
+
+	@Override
+	public void w(String msg, Throwable throwable) {
+		w(TAG, msg, throwable);
+	}
+
+	@Override
+	public void w(String tag, String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.WARN, TAG, msg);
+		Crashlytics.log(Log.WARN, tag, msg);
 	}
 
 	@Override
-	public void e(final String msg) {
-		Crashlytics.log(Log.ERROR, TAG, msg);
+	public void e(String msg) {
+		e(TAG, msg);
 	}
 
 	@Override
-	public void e(final String msg, Throwable throwable) {
+	public void e(String tag, String msg) {
+		Crashlytics.log(Log.ERROR, tag, msg);
+	}
+
+	@Override
+	public void e(String msg, Throwable throwable) {
+		e(TAG, msg, throwable);
+	}
+
+	@Override
+	public void e(String tag, String msg, Throwable throwable) {
 		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.ERROR, TAG, msg);
+		Crashlytics.log(Log.ERROR, tag, msg);
 	}
 
 	@Override

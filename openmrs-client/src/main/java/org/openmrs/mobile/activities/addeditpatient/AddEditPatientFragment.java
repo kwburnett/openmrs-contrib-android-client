@@ -22,7 +22,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -420,7 +419,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 					setDefaultDropdownSelection(conceptNameArrayAdapter, conceptUuid, conceptNamesDropdown);
 				}
 			} catch (Exception e) {
-				Log.e("Error", e.getLocalizedMessage());
+				logger.e(e);
 			}
 		}
 

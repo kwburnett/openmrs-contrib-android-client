@@ -23,6 +23,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class BaseDbService<E extends BaseOpenmrsObject> implements DbService<E> {
 	private Class<E> entityClass;
 
+	public static final String NULL_UUID = "null";
+
 	protected Repository repository;
 	protected ModelAdapter<E> entityTable;
 
@@ -177,6 +179,20 @@ public abstract class BaseDbService<E extends BaseOpenmrsObject> implements DbSe
 		repository.deleteAll(entityTable);
 
 		postDeleteAll();
+	}
+
+	@Override
+	public void deleteWhereUuidEmpty() {
+		if (entityTable == null) {
+			return;
+		}
+
+		preDelete(NULL_UUID);
+
+		repository.deleteAll(entityTable, entityTable.getProperty("uuid").eq(""));
+		repository.deleteAll(entityTable, entityTable.getProperty("uuid").isNull());
+
+		postDelete(NULL_UUID);
 	}
 
 	protected List<E> executeQuery(@Nullable QueryOptions options, @Nullable PagingInfo pagingInfo,

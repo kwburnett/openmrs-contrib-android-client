@@ -1,8 +1,8 @@
 package org.openmrs.mobile.activities;
 
-import android.util.Log;
 import android.view.View;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.dagger.DaggerDataAccessComponent;
 import org.openmrs.mobile.dagger.DataAccessComponent;
@@ -22,6 +22,7 @@ import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,6 +39,8 @@ public class BaseDiagnosisPresenter {
 	private DataAccessComponent dataAccess;
 	private Timer diagnosisTimer;
 	private boolean cancelRunningRequest;
+	protected Logger logger;
+	private Date timeOfMostRecentSave;
 
 	public BaseDiagnosisPresenter() {
 		dataAccess = DaggerDataAccessComponent.create();
@@ -45,6 +48,8 @@ public class BaseDiagnosisPresenter {
 		this.conceptDataService = dataAccess.concept();
 		this.obsDataService = dataAccess.obs();
 		this.visitNoteDataService = dataAccess.visitNote();
+
+		logger = OpenMRS.getInstance().getLogger();
 	}
 
 	public void findConcept(String searchQuery, IBaseDiagnosisFragment base) {
@@ -68,7 +73,7 @@ public class BaseDiagnosisPresenter {
 					@Override
 					public void onError(Throwable t) {
 						base.getLoadingProgressBar().setVisibility(View.GONE);
-						Log.e(TAG, "Error finding concept: " + t.getLocalizedMessage(), t);
+						logger.e(TAG, "Error finding concept: " + t.getLocalizedMessage(), t);
 					}
 				});
 	}
@@ -107,25 +112,31 @@ public class BaseDiagnosisPresenter {
 	}
 
 	private void saveVisitNote(VisitNote visitNote, IBaseDiagnosisFragment base) {
+		timeOfMostRecentSave = new Date();
 		visitNoteDataService.save(visitNote, new DataService.GetCallback<VisitNote>() {
 			@Override
 			public void onCompleted(VisitNote entity) {
 				cancelRunningRequest(false);
 				base.setLoading(false);
-				base.setEncounter(entity.getEncounter());
+				// In case the user has continued editing the note after the request has returned, don't override their
+				// changes (they will be shown after the next changes are saved)
+				if (timeOfMostRecentSave == null || (entity.getEncounter() != null
+						&& timeOfMostRecentSave.after(entity.getEncounter().getDateChanged()))) {
+					base.setEncounter(entity.getEncounter());
 
-				if (entity.getObservation() != null) {
-					base.setObservation(entity.getObservation());
-				}
+					if (entity.getObservation() != null) {
+						base.setObservation(entity.getObservation());
+					}
 
-				if (entity.getW12() != null) {
-					base.createPatientSummaryMergeDialog(entity.getW12());
+					if (entity.getW12() != null) {
+						base.createPatientSummaryMergeDialog(entity.getW12());
+					}
 				}
 			}
 
 			@Override
 			public void onError(Throwable t) {
-				Log.e(TAG, "Error saving visit note: " + t.getLocalizedMessage(), t);
+				logger.e(TAG, "Error saving visit note: " + t.getLocalizedMessage(), t);
 				base.getBaseDiagnosisView().showTabSpinner(false);
 				cancelRunningRequest(false);
 				base.setLoading(false);
@@ -135,7 +146,7 @@ public class BaseDiagnosisPresenter {
 
 	private void getObservation(Observation obs, Encounter encounter, IBaseDiagnosisFragment base) {
 		if (obs.getUuid() == null) {
-			OpenMRS.getInstance().getLogger().e("Observation UUID empty on Base Diagnosis; Observation: " +
+			logger.e("Observation UUID empty on Base Diagnosis; Observation: " +
 					StringUtils.toJson(obs));
 			return;
 		}
@@ -157,7 +168,7 @@ public class BaseDiagnosisPresenter {
 
 					@Override
 					public void onError(Throwable t) {
-						Log.e(TAG, "Error getting Observation: " + t.getLocalizedMessage(), t);
+						logger.e(TAG, "Error getting Observation: " + t.getLocalizedMessage(), t);
 						base.getBaseDiagnosisView().showTabSpinner(false);
 					}
 				});

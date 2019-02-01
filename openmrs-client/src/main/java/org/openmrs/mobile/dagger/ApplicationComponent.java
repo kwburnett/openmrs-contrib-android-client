@@ -4,6 +4,7 @@ import javax.inject.Singleton;
 
 import dagger.Component;
 import org.greenrobot.eventbus.EventBus;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.data.DatabaseHelper;
 import org.openmrs.mobile.net.AuthorizationManager;
 import org.openmrs.mobile.net.NetworkManager;
@@ -24,4 +25,6 @@ public interface ApplicationComponent {
 	NetworkManager networkManager();
 
 	EventBus eventBus();
+
+	Logger logger();
 }

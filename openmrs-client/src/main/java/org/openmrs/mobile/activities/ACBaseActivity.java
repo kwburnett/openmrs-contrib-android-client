@@ -87,6 +87,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	@Override
 	protected void onResume() {
 		super.onResume();
+		openMRS.getNetworkUtils().startSamplingConnectivity();
 		supportInvalidateOptionsMenu();
 
 		boolean activityIsLoginActivity = this instanceof LoginActivity;
@@ -101,6 +102,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	@Override
 	protected void onPause() {
 		super.onPause();
+		openMRS.getNetworkUtils().stopSamplingConnectivity();
 	}
 
 	@Override
