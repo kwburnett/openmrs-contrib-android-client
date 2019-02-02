@@ -72,4 +72,9 @@ public interface DbService<E extends BaseOpenmrsObject> {
 	 * Deletes all records from the entity table.
 	 */
 	void deleteAll();
+
+	/**
+	 * Deletes all records from the entity table that don't have a UUID.
+	 */
+	void deleteWhereUuidEmpty();
 }

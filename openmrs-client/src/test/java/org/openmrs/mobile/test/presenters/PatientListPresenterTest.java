@@ -20,6 +20,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.openmrs.mobile.activities.patientlist.PatientListContract;
 import org.openmrs.mobile.activities.patientlist.PatientListPresenter;
+import org.openmrs.mobile.application.CrashlyticsLogger;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.PagingInfo;
 import org.openmrs.mobile.data.QueryOptions;
@@ -33,6 +35,8 @@ import org.openmrs.mobile.models.PatientListContext;
 import org.openmrs.mobile.models.Person;
 import org.openmrs.mobile.models.PullSubscription;
 import org.openmrs.mobile.test.ACUnitTestBase;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +47,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@PrepareForTest({OpenMRS.class})
 public class PatientListPresenterTest extends ACUnitTestBase {
 
 	@Mock
@@ -53,6 +58,10 @@ public class PatientListPresenterTest extends ACUnitTestBase {
 	private PatientListContract.View view;
 	@Mock
 	private PullSubscriptionDbService pullSubscriptionDbService;
+	@Mock
+	private OpenMRS openMRS;
+	@Mock
+	private CrashlyticsLogger logger;
 
 	private PatientListPresenter presenter;
 
@@ -63,6 +72,10 @@ public class PatientListPresenterTest extends ACUnitTestBase {
 
 	@Before
 	public void setUp() {
+		PowerMockito.mockStatic(OpenMRS.class);
+		PowerMockito.when(OpenMRS.getInstance()).thenReturn(openMRS);
+		PowerMockito.when(openMRS.getLogger()).thenReturn(logger);
+
 		presenter = new PatientListPresenter(view, patientListDataService, patientListContextDataService,
 				pullSubscriptionDbService);
 
