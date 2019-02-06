@@ -121,6 +121,7 @@ public class BaseDiagnosisPresenter {
 				// In case the user has continued editing the note after the request has returned, don't override their
 				// changes (they will be shown after the next changes are saved)
 				if (timeOfMostRecentSave == null || (entity.getEncounter() != null
+						&& entity.getEncounter().getDateChanged() != null
 						&& timeOfMostRecentSave.after(entity.getEncounter().getDateChanged()))) {
 					base.setEncounter(entity.getEncounter());
 

@@ -17,6 +17,7 @@ import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitNote;
 
 import javax.inject.Inject;
+import java.util.Date;
 
 public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDbService, VisitNoteRestServiceImpl>
 		implements DataService<VisitNote> {
@@ -56,6 +57,9 @@ public class VisitNoteDataService extends BaseDataService<VisitNote, VisitNoteDb
 
 					// save new obs
 					e.getEncounter().processRelationships();
+					if (e.getEncounter().getDateChanged() == null) {
+						e.getEncounter().setDateChanged(new Date());
+					}
 					encounterDbService.save(e.getEncounter());
 					// visit note no longer required
 					dbService.deleteLocalRelatedObjects(visitNote);
