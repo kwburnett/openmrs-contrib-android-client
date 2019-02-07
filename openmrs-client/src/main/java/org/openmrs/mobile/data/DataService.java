@@ -20,6 +20,13 @@ public interface DataService<E extends BaseOpenmrsObject> {
 	void getByUuid(@NonNull String uuid, @Nullable QueryOptions options, @NonNull GetCallback<E> callback);
 
 	/**
+	 * Gets a single entity with the specified UUID from the local store.
+	 * @param uuid      The entity UUID
+	 * @param options   The {@link QueryOptions} settings to use for this operation
+	 */
+	E getLocalByUuid(@NonNull String uuid, @Nullable QueryOptions options);
+
+	/**
 	 * Gets all entities.
 	 * @param options    The {@link QueryOptions} settings to use for this operation
 	 * @param pagingInfo The paging information or null to exclude paging

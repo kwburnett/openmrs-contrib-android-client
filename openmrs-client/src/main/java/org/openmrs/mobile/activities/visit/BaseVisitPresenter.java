@@ -27,15 +27,15 @@ import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.ToastUtil.ToastType;
 
-public abstract class BaseVisitPresenter extends BasePresenter implements VisitContract.VisitDashboardPagePresenter {
+public abstract class BaseVisitPresenter extends BasePresenter implements VisitContract.VisitDashboardPage.Presenter {
 
 	private VisitDataService visitDataService;
 	private EventBus eventBus;
 
-	protected VisitContract.VisitDashboardPageView visitDashboardPageView;
+	protected VisitContract.VisitDashboardPage.View visitDashboardPageView;
 	protected String visitUuid;
 
-	public BaseVisitPresenter(String visitUuid, VisitContract.VisitDashboardPageView visitDashboardPageView) {
+	public BaseVisitPresenter(String visitUuid, VisitContract.VisitDashboardPage.View visitDashboardPageView) {
 		this.visitUuid = visitUuid;
 		this.eventBus = OpenMRS.getInstance().getEventBus();
 
@@ -99,7 +99,7 @@ public abstract class BaseVisitPresenter extends BasePresenter implements VisitC
 
 	@Override
 	public void dataRefreshWasRequested() {
-		if (OpenMRS.getInstance().getNetworkUtils().isConnectedOrConnecting()) {
+		if (OpenMRS.getInstance().getNetworkUtils().isConnected()) {
 			refreshAllTabData();
 		} else {
 			visitDashboardPageView.showToast(ApplicationConstants.toastMessages.notConnected, ToastType.NOTICE );

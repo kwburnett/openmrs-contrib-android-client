@@ -13,11 +13,14 @@
  */
 package org.openmrs.mobile.activities.addeditvisit;
 
+import static org.openmrs.mobile.utilities.ApplicationConstants.toastMessages.SAVE_VISIT_END_DATE_ERROR;
+
 import android.support.annotation.NonNull;
 import android.widget.Spinner;
 
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;
+import org.openmrs.mobile.dagger.DataAccessComponent;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.impl.ConceptAnswerDataService;
@@ -37,6 +40,7 @@ import org.openmrs.mobile.models.VisitAttribute;
 import org.openmrs.mobile.models.VisitAttributeType;
 import org.openmrs.mobile.models.VisitType;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.DateUtils;
 import org.openmrs.mobile.utilities.StringUtils;
 import org.openmrs.mobile.utilities.ToastUtil;
 
@@ -63,13 +67,11 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 
 	public AddEditVisitPresenter(@NonNull AddEditVisitContract.View addEditVisitView, String patientUuid,
 			String visitUuid, boolean isEndVisit) {
-		this(addEditVisitView, patientUuid, visitUuid, isEndVisit, null, null, null, null, null, null);
+		this(addEditVisitView, patientUuid, visitUuid, isEndVisit, null);
 	}
 
 	public AddEditVisitPresenter(@NonNull AddEditVisitContract.View addEditVisitView, String patientUuid,
-			String visitUuid, boolean isEndVisit, VisitDataService visitDataService, PatientDataService patientDataService,
-			VisitTypeDataService visitTypeDataService, VisitAttributeTypeDataService visitAttributeTypeDataService,
-			ConceptAnswerDataService conceptAnswerDataService, LocationDataService locationDataService) {
+			String visitUuid, boolean isEndVisit, DataAccessComponent dataAccessComponent) {
 		super();
 
 		this.addEditVisitView = addEditVisitView;
@@ -80,41 +82,17 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 
 		this.visit = new Visit();
 
-		if (visitDataService == null) {
-			this.visitDataService = dataAccess().visit();
-		} else {
-			this.visitDataService = visitDataService;
+		DataAccessComponent dataAccess = dataAccessComponent;
+		if (dataAccess == null) {
+			dataAccess = this.dataAccess();
 		}
 
-		if (visitAttributeTypeDataService == null) {
-			this.visitAttributeTypeDataService = dataAccess().visitAttributeType();
-		} else {
-			this.visitAttributeTypeDataService = visitAttributeTypeDataService;
-		}
-
-		if (visitTypeDataService == null) {
-			this.visitTypeDataService = dataAccess().visitType();
-		} else {
-			this.visitTypeDataService = visitTypeDataService;
-		}
-
-		if (patientDataService == null) {
-			this.patientDataService = dataAccess().patient();
-		} else {
-			this.patientDataService = patientDataService;
-		}
-
-		if (conceptAnswerDataService == null) {
-			this.conceptAnswerDataService = dataAccess().conceptAnswer();
-		} else {
-			this.conceptAnswerDataService = conceptAnswerDataService;
-		}
-
-		if (locationDataService == null) {
-			this.locationDataService = dataAccess().location();
-		} else {
-			this.locationDataService = locationDataService;
-		}
+		this.visitDataService = dataAccess.visit();
+		this.visitAttributeTypeDataService = dataAccess.visitAttributeType();
+		this.visitTypeDataService = dataAccess.visitType();
+		this.patientDataService = dataAccess.patient();
+		this.conceptAnswerDataService = dataAccess.conceptAnswer();
+		this.locationDataService = dataAccess.location();
 	}
 
 	@Override
@@ -294,7 +272,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 			public void onCompleted(Visit entity) {
 				setProcessing(false);
 				addEditVisitView.setSpinnerVisibility(false);
-				addEditVisitView.showVisitDetails(entity.getUuid(), true);
+				addEditVisitView.startVisitComplete(entity.getUuid());
 			}
 
 			@Override
@@ -307,15 +285,22 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 	}
 
 	@Override
-	public void updateVisit(List<VisitAttribute> attributes) {
+	public void updateVisit(String visitEndDate, List<VisitAttribute> attributes) {
 		Visit updatedVisit = new Visit();
 		updatedVisit.setUuid(visit.getUuid());
 		updatedVisit.setAttributes(attributes);
 		updatedVisit.setVisitType(visit.getVisitType());
 		updatedVisit.setStartDatetime(visit.getStartDatetime());
 
-		if (visit.getStopDatetime() != null) {
-			updatedVisit.setStopDatetime(visit.getStopDatetime());
+		try {
+			if (!StringUtils.isNullOrEmpty(visitEndDate)) {
+				updatedVisit.setStopDatetime(DateUtils.SIMPLE_DATE_FORMAT.parse(visitEndDate));
+			} else if (visit.getStopDatetime() != null) {
+				updatedVisit.setStopDatetime(visit.getStopDatetime());
+			}
+		} catch (Exception e) {
+			logger.e(e.getMessage(), e);
+			addEditVisitView.showToast(SAVE_VISIT_END_DATE_ERROR, ToastUtil.ToastType.ERROR);
 		}
 
 		updateExistingAttributes(attributes);
@@ -325,13 +310,14 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 			@Override
 			public void onCompleted(Visit entity) {
 				setProcessing(false);
-				addEditVisitView.showVisitDetails(entity.getUuid(), false);
+				addEditVisitView.updateVisitComplete(entity.getUuid(), false);
 			}
 
 			@Override
 			public void onError(Throwable t) {
 				setProcessing(false);
-				addEditVisitView.showVisitDetails(null, false);
+				addEditVisitView.setSpinnerVisibility(false);
+				addEditVisitView.showToast(t.getMessage(), ToastUtil.ToastType.ERROR);
 			}
 		});
 	}
@@ -352,10 +338,11 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 		boolean auditDataFormCompleted = false;
 		if (visit.getEncounters() != null && !visit.getEncounters().isEmpty()) {
 			for (Encounter encounter : visit.getEncounters()) {
-				if (encounter.getDisplay().contains("Audit Data")) {
+				if (encounter.getDisplay() != null && encounter.getDisplay().contains("Audit Data")) {
 					if (encounter.getObs() != null && !encounter.getObs().isEmpty()) {
 						for (Observation obs : encounter.getObs()) {
-							if (obs.getDisplay().equalsIgnoreCase("Audit Data Complete: Yes")) {
+							if (obs.getDisplay() != null
+									&& obs.getDisplay().equalsIgnoreCase("Audit Data Complete: Yes")) {
 								auditDataFormCompleted = true;
 							}
 						}
@@ -365,7 +352,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 		}
 
 		if (!auditDataFormCompleted) {
-			addEditVisitView.loadAuditDataForm(visit.getUuid());
+			addEditVisitView.auditDataNotCompleted(visit.getUuid());
 			return;
 		}
 
@@ -376,7 +363,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 		visitDataService.endVisit(visit.getUuid(), visit, new DataService.GetCallback<Visit>() {
 			@Override
 			public void onCompleted(Visit entity) {
-				addEditVisitView.showPatientDashboard();
+				addEditVisitView.endVisitComplete();
 			}
 
 			@Override

@@ -14,7 +14,6 @@
 
 package org.openmrs.mobile.activities.findpatientrecord;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,7 +27,6 @@ import android.widget.TextView;
 
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.addeditpatient.AddEditPatientActivity;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.net.AuthorizationManager;
@@ -60,15 +58,15 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 		@Override
 		public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
 			super.onScrolled(recyclerView, dx, dy);
-			if (!mPresenter.isLoading()) {
+			if (!presenter.isLoading()) {
 				if (!recyclerView.canScrollVertically(1)) {
 					// load next page
-					mPresenter.loadResults(true);
+					presenter.loadResults(true);
 				}
 
 				if (!recyclerView.canScrollVertically(-1) && dy < 0) {
 					// load previous page
-					mPresenter.loadResults(false);
+					presenter.loadResults(false);
 				}
 			}
 		}
@@ -102,16 +100,16 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 		resolveViews(mRootView);
 		setNumberOfPatientsView(0);
 		//Adding the Recycler view
-		layoutManager = new LinearLayoutManager(this.mContext);
+		layoutManager = new LinearLayoutManager(context);
 		findPatientRecyclerView = (RecyclerView)mRootView.findViewById(R.id.findPatientModelRecyclerView);
 		findPatientRecyclerView.setLayoutManager(layoutManager);
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
+		FontsUtil.setFont(context.findViewById(android.R.id.content));
 		authorizationManager = openMRS.getAuthorizationManager();
 		if (authorizationManager.isUserLoggedIn()) {
 			if (!OpenMRS.getInstance().getSearchQuery().equalsIgnoreCase(ApplicationConstants.EMPTY_STRING)) {
-				mPresenter.findPatient(OpenMRS.getInstance().getSearchQuery());
+				presenter.findPatient(OpenMRS.getInstance().getSearchQuery());
 			}
 
 		}
@@ -120,10 +118,12 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 
 	@Override
 	public void setNumberOfPatientsView(int length) {
-		numberOfFetchedPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
-		foundPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
-		patientListLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
-		searchQuery.setText(getString(R.string.search_query_label, String.valueOf(OpenMRS.getInstance().getSearchQuery())));
+		if (context != null) {
+			numberOfFetchedPatients.setText(getString(R.string.number_of_patients, String.valueOf(length)));
+			foundPatientsLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+			patientListLayout.setVisibility(length <= 0 ? View.GONE : View.VISIBLE);
+			searchQuery.setText(getString(R.string.search_query_label, String.valueOf(OpenMRS.getInstance().getSearchQuery())));
+		}
 	}
 
 	@Override
@@ -133,18 +133,14 @@ public class FindPatientRecordFragment extends ACBaseFragment<FindPatientRecordC
 
 	@Override
 	public void fetchPatients(List<Patient> patients) {
-		FindPatientRecyclerViewAdapter adapter = new FindPatientRecyclerViewAdapter(this.mContext, patients, this);
-		findPatientRecyclerView.setAdapter(adapter);
+		if (context != null) {
+			FindPatientRecyclerViewAdapter adapter = new FindPatientRecyclerViewAdapter(context, patients, this);
+			findPatientRecyclerView.setAdapter(adapter);
+		}
 	}
 
 	@Override
 	public void setProgressBarVisibility(boolean visibility) {
 		findPatientProgressBar.setVisibility(visibility ? View.VISIBLE : View.GONE);
-	}
-
-	@Override
-	public void showRegistration() {
-		Intent intent = new Intent(openMRS.getApplicationContext(), AddEditPatientActivity.class);
-		openMRS.getApplicationContext().startActivity(intent);
 	}
 }

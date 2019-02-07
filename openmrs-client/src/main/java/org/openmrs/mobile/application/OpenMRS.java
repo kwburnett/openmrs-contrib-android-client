@@ -55,7 +55,7 @@ public class OpenMRS extends Application {
 
 	private static OpenMRS instance;
 	private static boolean ENCRYPTED = true;
-	private OpenMRSLogger logger;
+	private Logger logger;
 
 	public static OpenMRS getInstance() {
 		return instance;
@@ -101,8 +101,6 @@ public class OpenMRS extends Application {
 			}
 		}
 
-		logger = new OpenMRSLogger();
-
 		syncManager.initializeDataSync();
 		networkManager.initializeNetworkReceiver();
 	}
@@ -118,6 +116,7 @@ public class OpenMRS extends Application {
 		databaseHelper = applicationComponent.databaseHelper();
 		networkManager = applicationComponent.networkManager();
 		eventBus = applicationComponent.eventBus();
+		logger = applicationComponent.logger();
 	}
 
 	protected void initializeDB() {
@@ -373,7 +372,7 @@ public class OpenMRS extends Application {
 				result = DateFormat.getDateTimeInstance().parse(dateString);
 
 			} catch (ParseException e) {
-				logger.w("Could not parse last trim date '" + dateString + "'");
+				logger.w("Could not parse last trim date '" + dateString + "'", e);
 				result = null;
 			}
 		}
@@ -415,6 +414,10 @@ public class OpenMRS extends Application {
 		return getPreferences().getString(ApplicationConstants.UserKeys.USER_PERSON_NAME, ApplicationConstants.EMPTY_STRING);
 	}
 
+	public String getUserUuid() {
+		return getPreferences().getString(ApplicationConstants.UserKeys.USER_UUID, ApplicationConstants.EMPTY_STRING);
+	}
+
 	private void clearCurrentLoggedInUserInfo() {
 		SharedPreferences prefs = OpenMRS.getInstance().getPreferences();
 		SharedPreferences.Editor editor = prefs.edit();
@@ -423,7 +426,7 @@ public class OpenMRS extends Application {
 		syncManager.clearSyncHistory();
 	}
 
-	public OpenMRSLogger getOpenMRSLogger() {
+	public Logger getLogger() {
 		return logger;
 	}
 

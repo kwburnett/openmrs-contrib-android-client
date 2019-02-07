@@ -14,6 +14,7 @@
 
 package org.openmrs.mobile.activities;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.dagger.DaggerDataAccessComponent;
 import org.openmrs.mobile.dagger.DaggerSyncComponent;
@@ -26,10 +27,13 @@ public abstract class BasePresenter implements BasePresenterContract {
 	private DataAccessComponent dataAccess;
 	// TODO: refactor this to do better DI with Dagger 2 and a single component
 	private SyncComponent syncComponent;
+	protected Logger logger;
 
 	public BasePresenter() {
 		dataAccess = DaggerDataAccessComponent.create();
-		syncComponent = DaggerSyncComponent.builder().syncModule(new SyncModule(OpenMRS.getInstance())).build();
+		OpenMRS openMRS = OpenMRS.getInstance();
+		syncComponent = DaggerSyncComponent.builder().syncModule(new SyncModule(openMRS)).build();
+		logger = openMRS.getLogger();
 	}
 
 	@Override

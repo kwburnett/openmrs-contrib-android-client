@@ -1,10 +1,9 @@
 package org.openmrs.mobile.data.sync;
 
-import android.util.Log;
-
 import org.greenrobot.eventbus.EventBus;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataOperationException;
 import org.openmrs.mobile.data.EntityNotFoundException;
@@ -37,6 +36,7 @@ public class SyncService {
 	private static final Object SYNC_LOCK = new Object();
 
 	private OpenMRS openmrs;
+	private Logger logger;
 	private SyncLogDbService syncLogDbService;
 	private PullSubscriptionDbService subscriptionDbService;
 	private DaggerProviderHelper providerHelper;
@@ -50,7 +50,7 @@ public class SyncService {
 	@Inject
 	public SyncService(OpenMRS openmrs, SyncLogDbService syncLogDbService, PullSubscriptionDbService subscriptionDbService,
 			DaggerProviderHelper providerHelper, NetworkUtils networkUtils, EventBus eventBus,
-			PatientTrimProvider patientTrimProvider) {
+			PatientTrimProvider patientTrimProvider, Logger logger) {
 		this.openmrs = openmrs;
 		this.syncLogDbService = syncLogDbService;
 		this.subscriptionDbService = subscriptionDbService;
@@ -58,6 +58,7 @@ public class SyncService {
 		this.networkUtils = networkUtils;
 		this.eventBus = eventBus;
 		this.patientTrimProvider = patientTrimProvider;
+		this.logger = logger;
 	}
 
 	public void sync() {
@@ -117,14 +118,14 @@ public class SyncService {
 					if (StringUtils.notNull(openmrs.getPatientUuid()) &&
 							openmrs.getPatientUuid().equalsIgnoreCase(record.getKey()) &&
 							!Resource.isLocalUuid(record.getKey())) {
-						Log.i(TAG, "Skip. The Patient with uuid '" + record.getKey() + "' is currently being viewed");
+						logger.i(TAG, "Skip. The Patient with uuid '" + record.getKey() + "' is currently being viewed");
 						continue;
 					}
 
 					if (StringUtils.notNull(openmrs.getVisitUuid()) &&
 							openmrs.getVisitUuid().equalsIgnoreCase(record.getKey()) &&
 							!Resource.isLocalUuid(record.getKey())) {
-						Log.i(TAG, "Skip. The Visit with uuid '" + record.getKey() + "' is currently being viewed");
+						logger.i(TAG, "Skip. The Visit with uuid '" + record.getKey() + "' is currently being viewed");
 						continue;
 					}
 
@@ -134,23 +135,26 @@ public class SyncService {
 				} catch (EntityNotFoundException ex) {
 					syncLogDbService.delete(record);
 				} catch (DataOperationException doe) {
-					Log.w(TAG, "Data exception occurred while processing push provider '" +
+					logger.w(TAG, "Data exception occurred while processing push provider '" +
 							pushProvider.getClass().getSimpleName() + ":" +
 							(StringUtils.isBlank(record.getKey()) ? "(null)" :
 									record.getKey()) + "'", doe);
+					if (record.getKey() == null) {
+						syncLogDbService.delete(record);
+					}
 				} catch (Exception ex) {
-					Log.e(TAG, "An exception occurred while processing push provider '" +
+					logger.e(TAG, "An exception occurred while processing push provider '" +
 							pushProvider.getClass().getSimpleName() + ":" +
 							(StringUtils.isBlank(record.getKey()) ? "(null)" :
 									record.getKey()) + "'", ex);
 				} finally {
 					// Check to see if we're still online, if not, then stop the sync
-					if (!networkUtils.isConnectedOrConnecting()) {
+					if (!networkUtils.isConnected()) {
 						break;
 					}
 				}
 			} else {
-				Log.e(TAG, "Could not find provider for sync type '" + record.getType() + "'");
+				logger.e(TAG, "Could not find provider for sync type '" + record.getType() + "'");
 			}
 
 			eventBus.post(new SyncPushEvent(ApplicationConstants.EventMessages.Sync.Push.RECORD_REMOTE_PUSH_COMPLETE,
@@ -201,19 +205,19 @@ public class SyncService {
 						sub.setLastSync(lastSync);
 						subscriptionDbService.save(sub);
 					} catch (DataOperationException doe) {
-						Log.w(TAG, "Data exception occurred while processing subscription provider '" +
+						logger.w(TAG, "Data exception occurred while processing subscription provider '" +
 								sub.getSubscriptionClass() + ":" +
 								(StringUtils.isBlank(sub.getSubscriptionKey()) ? "(null)" :
 										sub.getSubscriptionKey()) + "'", doe);
 
 					} catch (Exception ex) {
-						Log.e(TAG, "An exception occurred while processing subscription provider '" +
+						logger.e(TAG, "An exception occurred while processing subscription provider '" +
 								sub.getSubscriptionClass() + ":" +
 								(StringUtils.isBlank(sub.getSubscriptionKey()) ? "(null)" :
 										sub.getSubscriptionKey()) + "'", ex);
 					} finally {
 						// Check to see if we're still online, if not, then stop the sync
-						if (!networkUtils.isConnectedOrConnecting()) {
+						if (!networkUtils.isConnected()) {
 							eventBus.post(new SyncEvent(ApplicationConstants.EventMessages.Sync.CANT_SYNC_NO_NETWORK,
 									null, null));
 							break;
@@ -246,7 +250,7 @@ public class SyncService {
 			try {
 				patientTrimProvider.trim();
 			} catch (Exception ex) {
-				Log.e(TAG, "An exception occurred while trimming the patient data.", ex);
+				logger.e(TAG, "An exception occurred while trimming the patient data.", ex);
 			} finally {
 				openmrs.setLastTrimDate(new Date());
 			}

@@ -1,8 +1,8 @@
 package org.openmrs.mobile.data.sync;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.dagger.DaggerSyncComponent;
 import org.openmrs.mobile.dagger.SyncComponent;
@@ -64,10 +64,12 @@ public class DaggerProviderHelper {
 	private static final String CONCEPT_SUBSCRIPTION = ConceptSubscriptionProvider.class.getSimpleName();
 
 	private SyncComponent syncComponent;
+	private Logger logger;
 
 	@Inject
 	public DaggerProviderHelper(OpenMRS openMRS) {
 		this.syncComponent = DaggerSyncComponent.builder().syncModule(new SyncModule(openMRS)).build();
+		logger = openMRS.getLogger();
 	}
 
 	public SubscriptionProvider getSubscriptionProvider(@NonNull String className) {
@@ -103,7 +105,7 @@ public class DaggerProviderHelper {
 		}
 
 		if (provider == null) {
-			Log.e(TAG, "Unknown subscription provider '" + className + "'");
+			logger.e(TAG, "Unknown subscription provider '" + className + "'");
 		}
 
 		return provider;

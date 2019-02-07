@@ -112,7 +112,8 @@
 					android:layout_height="wrap_content"
 					android:spinnerMode="dialog"
 					style="@style/Widget.AppCompat.Spinner.Underlined"
-					android:layout_marginTop="20dp" />
+					android:layout_marginTop="20dp"
+					android:visibility="gone"/>
 
 
 			<android.support.v7.widget.AppCompatButton

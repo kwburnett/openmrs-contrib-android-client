@@ -15,7 +15,6 @@
 package org.openmrs.mobile.utilities;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -89,8 +88,8 @@ public final class DateUtils {
 					formattedDate = parseString(dateAsString, new SimpleDateFormat(OPEN_MRS_REQUEST_PATIENT_FORMAT));
 					time = formattedDate.getTime();
 				} catch (ParseException e1) {
-					OpenMRS.getInstance().getOpenMRSLogger()
-							.w("Failed to parse date :" + dateAsString + " caused by " + e.toString());
+					OpenMRS.getInstance().getLogger()
+							.w("Failed to parse date :" + dateAsString + " caused by " + e.toString(), e);
 				}
 			}
 		}
@@ -101,8 +100,8 @@ public final class DateUtils {
 		try {
 			return parseString(dateAsString, new SimpleDateFormat(OPEN_MRS_REQUEST_FORMAT));
 		} catch(ParseException ex) {
-			OpenMRS.getInstance().getOpenMRSLogger()
-					.w("Failed to parse date :" + dateAsString + " caused by " + ex.toString());
+			OpenMRS.getInstance().getLogger()
+					.w("Failed to parse date :" + dateAsString + " caused by " + ex.toString(), ex);
 		}
 
 		return null;
@@ -113,8 +112,8 @@ public final class DateUtils {
 		try {
 			formattedDate = format.parse(dateAsString);
 		} catch (NullPointerException e) {
-			OpenMRS.getInstance().getOpenMRSLogger()
-					.w("Failed to parse date :" + dateAsString + " caused by " + e.toString());
+			OpenMRS.getInstance().getLogger()
+					.w("Failed to parse date :" + dateAsString + " caused by " + e.toString(), e);
 		}
 		return formattedDate;
 	}
@@ -169,7 +168,7 @@ public final class DateUtils {
 			birthDate = new DateTime(SIMPLE_DATE_FORMAT.parse(dateOfBirth));
 			currentTime = new DateTime();
 			if (birthDate.isAfter(currentTime)) {
-				Log.w(TAG, "Can't be born in the future");
+				OpenMRS.getInstance().getLogger().w(TAG, "Can't be born in the future");
 				return ApplicationConstants.EMPTY_STRING;
 			}
 
@@ -177,7 +176,7 @@ public final class DateUtils {
 			ageInMonths = Months.monthsBetween(birthDate.toLocalDate(),currentTime.toLocalDate()).getMonths();
 			ageInDays = Days.daysBetween(birthDate.toLocalDate(),currentTime.toLocalDate()).getDays();
 		} catch (ParseException e) {
-			Log.e(TAG, "Error parsing date: " + dateOfBirth, e);
+			OpenMRS.getInstance().getLogger().e(TAG, "Error parsing date: " + dateOfBirth, e);
 			return ApplicationConstants.EMPTY_STRING;
 		}
 

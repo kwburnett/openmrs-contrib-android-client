@@ -1,7 +1,6 @@
 package org.openmrs.mobile.data.impl;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import org.openmrs.mobile.data.BaseDataService;
 import org.openmrs.mobile.data.DataService;
@@ -62,7 +61,7 @@ public class VisitPhotoDataService
 						photo.setImage(body.bytes());
 						return photo;
 					} catch (IOException ex) {
-						Log.e(TAG, "Error downloading image with obs uuid '" + photo.getObservation().getUuid() + "'", ex);
+						logger.e(TAG, "Error downloading image with obs uuid '" + photo.getObservation().getUuid() + "'", ex);
 						return null;
 					}
 				},

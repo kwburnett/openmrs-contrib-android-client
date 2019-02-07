@@ -14,7 +14,6 @@
 
 package org.openmrs.mobile.activities.visit.visittasks;
 
-import android.app.Activity;
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -32,21 +31,19 @@ import org.openmrs.mobile.models.VisitTaskStatus;
 
 import java.util.List;
 
-import static org.openmrs.mobile.R.color.black;
-
 class VisitTasksRecyclerViewAdapter extends RecyclerView.Adapter<VisitTasksRecyclerViewAdapter.FetchedVisitTasksHolder> {
 
-	private Activity mContext;
 	private List<VisitTask> visitTaskList;
-	private VisitContract.VisitTasksView view;
+	private VisitContract.VisitTasks.View view;
 	private Visit visit;
+	private int visitTasksTextColor;
 
-	VisitTasksRecyclerViewAdapter(Activity context,
-			List<VisitTask> visitTaskList, Visit visit, VisitContract.VisitTasksView view) {
-		this.mContext = context;
+	public VisitTasksRecyclerViewAdapter(List<VisitTask> visitTaskList, Visit visit, VisitContract.VisitTasks.View view,
+			int visitTasksTextColor) {
 		this.visitTaskList = visitTaskList;
 		this.view = view;
 		this.visit = visit;
+		this.visitTasksTextColor = visitTasksTextColor;
 	}
 
 	@Override
@@ -67,7 +64,7 @@ class VisitTasksRecyclerViewAdapter extends RecyclerView.Adapter<VisitTasksRecyc
 			}
 			if (visit.getStopDatetime() != null) {
 				holder.visitTasks.setEnabled(false);
-				holder.visitTasks.setTextColor(black);
+				holder.visitTasks.setTextColor(visitTasksTextColor);
 			} else {
 				holder.visitTasks.setEnabled(true);
 			}

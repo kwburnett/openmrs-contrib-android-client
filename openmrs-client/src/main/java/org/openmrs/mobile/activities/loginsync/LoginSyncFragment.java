@@ -1,7 +1,6 @@
 package org.openmrs.mobile.activities.loginsync;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -11,12 +10,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
-import org.openmrs.mobile.activities.patientlist.PatientListActivity;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.ToastUtil;
 
 public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presenter> implements LoginSyncContract.View {
+
+	private OnFragmentInteractionListener listener;
 
 	private View rootView;
 	private ProgressBar pullProgressBar, pushProgressBar;
@@ -33,32 +33,48 @@ public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presente
 		initViewFields();
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.mContext.findViewById(android.R.id.content));
+		FontsUtil.setFont(context.findViewById(android.R.id.content));
 
 		return rootView;
 	}
 
 	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
-		mPresenter.startMeasuringConnectivity();
+		presenter.startMeasuringConnectivity();
 	}
 
 	@Override
 	public void onStop() {
-		mPresenter.stopMeasuringConnectivity();
+		presenter.stopMeasuringConnectivity();
 		super.onStop();
 	}
 
 	@Override
 	public void onPause(){
 		super.onPause();
-		mPresenter.stopMeasuringConnectivity();
+		presenter.stopMeasuringConnectivity();
 	}
 
 	@Override
 	public void onResume(){
-		mPresenter.startMeasuringConnectivity();
+		presenter.startMeasuringConnectivity();
 		super.onResume();
 
 	}
@@ -99,10 +115,9 @@ public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presente
 	}
 
 	public void navigateToNextActivity() {
-		Intent intent = new Intent(this.mContext, PatientListActivity.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		this.mContext.startActivity(intent);
-		mContext.finish();
+		if (listener != null) {
+			listener.syncIsFinished();
+		}
 	}
 
 	public void notifyConnectionLost() {
@@ -187,5 +202,10 @@ public class LoginSyncFragment extends ACBaseFragment<LoginSyncContract.Presente
 	public void updateSyncPullProgressForCompletingTrim(double percentComplete) {
 		String progressText = getString(R.string.trim_complete);
 		updateSyncPullProgress(percentComplete, progressText);
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void syncIsFinished();
 	}
 }

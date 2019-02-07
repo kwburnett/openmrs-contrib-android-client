@@ -4,10 +4,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.common.base.Supplier;
 
+import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.data.cache.CacheService;
 import org.openmrs.mobile.data.db.BaseDbService;
 import org.openmrs.mobile.data.rest.BaseRestService;
@@ -61,6 +61,12 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 	@Inject
 	protected NetworkUtils networkUtils;
 
+	/**
+	 * The logging utility for the app
+	 */
+	@Inject
+	protected Logger logger;
+
 	@Inject
 	protected SyncLogService syncLogService;
 
@@ -74,6 +80,13 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 		executeSingleCallback(callback, options,
 				() -> dbService.getByUuid(uuid, options),
 				() -> restService.getByUuid(uuid, options));
+	}
+
+	@Override
+	public E getLocalByUuid(@NonNull String uuid, @Nullable QueryOptions options) {
+		checkNotNull(uuid);
+
+		return dbService.getByUuid(uuid, options);
 	}
 
 	@Override
@@ -298,7 +311,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				T result = dbSupplier.get();
 
 				if ((result == null || (result instanceof List<?> && ((List<?>)result).size() == 0)) &&
-						networkUtils.isConnectedOrConnecting() &&
+						networkUtils.isConnected() &&
 						QueryOptions.getRequestStrategy(options) == RequestStrategy.LOCAL_THEN_REMOTE) {
 					// This call will spin up another thread
 					performOnlineCallback(callback, options, dbSupplier, restSupplier, responseConverter, dbOperation);
@@ -359,11 +372,11 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				} else {
 					// Something failed. If the issue was a connectivity issue then try to get the entity from the db (if
 					// the Request Strategy is not LOCAL_THEN_REMOTE)
-					if (response.code() >= 502 && response.code() <= 504
+					if (((response.code() >= 502 && response.code() <= 504) || response.code() == 500)
 							&& QueryOptions.getRequestStrategy(options) != RequestStrategy.LOCAL_THEN_REMOTE) {
 						new Thread(() -> {
 							try {
-								Log.w(TAG, "REST response error; trying local db (" + response.code() +
+								logger.w(TAG, "REST response error; trying local db (" + response.code() +
 										": " + response.message() + "");
 								T result = dbSupplier.get();
 
@@ -395,7 +408,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 					// Likely a connectivity issue so try to get from the db instead
 					new Thread(() -> {
 						try {
-							Log.w(TAG, "REST response error; trying local db", t);
+							logger.w(TAG, "REST response error; trying local db", t);
 							T result = dbSupplier.get();
 
 							if (result != null) {
@@ -415,7 +428,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 					}).start();
 				} else {
 					// Some other type of exception occurred so just notify the caller about the exception
-					Log.e(TAG, "REST request exception", t);
+						logger.e(TAG, "REST request exception", t);
 					callback.onError(new DataOperationException(t));
 				}
 			}

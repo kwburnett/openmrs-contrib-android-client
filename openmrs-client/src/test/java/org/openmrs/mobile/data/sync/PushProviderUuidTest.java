@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.openmrs.mobile.BuildConfig;
+import org.openmrs.mobile.application.CrashlyticsLogger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DBFlowRule;
 import org.openmrs.mobile.data.ModelAsserters;
@@ -53,6 +54,7 @@ public abstract class PushProviderUuidTest<E extends BaseOpenmrsObject> {
 	@Mock NetworkUtils networkUtils;
 	@Mock EventBus eventBus;
 	@Mock PatientTrimProvider patientTrimProvider;
+	@Mock protected CrashlyticsLogger logger;
 
 	public SyncService syncService;
 
@@ -77,7 +79,7 @@ public abstract class PushProviderUuidTest<E extends BaseOpenmrsObject> {
 		pullSubscriptionDbService = new PullSubscriptionDbService(repository);
 
 		syncService = new SyncService(openMRS, syncLogDbService, pullSubscriptionDbService, daggerProviderHelper,
-				networkUtils, eventBus, patientTrimProvider);
+				networkUtils, eventBus, patientTrimProvider, logger);
 
 		CoreTestData.load();
 

@@ -7,6 +7,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitContract;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitPresenter;
+import org.openmrs.mobile.application.CrashlyticsLogger;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.DataService;
 import org.openmrs.mobile.data.PagingInfo;
@@ -39,21 +40,16 @@ import static org.mockito.Mockito.verify;
 @PrepareForTest({OpenMRS.class})
 public class AddEditVisitPresenterTest extends ACUnitTestBase {
 
-    @Mock
     private VisitDataService visitDataService;
-    @Mock
     private VisitTypeDataService visitTypeDataService;
-    @Mock
     private VisitAttributeTypeDataService visitAttributeTypeDataService;
-    @Mock
     private PatientDataService patientDataService;
-    @Mock
     private ConceptAnswerDataService conceptAnswerDataService;
-    @Mock
     private LocationDataService locationDataService;
     @Mock
     private OpenMRS openMRS;
-
+    @Mock
+    private CrashlyticsLogger logger;
     @Mock
     private AddEditVisitContract.View view;
     private AddEditVisitPresenter presenter;
@@ -66,9 +62,18 @@ public class AddEditVisitPresenterTest extends ACUnitTestBase {
 
     @Before
     public void setUp(){
-        presenter = new AddEditVisitPresenter(view, patientUuid, null, false, visitDataService,
-                patientDataService, visitTypeDataService, visitAttributeTypeDataService,
-                conceptAnswerDataService, locationDataService);
+	    visitDataService = dataAccessComponent.visit();
+	    visitTypeDataService = dataAccessComponent.visitType();
+	    visitAttributeTypeDataService = dataAccessComponent.visitAttributeType();
+	    patientDataService = dataAccessComponent.patient();
+	    conceptAnswerDataService = dataAccessComponent.conceptAnswer();
+	    locationDataService = dataAccessComponent.location();
+
+	    PowerMockito.mockStatic(OpenMRS.class);
+	    PowerMockito.when(OpenMRS.getInstance()).thenReturn(openMRS);
+	    PowerMockito.when(openMRS.getLogger()).thenReturn(logger);
+
+        presenter = new AddEditVisitPresenter(view, patientUuid, null, false, dataAccessComponent);
 
         patient = new Patient();
         patient.setUuid(patientUuid);
@@ -95,8 +100,6 @@ public class AddEditVisitPresenterTest extends ACUnitTestBase {
 
         visitTypes.add(new VisitType("Inpatient Kijabe", "547874"));
 
-        PowerMockito.mockStatic(OpenMRS.class);
-        PowerMockito.when(OpenMRS.getInstance()).thenReturn(openMRS);
         openMRS.getCurrentLoggedInUserInfo().put(ApplicationConstants.UserKeys.USER_UUID, "654321");
         openMRS.setLocation(location.getUuid());
 
@@ -183,7 +186,7 @@ public class AddEditVisitPresenterTest extends ACUnitTestBase {
     public void shouldStartVisit(){
         presenter.startVisit(new ArrayList<>());
         verify(view).setSpinnerVisibility(false);
-        verify(view).showVisitDetails("24-65-9", true);
+        verify(view).startVisitComplete("24-65-9");
     }
 
     //@Test

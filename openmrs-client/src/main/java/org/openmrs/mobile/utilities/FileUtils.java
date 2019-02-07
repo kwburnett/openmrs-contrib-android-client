@@ -39,9 +39,9 @@ public final class FileUtils {
 				out.write(buffer, 0, read);
 			}
 		} catch (FileNotFoundException e) {
-			OpenMRS.getInstance().getOpenMRSLogger().d(e.toString());
+			OpenMRS.getInstance().getLogger().d(e.toString(), e);
 		} catch (IOException e) {
-			OpenMRS.getInstance().getOpenMRSLogger().d(e.toString());
+			OpenMRS.getInstance().getLogger().d(e.toString(), e);
 		} finally {
 			try {
 				if (ios != null) {
@@ -49,7 +49,7 @@ public final class FileUtils {
 				}
 				out.close();
 			} catch (IOException e) {
-				OpenMRS.getInstance().getOpenMRSLogger().d(e.toString());
+				OpenMRS.getInstance().getLogger().d(e.toString(), e);
 			}
 		}
 

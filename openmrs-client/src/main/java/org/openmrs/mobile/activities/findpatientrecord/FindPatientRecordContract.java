@@ -35,8 +35,6 @@ public interface FindPatientRecordContract {
 
 		void setProgressBarVisibility(boolean visibility);
 
-		void showRegistration();
-
 	}
 
 	interface Presenter extends BasePresenterContract {

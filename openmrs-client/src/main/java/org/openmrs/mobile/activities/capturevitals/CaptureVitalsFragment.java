@@ -14,6 +14,7 @@
 
 package org.openmrs.mobile.activities.capturevitals;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -78,6 +79,11 @@ import static org.openmrs.mobile.utilities.ApplicationConstants.ValidationFieldV
 public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.Presenter>
 		implements CaptureVitalsContract.View {
 
+	private static final String ARG_PATIENT_UUID = "patientUuid";
+	private static final String ARG_VISIT_UUID = "visitUuid";
+
+	private OnFragmentInteractionListener listener;
+
 	private Location location;
 	private EditText patientHeight, patientWeight, patientTemperature, patientPulse, patientRespiratoryRate,
 			patientBloodPressureSystolic, patientBloodPressureDiastolic, patientBloodOxygenSaturation;
@@ -91,17 +97,27 @@ public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.
 	private LinearLayout captureVitalsScreen;
 	private ScrollView captureVitalsScrollView;
 
-	public static CaptureVitalsFragment newInstance() {
-		return new CaptureVitalsFragment();
+	public static CaptureVitalsFragment newInstance(String patientUuid, String visitUuid) {
+		CaptureVitalsFragment fragment = new CaptureVitalsFragment();
+		Bundle args = new Bundle();
+		args.putString(ARG_PATIENT_UUID, patientUuid);
+		args.putString(ARG_VISIT_UUID, visitUuid);
+		fragment.setArguments(args);
+		return fragment;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		if (getArguments() != null) {
+			patientUuid = getArguments().getString(ARG_PATIENT_UUID);
+			visitUuid = getArguments().getString(ARG_VISIT_UUID);
+			presenter = new CaptureVitalsPresenter(this);
+		}
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-		this.patientUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE);
-		this.visitUuid = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE);
-		this.visitStopDate = getActivity().getIntent().getStringExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE);
-
 		View root = inflater.inflate(R.layout.fragment_capture_vitals, container, false);
 
 		resolveViews(root);
@@ -112,12 +128,28 @@ public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.
 			locationUuid = instance.getLocation();
 		}
 
-		mPresenter.fetchLocation(locationUuid);
+		presenter.fetchLocation(locationUuid);
 
 		// Font config
-		FontsUtil.setFont((ViewGroup)this.getActivity().findViewById(android.R.id.content));
+		FontsUtil.setFont(context.findViewById(android.R.id.content));
 
 		return root;
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		listener = null;
 	}
 
 	private void resolveViews(View root) {
@@ -153,7 +185,7 @@ public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.
 			try {
 				if (validateFields()) {
 					Encounter encounter = buildEncounter();
-					mPresenter.attemptSave(encounter);
+					presenter.attemptSave(encounter);
 				}
 			} catch (NumberFormatException ex) {
 				ex.printStackTrace();
@@ -372,16 +404,6 @@ public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.
 	}
 
 	@Override
-	public void goBackToVisitPage() {
-		getActivity().finish();
-		Intent intent = new Intent(getContext(), VisitActivity.class);
-		intent.putExtra(ApplicationConstants.BundleKeys.PATIENT_UUID_BUNDLE, patientUuid);
-		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_UUID_BUNDLE, visitUuid);
-		intent.putExtra(ApplicationConstants.BundleKeys.VISIT_CLOSED_DATE, visitStopDate);
-		getContext().startActivity(intent);
-	}
-
-	@Override
 	public void showProgressBar(Boolean visibility) {
 		if (visibility) {
 			progressBar.setVisibility(View.VISIBLE);
@@ -405,8 +427,18 @@ public class CaptureVitalsFragment extends ACBaseFragment<CaptureVitalsContract.
 
 	@Override
 	public void hideSoftKeys() {
-		goBackToVisitPage();
 		ACBaseActivity.hideSoftKeyboard(getActivity());
 	}
 
+	@Override
+	public void captureVitalsSaveComplete() {
+		if (listener != null) {
+			listener.captureVitalsSaveComplete(patientUuid, visitUuid);
+		}
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void captureVitalsSaveComplete(String patientUuid, String visitUuid);
+	}
 }

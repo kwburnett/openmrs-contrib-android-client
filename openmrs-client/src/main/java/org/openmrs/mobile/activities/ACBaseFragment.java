@@ -19,21 +19,23 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import org.openmrs.mobile.R;
+import org.openmrs.mobile.application.Logger;
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.ToastUtil;
 
 public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fragment implements BaseView<T> {
 
-	protected T mPresenter;
-
-	protected FragmentActivity mContext;
+	protected T presenter;
+	protected FragmentActivity context;
+	protected Logger logger = OpenMRS.getInstance().getLogger();
 
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
 
 		if (context instanceof FragmentActivity) {
-			this.mContext = (FragmentActivity) context;
+			this.context = (FragmentActivity) context;
 		}
 	}
 
@@ -41,12 +43,12 @@ public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fr
 	public void onDetach() {
 		super.onDetach();
 
-		this.mContext = null;
+		this.context = null;
 	}
 
 	@Override
 	public void setPresenter(T presenter) {
-		mPresenter = presenter;
+		this.presenter = presenter;
 	}
 
 	public boolean isActive() {
@@ -56,28 +58,30 @@ public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fr
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (mPresenter != null) {
-			mPresenter.subscribe();
+		if (presenter != null) {
+			presenter.subscribe();
 		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		if (mPresenter != null) {
-			mPresenter.unsubscribe();
+		if (presenter != null) {
+			presenter.unsubscribe();
 		}
 	}
 
 	@Override
 	public void showToast(String message, ToastUtil.ToastType toastType) {
-		if (getContext() != null) {
-			ToastUtil.showShortToast(getContext(), toastType, message);
+		if (context != null) {
+			ToastUtil.showShortToast(context, toastType, message);
 		}
 	}
 
 	public void createSnackbar(String message) {
-		((ACBaseActivity)getActivity()).createSnackbar(message);
+		if (getActivity() != null) {
+			((ACBaseActivity) getActivity()).createSnackbar(message);
+		}
 	}
 
 	public void showError(int errorCode) {
@@ -123,8 +127,8 @@ public abstract class ACBaseFragment<T extends BasePresenterContract> extends Fr
 
 	@Override
 	public void runOnUIThread(Runnable runnable) {
-		if (getActivity() != null) {
-			getActivity().runOnUiThread(runnable);
+		if (context != null) {
+			context.runOnUiThread(runnable);
 		}
 	}
 }

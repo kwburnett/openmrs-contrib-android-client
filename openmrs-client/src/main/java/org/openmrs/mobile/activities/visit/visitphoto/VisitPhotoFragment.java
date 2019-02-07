@@ -38,7 +38,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,13 +45,14 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseFragment;
+import org.openmrs.mobile.activities.imagegallery.ImageGalleryActivity;
 import org.openmrs.mobile.activities.visit.VisitContract;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.VisitDashboardDataRefreshEvent;
@@ -76,29 +76,33 @@ import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPagePresenter> implements VisitContract.VisitPhotoView {
+public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashboardPage.Presenter>
+		implements VisitContract.VisitPhotos.View {
 
 	//Upload Visit photo
 	private final static int IMAGE_REQUEST = 1;
-	private LinearLayoutManager layoutManager;
+	private static final int NUMBER_OF_IMAGES_PER_ROW = 4;
 	private RecyclerView recyclerView;
 	private VisitPhotoRecyclerViewAdapter adapter;
 	private ImageView visitImageView;
 	private FloatingActionButton capturePhoto;
 	private Bitmap visitPhoto = null;
 	private AppCompatButton uploadVisitPhotoButton;
-	private RelativeLayout visitPhotoProgressBar;
+	private ProgressBar visitPhotoProgressBar;
 	private SwipeRefreshLayout visitPhotoSwipeRefreshLayout;
 
-	private File output;
+	private File photoFile;
+	private File tempPhotoFile;
 	private EditText fileCaption;
 	private TextView noVisitImage;
+
+	private OnFragmentInteractionListener listener;
 
 	public static VisitPhotoFragment newInstance() {
 		return new VisitPhotoFragment();
 	}
 
-	public static Bitmap rotateImage(Bitmap source, float angle) {
+	private Bitmap rotateImage(Bitmap source, float angle) {
 		Matrix matrix = new Matrix();
 		matrix.postRotate(angle);
 		return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
@@ -107,15 +111,13 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		super.setPresenter(mPresenter);
+		super.setPresenter(presenter);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		View root = inflater.inflate(R.layout.fragment_visit_photo, container, false);
-		layoutManager = new LinearLayoutManager(this.mContext);
-		recyclerView = (RecyclerView)root.findViewById(R.id.downloadPhotoRecyclerView);
-		recyclerView.setLayoutManager(layoutManager);
+		recyclerView = (RecyclerView) root.findViewById(R.id.downloadPhotoRecyclerView);
 
 		capturePhoto = (FloatingActionButton)root.findViewById(R.id.capture_photo);
 		visitImageView = (ImageView)root.findViewById(R.id.visitPhoto);
@@ -123,13 +125,14 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		fileCaption = (EditText)root.findViewById(R.id.fileCaption);
 		noVisitImage = (TextView)root.findViewById(R.id.noVisitImage);
 
-		visitPhotoProgressBar = (RelativeLayout)root.findViewById(R.id.visitPhotoProgressBar);
+		visitPhotoProgressBar = (ProgressBar) root.findViewById(R.id.visitPhotoProgressBar);
 		visitPhotoSwipeRefreshLayout = (SwipeRefreshLayout)root.findViewById(R.id.visitPhotoTab);
 
 		// Disabling swipe refresh on this fragment due to issues
 		visitPhotoSwipeRefreshLayout.setEnabled(false);
 
-		addListeners();
+		addEventListeners();
+		reset();
 
 		return root;
 	}
@@ -138,18 +141,47 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		adapter = new VisitPhotoRecyclerViewAdapter(this.mContext, this);
+		adapter = new VisitPhotoRecyclerViewAdapter(this);
 		recyclerView.setAdapter(adapter);
 	}
 
 	@Override
 	public void updateVisitImageMetadata(List<VisitPhoto> visitPhotos) {
+		if (context == null) {
+			return;
+		}
 		if (visitPhotos != null && !visitPhotos.isEmpty()) {
+			updateVisitPhotoDisplay(true);
+
 			adapter.setVisitPhotos(visitPhotos);
 
-			RecyclerView.LayoutManager layoutManager = new GridLayoutManager(mContext, visitPhotos.size());
+			GridLayoutManager layoutManager = new GridLayoutManager(context, NUMBER_OF_IMAGES_PER_ROW);
 			recyclerView.setLayoutManager(layoutManager);
+		} else {
+			updateVisitPhotoDisplay(false);
 		}
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		super.onAttach(context);
+		if (context instanceof OnFragmentInteractionListener) {
+			listener = (OnFragmentInteractionListener) context;
+		} else {
+			throw new RuntimeException(context.toString() + " must implement OnFragmentInteractionListener");
+		}
+	}
+
+	@Override
+	public void viewImage(String photoUuidToView, List<String> visitPhotoUuids) {
+		listener.viewVisitPhotos(photoUuidToView, visitPhotoUuids);
+	}
+
+	@Override
+	public void reset() {
+		visitPhoto = null;
+		photoFile = null;
+		tempPhotoFile = null;
 	}
 
 	@Override
@@ -157,13 +189,17 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		fileCaption.setText(ApplicationConstants.EMPTY_STRING);
 		FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 		fragmentTransaction.detach(this).attach(this).commit();
-		mPresenter.subscribe();
+		presenter.subscribe();
 	}
 
-	@Override
-	public void showNoVisitPhoto() {
-		noVisitImage.setVisibility(View.VISIBLE);
-		recyclerView.setVisibility(View.GONE);
+	private void updateVisitPhotoDisplay(boolean visitPhotosArePresent) {
+		if (visitPhotosArePresent) {
+			noVisitImage.setVisibility(View.GONE);
+			recyclerView.setVisibility(View.VISIBLE);
+		} else {
+			noVisitImage.setVisibility(View.VISIBLE);
+			recyclerView.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
@@ -186,13 +222,12 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	public void capturePhoto() {
 		VisitPhotoFragmentPermissionsDispatcher.externalStorageWithCheck(VisitPhotoFragment.this);
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		Context context = mContext;
+		Context context = this.context;
 		if (context != null && takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
-			OpenMRS openMRS = OpenMRS.getInstance();
-			File dir = openMRS.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-			output = new File(dir, getUniqueImageFileName());
-			if (output != null) {
-				Uri photoURI = FileProvider.getUriForFile(openMRS, ApplicationConstants.Authorities.FILE_PROVIDER, output);
+			File dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+			tempPhotoFile = new File(dir, getUniqueImageFileName());
+			if (tempPhotoFile != null) {
+				Uri photoURI = FileProvider.getUriForFile(context, ApplicationConstants.Authorities.FILE_PROVIDER, tempPhotoFile);
 				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
 				grantUriPermissions(context, takePictureIntent, photoURI);
 				startActivityForResult(takePictureIntent, IMAGE_REQUEST);
@@ -205,7 +240,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private void grantUriPermissions(Context context, Intent takePictureIntent, Uri photoURI) {
 		if (OpenMRS.getInstance().isRunningLollipopVersionOrHigher()) {
 			takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		} else {
+		} else if (context != null) {
 			List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(takePictureIntent,
 					PackageManager.MATCH_DEFAULT_ONLY);
 			for (ResolveInfo resolveInfo : resInfoList) {
@@ -231,7 +266,7 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 
 	@OnShowRationale(Manifest.permission.CAMERA)
 	public void showRationaleForCamera(final PermissionRequest request) {
-		new AlertDialog.Builder(mContext)
+		new AlertDialog.Builder(context)
 				.setMessage(R.string.permission_camera_rationale)
 				.setPositiveButton(R.string.button_allow, (dialog, which) -> request.proceed())
 				.setNegativeButton(R.string.button_deny, (dialog, button) -> request.cancel())
@@ -251,13 +286,13 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	private String getUniqueImageFileName() {
 		// Create an image file name
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-		return timeStamp + "_" + ".jpg";
+		return timeStamp + "_" + ".jpeg";
 	}
 
 	private Bitmap getPortraitImage(String imagePath) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inSampleSize = 4;
-		Bitmap photo = BitmapFactory.decodeFile(output.getPath(), options);
+		options.inSampleSize = 1;
+		Bitmap photo = BitmapFactory.decodeFile(imagePath, options);
 		float rotateAngle;
 		try {
 			ExifInterface exifInterface = new ExifInterface(imagePath);
@@ -289,16 +324,17 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 		VisitPhotoFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
 	}
 
-	private void addListeners() {
+	private void addEventListeners() {
 		capturePhoto.setOnClickListener(view -> {
 			VisitPhotoFragmentPermissionsDispatcher.capturePhotoWithCheck(VisitPhotoFragment.this);
 		});
 
 		visitImageView.setOnClickListener(view -> {
-			if (output != null) {
-				Intent i = new Intent(Intent.ACTION_VIEW);
-				i.setDataAndType(Uri.fromFile(output), "image/jpeg");
-				startActivity(i);
+			if (photoFile != null) {
+				Intent intent = new Intent(getContext(), ImageGalleryActivity.class);
+				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_TEMP_VISIT_PHOTO_PATH, photoFile.getPath());
+				intent.putExtra(ApplicationConstants.BundleKeys.EXTRA_NO_DELETE, true);
+				startActivity(intent);
 			}
 		});
 
@@ -307,33 +343,33 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 				visitPhoto.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
 
-				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setImage(byteArrayOutputStream.toByteArray());
-				((VisitPhotoPresenter)mPresenter).getVisitPhoto().setFileCaption(
-						StringUtils.notEmpty(
-								ViewUtils.getInput(fileCaption)) ?
-								ViewUtils.getInput(fileCaption) :
-								getString(R.string.default_file_caption_message));
-				((VisitPhotoPresenter)mPresenter).uploadImage();
+				String descriptionToUse = ViewUtils.getInput(fileCaption);
+				if (StringUtils.isNullOrEmpty(descriptionToUse)) {
+					descriptionToUse = getString(R.string.default_file_caption_message);
+				}
+
+				((VisitContract.VisitPhotos.Presenter) presenter)
+						.uploadPhoto(byteArrayOutputStream.toByteArray(), descriptionToUse);
 			}
 		});
 	}
 
 	@Override
 	public void deleteImage(VisitPhoto visitPhoto) {
-		((VisitPhotoPresenter)mPresenter).deleteImage(visitPhoto);
+		((VisitPhotoPresenter) presenter).deletePhoto(visitPhoto);
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == IMAGE_REQUEST) {
 			if (resultCode == Activity.RESULT_OK) {
-				visitPhoto = getPortraitImage(output.getPath());
+				photoFile = tempPhotoFile;
+				tempPhotoFile = null;
+				visitPhoto = getPortraitImage(photoFile.getPath());
 				Bitmap bitmap =
 						ThumbnailUtils.extractThumbnail(visitPhoto, visitImageView.getWidth(), visitImageView.getHeight());
 				visitImageView.setImageBitmap(bitmap);
 				visitImageView.invalidate();
-			} else {
-				output = null;
 			}
 		}
 	}
@@ -347,8 +383,8 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 			if (!isVisibleToUser) {
 				try {
 					InputMethodManager inputMethodManager =
-							(InputMethodManager)this.mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputMethodManager.hideSoftInputFromWindow(mContext.getCurrentFocus().getWindowToken(), 0);
+							(InputMethodManager)this.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputMethodManager.hideSoftInputFromWindow(context.getCurrentFocus().getWindowToken(), 0);
 				} catch (Exception e) {
 
 				}
@@ -363,6 +399,11 @@ public class VisitPhotoFragment extends ACBaseFragment<VisitContract.VisitDashbo
 	@Override
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void onVisitDashboardRefreshEvent(VisitDashboardDataRefreshEvent event) {
-		mPresenter.dataRefreshEventOccurred(event);
+		presenter.dataRefreshEventOccurred(event);
+	}
+
+	public interface OnFragmentInteractionListener {
+
+		void viewVisitPhotos(String photoUuidToView, List<String> visitPhotoUuids);
 	}
 }
