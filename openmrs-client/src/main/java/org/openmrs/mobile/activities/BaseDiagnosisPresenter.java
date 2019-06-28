@@ -162,8 +162,21 @@ public class BaseDiagnosisPresenter {
 					public void onCompleted(Observation entity) {
 						if (entity != null) {
 							obsUuids.add(entity.getUuid());
+							String valueCoded = obs.getValueCodedName();
+
+							if (valueCoded == null
+									&& entity.getDisplay().contains(ApplicationConstants.ObservationLocators.DIAGNOSES)
+									&& obs.getDisplay() != null) {
+								valueCoded = obs.getDisplay();
+								valueCoded = valueCoded
+										.replace(ApplicationConstants.ObservationLocators.DIAGNOSES + ":", "")
+										.replaceAll(",", "")
+										.trim();
+								entity.setDiagnosisList(valueCoded);
+							}
+
 							base.getBaseDiagnosisView().createEncounterDiagnosis(entity, entity.getDisplay(),
-									entity.getValueCodedName(), obsUuids.size() == encounter.getObs().size());
+									valueCoded, obsUuids.size() == encounter.getObs().size());
 						}
 					}
 

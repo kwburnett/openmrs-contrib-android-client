@@ -119,14 +119,14 @@ public class SyncService {
 							openmrs.getPatientUuid().equalsIgnoreCase(record.getKey()) &&
 							!Resource.isLocalUuid(record.getKey())) {
 						logger.i(TAG, "Skip. The Patient with uuid '" + record.getKey() + "' is currently being viewed");
-						continue;
+						//continue;
 					}
 
 					if (StringUtils.notNull(openmrs.getVisitUuid()) &&
 							openmrs.getVisitUuid().equalsIgnoreCase(record.getKey()) &&
 							!Resource.isLocalUuid(record.getKey())) {
 						logger.i(TAG, "Skip. The Visit with uuid '" + record.getKey() + "' is currently being viewed");
-						continue;
+						//continue;
 					}
 
 					pushProvider.push(record);
@@ -147,6 +147,7 @@ public class SyncService {
 							pushProvider.getClass().getSimpleName() + ":" +
 							(StringUtils.isBlank(record.getKey()) ? "(null)" :
 									record.getKey()) + "'", ex);
+					syncLogDbService.delete(record);
 				} finally {
 					// Check to see if we're still online, if not, then stop the sync
 					if (!networkUtils.isConnected()) {

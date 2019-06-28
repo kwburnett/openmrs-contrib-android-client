@@ -13,6 +13,7 @@
  */
 package org.openmrs.mobile.activities.addeditvisit;
 
+import static org.openmrs.mobile.utilities.ApplicationConstants.EncounterTypeDisplays.AUDITDATA;
 import static org.openmrs.mobile.utilities.ApplicationConstants.toastMessages.SAVE_VISIT_END_DATE_ERROR;
 
 import android.support.annotation.NonNull;
@@ -286,9 +287,11 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 
 	@Override
 	public void updateVisit(String visitEndDate, List<VisitAttribute> attributes) {
+		updateExistingAttributes(attributes);
+
 		Visit updatedVisit = new Visit();
 		updatedVisit.setUuid(visit.getUuid());
-		updatedVisit.setAttributes(attributes);
+		updatedVisit.setAttributes(visit.getAttributes());
 		updatedVisit.setVisitType(visit.getVisitType());
 		updatedVisit.setStartDatetime(visit.getStartDatetime());
 
@@ -303,7 +306,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 			addEditVisitView.showToast(SAVE_VISIT_END_DATE_ERROR, ToastUtil.ToastType.ERROR);
 		}
 
-		updateExistingAttributes(attributes);
+		//updateExistingAttributes(attributes);
 
 		setProcessing(true);
 		visitDataService.updateVisit(visit, updatedVisit, new DataService.GetCallback<Visit>() {
@@ -338,11 +341,12 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 		boolean auditDataFormCompleted = false;
 		if (visit.getEncounters() != null && !visit.getEncounters().isEmpty()) {
 			for (Encounter encounter : visit.getEncounters()) {
-				if (encounter.getDisplay() != null && encounter.getDisplay().contains("Audit Data")) {
+				if (encounter.getDisplay() != null && encounter.getDisplay().contains(AUDITDATA)) {
 					if (encounter.getObs() != null && !encounter.getObs().isEmpty()) {
 						for (Observation obs : encounter.getObs()) {
 							if (obs.getDisplay() != null
-									&& obs.getDisplay().equalsIgnoreCase("Audit Data Complete: Yes")) {
+									&& (obs.getDisplay().equalsIgnoreCase("Audit Data Complete: Yes")
+									|| obs.getDisplay().equalsIgnoreCase("Audit Data Complete: No"))) {
 								auditDataFormCompleted = true;
 							}
 						}
