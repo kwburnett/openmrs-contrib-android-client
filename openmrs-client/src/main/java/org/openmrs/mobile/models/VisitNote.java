@@ -50,7 +50,7 @@ public class VisitNote extends BaseOpenmrsEntity {
 
 	@Expose
 	@ForeignKey(stubbedRelationship = true)
-	private Encounter encounter;
+	private Encounter encounter = new Encounter();
 
 	@Expose
 	@Column

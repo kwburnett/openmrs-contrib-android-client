@@ -39,6 +39,8 @@ import android.view.animation.OvershootInterpolator;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
 
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.addeditvisit.AddEditVisitActivity;
@@ -57,6 +59,8 @@ import org.openmrs.mobile.activities.visit.visittasks.VisitTasksFragment;
 import org.openmrs.mobile.activities.visit.visittasks.VisitTasksPresenter;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.bundle.CustomDialogBundle;
+import org.openmrs.mobile.event.PatientRefreshEvent;
+import org.openmrs.mobile.models.Resource;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.FontsUtil;
@@ -222,6 +226,25 @@ public class VisitActivity extends ACBaseActivity
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		return true;
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		OpenMRS.getInstance().getEventBus().unregister(this);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		OpenMRS.getInstance().getEventBus().register(this);
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onDataRefreshEvent(PatientRefreshEvent event) {
+		if (event.getPatientUuid() != null && !Resource.isLocalUuid(event.getPatientUuid())) {
+			this.patientUuid = event.getPatientUuid();
+		}
 	}
 
 	@Override

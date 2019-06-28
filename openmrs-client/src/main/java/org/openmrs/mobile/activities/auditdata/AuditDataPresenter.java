@@ -26,6 +26,7 @@ import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Observation;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.utilities.ApplicationConstants;
+import org.openmrs.mobile.utilities.ToastUtil;
 
 public class AuditDataPresenter extends BasePresenter implements AuditDataContract.Presenter {
 
@@ -85,14 +86,16 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 			@Override
 			public void onCompleted(Visit visit) {
 				auditDataView.setVisit(visit);
-				for (Encounter encounter : visit.getEncounters()) {
-					if (encounter.getVoided() != null && encounter.getVoided()) {
-						continue;
-					}
+				if (visit.getEncounters() != null) {
+					for (Encounter encounter : visit.getEncounters()) {
+						if (encounter.getVoided() != null && encounter.getVoided()) {
+							continue;
+						}
 
-					if (encounter.getEncounterType() != null && encounter.getEncounterType().getUuid()
-							.equalsIgnoreCase(ApplicationConstants.EncounterTypeEntity.AUDIT_DATA_UUID)) {
-						fetchEncounter(encounter.getUuid());
+						if (encounter.getEncounterType() != null && encounter.getEncounterType().getUuid()
+								.equalsIgnoreCase(ApplicationConstants.EncounterTypeEntity.AUDIT_DATA_UUID)) {
+							fetchEncounter(encounter.getUuid());
+						}
 					}
 				}
 				auditDataView.showPageSpinner(false);
@@ -149,8 +152,8 @@ public class AuditDataPresenter extends BasePresenter implements AuditDataContra
 
 			@Override
 			public void onError(Throwable t) {
+				ToastUtil.error(t.getMessage());
 				auditDataView.showProgressBar(false);
-				t.printStackTrace();
 			}
 		};
 

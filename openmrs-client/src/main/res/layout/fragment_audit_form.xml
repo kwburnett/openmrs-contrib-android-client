@@ -1059,17 +1059,44 @@
 
 					</RadioGroup>
 
-					<CheckBox
-							android:layout_marginTop="18dp"
-							android:layout_marginLeft="8dp"
-							android:layout_marginEnd="8dp"
-							android:layout_marginRight="10dp"
-							android:layout_marginStart="10dp"
-							android:id="@+id/audit_complete"
-							android:layout_width="wrap_content"
-							android:layout_height="wrap_content"
-							android:text="@string/audit_complete" />
+					<TextView
+						android:id="@+id/audit_complete"
+						android:text="@string/audit_complete"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:layout_marginLeft="10dp"
+						android:layout_marginEnd="10dp"
+						android:layout_marginRight="10dp"
+						android:layout_marginStart="10dp"
+						android:layout_marginBottom="5dp" />
 
+					<RadioGroup
+						android:layout_width="match_parent"
+						android:orientation="vertical"
+						android:layout_height="wrap_content"
+						android:layout_marginBottom="18dp"
+						android:layout_marginLeft="10dp"
+						android:layout_marginEnd="10dp"
+						android:layout_marginRight="10dp"
+						android:layout_marginStart="10dp">
+
+						<RadioButton
+							android:layout_height="wrap_content"
+							android:layout_width="wrap_content"
+							android:text="@string/yes"
+							android:id="@+id/audit_complete_yes"
+							android:layout_gravity="start"
+							android:checked="false" />
+
+						<RadioButton
+							android:layout_height="wrap_content"
+							android:layout_width="wrap_content"
+							android:text="@string/no"
+							android:id="@+id/audit_complete_no"
+							android:layout_gravity="start"
+							android:checked="false" />
+
+					</RadioGroup>
 
 					<android.support.v7.widget.AppCompatButton
 							android:id="@+id/submitConfirm"

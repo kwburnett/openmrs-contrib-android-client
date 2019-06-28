@@ -10,6 +10,8 @@ import org.openmrs.mobile.models.BaseOpenmrsAuditableObject;
 import org.openmrs.mobile.models.SyncLog;
 import org.openmrs.mobile.utilities.StringUtils;
 
+import java.lang.reflect.ParameterizedType;
+
 import retrofit2.Call;
 
 /**
@@ -34,7 +36,7 @@ public abstract class BasePushProvider<E extends BaseOpenmrsAuditableObject,
 		}
 
 		E entity = dbService.getByUuid(syncLog.getKey(), QueryOptions.FULL_REP);
-		if (entity == null) {
+		if (entity == null || entity.getUuid() == null) {
 			throw new EntityNotFoundException("Entity not found");
 		}
 
