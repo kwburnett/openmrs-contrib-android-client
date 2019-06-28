@@ -219,8 +219,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	public void setSearchDiagnoses(List<Concept> diagnoses) {
 		if (context != null) {
 			CustomDiagnosesDropdownAdapter adapter =
-					new CustomDiagnosesDropdownAdapter(context, android.R.layout.simple_spinner_dropdown_item,
-							diagnoses);
+					new CustomDiagnosesDropdownAdapter(context, android.R.layout.simple_spinner_dropdown_item, diagnoses);
 			filterOutExistingDiagnoses(diagnoses);
 			searchDiagnosis.setAdapter(adapter);
 			searchDiagnosis.showDropDown();
@@ -420,7 +419,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	protected VisitNote createVisitNote(Encounter encounter, String clinicalNote, Visit visit) {
 		List<EncounterDiagnosis> encounterDiagnoses = new ArrayList<>();
 		VisitNote visitNote = new VisitNote();
-		visitNote.setUuid(visit.getUuid());
+		visitNote.setUuid(visit.getUuid() + "_" + visit.getPatient().getUuid());
 		visitNote.setPersonId(visit.getPatient().getUuid());
 		visitNote.setHtmlFormId(ApplicationConstants.EncounterTypeEntity.VISIT_NOTE_FORM_ID);
 		visitNote.setCreateVisit("false");

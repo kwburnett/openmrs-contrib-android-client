@@ -254,34 +254,33 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 		return person;
 	}
 
-	private Patient createPatient() {
-		final Patient patient = new Patient();
+	private Patient getPatient(Patient patient) {
+		if (patient == null) {
+			patient = new Patient();
+		}
 
-		// Add identifier
-		PatientIdentifier identifier = new PatientIdentifier();
+		PatientIdentifier identifier;
+		if (patient.getIdentifiers() != null && !patient.getIdentifiers().isEmpty()) {
+			identifier = patient.getIdentifiers().get(0);
+		} else {
+			identifier = new PatientIdentifier();
+		}
+
 		identifier.setIdentifier(ViewUtils.getInput(fileNumber));
 		identifier.setIdentifierType(patientIdentifierType);
 		identifier.setLocation(loginLocation);
 
-		List<PatientIdentifier> patientIdentifierList = new ArrayList<>();
-		patientIdentifierList.add(identifier);
-		patient.setIdentifiers(patientIdentifierList);
+		if (patient.getIdentifiers() != null) {
+			patient.getIdentifiers().clear();
+			patient.getIdentifiers().add(identifier);
+		} else {
+			List<PatientIdentifier> patientIdentifierList = new ArrayList<>();
+			patientIdentifierList.add(identifier);
+			patient.setIdentifiers(patientIdentifierList);
+		}
 
 		patient.setPerson(createPerson());
-		return patient;
-	}
 
-	private Patient updatePatient(Patient patient) {
-		PatientIdentifier identifier = new PatientIdentifier();
-		identifier.setIdentifier(ViewUtils.getInput(fileNumber));
-		identifier.setIdentifierType(patientIdentifierType);
-		identifier.setLocation(loginLocation);
-
-		List<PatientIdentifier> patientIdentifierList = new ArrayList<>();
-		patientIdentifierList.add(identifier);
-		patient.setIdentifiers(patientIdentifierList);
-
-		patient.setPerson(createPerson());
 		return patient;
 	}
 
@@ -467,7 +466,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 					if (!presenter.isRegisteringPatient()) {
 						buildPersonAttributeValues();
 					}
-					presenter.confirmPatient(updatePatient(patient));
+					presenter.confirmPatient(getPatient(patient));
 				}
 			});
 
@@ -511,6 +510,13 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 			}
 
 			fileNumber.setText(identifier);
+
+			// OpenMRS REST doesn't allow updates to patient identifiers. This can only be done on the Web.
+			if (!Patient.isLocalUuid(patient.getUuid())) {
+				fileNumber.setEnabled(false);
+			} else {
+				fileNumber.setEnabled(true);
+			}
 
 		} else if (patient == null || patient.getPerson() == null) {
 			if (patient == null) {
@@ -584,7 +590,7 @@ public class AddEditPatientFragment extends ACBaseFragment<AddEditPatientContrac
 				if (!presenter.isRegisteringPatient()) {
 					buildPersonAttributeValues();
 				}
-				presenter.confirmPatient(createPatient());
+				presenter.confirmPatient(getPatient(null));
 			}
 		});
 

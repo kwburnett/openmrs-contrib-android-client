@@ -56,6 +56,7 @@ import org.openmrs.mobile.utilities.FontsUtil;
 import org.openmrs.mobile.utilities.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.openmrs.mobile.utilities.ApplicationConstants.AuditFormAnswers.ANSWER_NEGATIVE;
@@ -143,12 +144,10 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			surgery_planned, surgery_unplanned, first_map_yes, first_map_no, first_map_unknown, ward_stay_admission_yes,
 			ward_stay_admission_no, ward_stay_admission_unknown, patient_diabetic_yes, patient_diabetic_no,
 			patient_diabetic_unknown, intubatedYes, intubatedNo, intubatedUnknown,
-			signed_off_on_consult_before_discharge_yes, signed_off_on_consult_before_discharge_no;
+			signed_off_on_consult_before_discharge_yes, signed_off_on_consult_before_discharge_no, auditCompleteYes, auditCompleteNo;
 
 	// andr-414
 	private Spinner classificationOfDeathType;
-
-	private CheckBox auditComplete;
 
 	private Spinner inpatientServiceType;
 	private RelativeLayout progressBar, auditDataFormProgressBar;
@@ -169,6 +168,8 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	// andr-414
 	private String classificationOfDeathTypeSelectedUuid;
+
+	private Encounter visitEncounter;
 
 	public static AuditDataFragment newInstance(String patientUuid, String visitUuid) {
 		AuditDataFragment fragment = new AuditDataFragment();
@@ -206,9 +207,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 				any_prior_sedetion_unknown, surgery_na, surgery_planned, surgery_unplanned, first_map_yes, first_map_no,
 				first_map_unknown, ward_stay_admission_yes, ward_stay_admission_no, ward_stay_admission_unknown,
 				patient_diabetic_yes, patient_diabetic_no, patient_diabetic_unknown, intubatedYes, intubatedNo,
-				intubatedUnknown, signed_off_on_consult_before_discharge_yes, signed_off_on_consult_before_discharge_no);
-
-		initCheckboxListeners(auditComplete);
+				intubatedUnknown, signed_off_on_consult_before_discharge_yes, signed_off_on_consult_before_discharge_no, auditCompleteYes, auditCompleteNo);
 
 		//We start by fetching by location, required for creating encounters
 		if (!instance.getLocation().equalsIgnoreCase(null)) {
@@ -278,7 +277,8 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				ConceptAnswer conceptAnswer = classificationOfDeathList.get(position);
 
-				if (conceptAnswer == initialClassificationOfDeathSelection) {
+				if (conceptAnswer != null && initialClassificationOfDeathSelection != null &&
+						conceptAnswer.getDisplay().equalsIgnoreCase(initialClassificationOfDeathSelection.getDisplay())) {
 					if (classificationOfDeathTypeObservation != null) {
 						setObservationVoided(classificationOfDeathTypeObservation);
 					}
@@ -372,7 +372,8 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		hivPositiveYes = fragmentView.findViewById(R.id.is_hiv_positive_yes);
 		hivPositiveNo = fragmentView.findViewById(R.id.is_hiv_positive_no);
 		hivPositiveUnknown = fragmentView.findViewById(R.id.is_hiv_positive_unknown);
-		auditComplete = fragmentView.findViewById(R.id.audit_complete);
+		auditCompleteYes = fragmentView.findViewById(R.id.audit_complete_yes);
+		auditCompleteNo = fragmentView.findViewById(R.id.audit_complete_no);
 		cd4 = fragmentView.findViewById(R.id.cd4);
 		hBa1c = fragmentView.findViewById(R.id.hba1c);
 		inpatientServiceType = fragmentView.findViewById(R.id.inpatient_service_type);
@@ -867,12 +868,26 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			case R.id.signed_off_on_consult_before_discharge_yes:
 				signedOffOnConsultBeforeDischargeObservation = setObservationFields
 						(signedOffOnConsultBeforeDischargeObservation, CONCEPT_SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE,
-								CONCEPT_ANSWER_YES);
+								CONCEPT_ANSWER_YES,
+								ApplicationConstants.ObservationLocators.SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE + ApplicationConstants.ObservationLocators.YES);
 				break;
 			case R.id.signed_off_on_consult_before_discharge_no:
 				signedOffOnConsultBeforeDischargeObservation = setObservationFields
 						(signedOffOnConsultBeforeDischargeObservation, CONCEPT_SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE,
-								CONCEPT_ANSWER_NO);
+								CONCEPT_ANSWER_NO,
+								ApplicationConstants.ObservationLocators.SIGNED_OFF_ON_CONSULT_BEFORE_DISCHARGE + ApplicationConstants.ObservationLocators.NO);
+				break;
+			case R.id.audit_complete_yes:
+				auditCompleteObservation = setObservationFields
+						(auditCompleteObservation, CONCEPT_AUDIT_COMPLETE,
+								CONCEPT_ANSWER_YES,
+								ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE + ApplicationConstants.ObservationLocators.YES);
+				break;
+			case R.id.audit_complete_no:
+				auditCompleteObservation = setObservationFields
+						(auditCompleteObservation, CONCEPT_AUDIT_COMPLETE,
+								CONCEPT_ANSWER_NO,
+								ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE + ApplicationConstants.ObservationLocators.NO);
 				break;
 			default:
 				break;
@@ -998,6 +1013,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	@Override
 	public void updateFormFields(Encounter encounter) {
+		this.visitEncounter = encounter;
 		for (Observation observation : encounter.getObs()) {
 			if (observation == null || observation.getDisplay() == null) {
 				continue;
@@ -1170,11 +1186,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 				case ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE:
 					if (displayValue.equalsIgnoreCase(ANSWER_YES)) {
-						auditComplete.setChecked(true);
+						auditCompleteYes.setChecked(true);
 						auditCompleteObservation = setObservationFields(observation, CONCEPT_AUDIT_COMPLETE,
 								CONCEPT_ANSWER_YES);
 					} else {
-						auditComplete.setChecked(false);
+						auditCompleteNo.setChecked(true);
 						auditCompleteObservation =
 								setObservationFields(observation, CONCEPT_AUDIT_COMPLETE, CONCEPT_ANSWER_NO);
 					}
@@ -1449,27 +1465,7 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 
 	private void performDataSend() {
 		List<Observation> observationsToVoid = new ArrayList<>();
-
-		//create location instance
-		Location location = new Location();
-		location.setUuid(locationUuid);
-
-		//create form instance
-		Form auditDataForm = new Form();
-		auditDataForm.setUuid(AUDIT_DATA_FORM_UUID);
-
-		//create encountertype
-		EncounterType auditFormEncounterType = new EncounterType();
-		auditFormEncounterType.setUuid(AUDIT_DATA_UUID);
-		auditFormEncounterType.setDisplay(AUDITDATA);
-
-		//create provider
-		Provider provider = new Provider();
-		provider.setUuid(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
-
 		List<Observation> observations = new ArrayList<>();
-		List<Provider> providers = new ArrayList<>();
-		providers.add(provider);
 
 		if (deathInHospitalObservation != null) {
 			observations.add(deathInHospitalObservation);
@@ -1608,28 +1604,81 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 			observations.add(classificationOfDeathTypeObservation);
 		}
 
-		if (auditComplete != null && auditComplete.isChecked()) {
-			auditCompleteObservation = setObservationFields(auditCompleteObservation,
-					CONCEPT_AUDIT_COMPLETE, CONCEPT_ANSWER_YES,
-					ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE +
-							ApplicationConstants.ObservationLocators.YES);
-		} else {
-			auditCompleteObservation = setObservationFields(auditCompleteObservation,
-					CONCEPT_AUDIT_COMPLETE, CONCEPT_ANSWER_NO,
-					ApplicationConstants.ObservationLocators.AUDIT_DATA_COMPLETE +
-							ApplicationConstants.ObservationLocators.NO);
+		if (auditCompleteObservation != null) {
+			observations.add(auditCompleteObservation);
 		}
-
-		observations.add(auditCompleteObservation);
 
 		boolean isNewEncounter = false;
-		Encounter encounter = new Encounter();
-		if (encounterUuid == null || Resource.isLocalUuid(encounterUuid)) {
+		Encounter encounter = getVisitEncounter(observationsToVoid, observations);
+		if (encounter.getUuid() == null || Resource.isLocalUuid(encounter.getUuid())) {
 			isNewEncounter = true;
-		} else {
-			encounter.setUuid(encounterUuid);
 		}
 
+		presenter.saveUpdateEncounter(encounter, isNewEncounter);
+	}
+
+	private Encounter getVisitEncounter(List<Observation> observationsToVoid, List<Observation> observations) {
+		if (visitEncounter != null) {
+			setObservations(visitEncounter, observationsToVoid, observations);
+			 return visitEncounter;
+		}
+
+		//create location instance
+		Location location = new Location();
+		location.setUuid(locationUuid);
+
+		//create form instance
+		Form auditDataForm = new Form();
+		auditDataForm.setUuid(AUDIT_DATA_FORM_UUID);
+
+		//create encountertype
+		EncounterType auditFormEncounterType = new EncounterType();
+		auditFormEncounterType.setUuid(AUDIT_DATA_UUID);
+		auditFormEncounterType.setDisplay(AUDITDATA);
+
+		//create provider
+		Provider provider = new Provider();
+		provider.setUuid(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
+
+
+		List<Provider> providers = new ArrayList<>();
+		providers.add(provider);
+
+		Encounter encounter = new Encounter();
+		//encounter.setUuid(encounterUuid);
+
+		setObservations(encounter, observationsToVoid, observations);
+		encounter.setForm(auditDataForm);
+		encounter.setLocation(location);
+		encounter.setProvider(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
+		encounter.setEncounterType(auditFormEncounterType);
+		encounter.setDisplay(AUDITDATA);
+
+		if (visit != null) {
+			encounter.setVisit(visit);
+			// set startdatetime == visit startdatetime
+			if (visit.getStartDatetime() != null){
+				if (encounter.getEncounterDatetime() != null) {
+					if (encounter.getEncounterDatetime().before(visit.getStartDatetime())){
+						encounter.setDateCreated(visit.getStartDatetime());
+						encounter.setEncounterDatetime(visit.getStartDatetime());
+					}
+				} else {
+					Date startDate = new Date();
+					encounter.setDateCreated(startDate);
+					encounter.setEncounterDatetime(startDate);
+				}
+			}
+
+			if (visit.getPatient() != null) {
+				encounter.setPatient(visit.getPatient());
+			}
+		}
+
+		return encounter;
+	}
+
+	private void setObservations(Encounter encounter, List<Observation> observationsToVoid, List<Observation> observations) {
 		for (Observation observationToVoid : observationsToVoid) {
 			if (observationToVoid != null &&
 					presenter.isObservationExistingForCurrentEncounter(observationToVoid)) {
@@ -1639,25 +1688,6 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 
 		encounter.setObs(observations);
-		encounter.setForm(auditDataForm);
-		encounter.setLocation(location);
-		encounter.setProvider(instance.getCurrentLoggedInUserInfo().get(ApplicationConstants.UserKeys.USER_UUID));
-		encounter.setEncounterType(auditFormEncounterType);
-
-		if (visit != null) {
-			encounter.setVisit(visit);
-			// set startdatetime == visit startdatetime
-			if (visit.getStartDatetime() != null){
-				encounter.setDateCreated(visit.getStartDatetime());
-				encounter.setEncounterDatetime(visit.getStartDatetime());
-			}
-
-			if (visit.getPatient() != null) {
-				encounter.setPatient(visit.getPatient());
-			}
-		}
-
-		presenter.saveUpdateEncounter(encounter, isNewEncounter);
 	}
 
 	public void voidExtraICUObservations() {
