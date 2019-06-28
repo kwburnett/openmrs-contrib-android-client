@@ -96,6 +96,8 @@ public class PatientPushProvider extends BasePushProvider<Patient, PatientDbServ
 		super.postProcess(originalEntity, restEntity, syncLog);
 
 		// update patient dashboard uuid
-		eventBus.post(new PatientRefreshEvent(null, restEntity.getUuid()));
+		if (eventBus != null) {
+			eventBus.post(new PatientRefreshEvent(null, restEntity.getUuid()));
+		}
 	}
 }
