@@ -35,7 +35,6 @@ public class BaseDiagnosisPresenter {
 	private VisitNoteDataService visitNoteDataService;
 	private int page = PagingInfo.DEFAULT.getInstance().getPage();
 	private int limit = PagingInfo.DEFAULT.getInstance().getLimit() * 2;
-	private List<String> obsUuids = new ArrayList<>();
 	private DataAccessComponent dataAccess;
 	private Timer diagnosisTimer;
 	private boolean cancelRunningRequest;
@@ -83,9 +82,38 @@ public class BaseDiagnosisPresenter {
 	}
 
 	public void loadObs(Encounter encounter, IBaseDiagnosisFragment base) {
-		obsUuids.clear();
+		int count = 0;
 		for (Observation obs : encounter.getObs()) {
-			getObservation(obs, encounter, base);
+			String valueCoded = obs.getValueCodedName();
+
+			if (valueCoded == null
+					&& obs.getDisplay() != null
+					&& obs.getDisplay().contains(ApplicationConstants.ObservationLocators.DIAGNOSES)) {
+				valueCoded = obs.getDisplay();
+				// extract diagnosis from display. sadly only uuid, display fields are returned).
+				valueCoded = valueCoded
+						.replace(ApplicationConstants.ObservationLocators.DIAGNOSES + ":", "")
+						.replace(ApplicationConstants.ObservationLocators.SECONDARY_DIAGNOSIS + ", ", "")
+						.replace(ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS + ", ", "")
+						.replace(ApplicationConstants.ObservationLocators.CONFIRMED_DIAGNOSIS + ", ", "")
+						.replace(ApplicationConstants.ObservationLocators.PRESUMED_DIAGNOSIS + ", ", "")
+						.replace(", " + ApplicationConstants.ObservationLocators.SECONDARY_DIAGNOSIS, "")
+						.replace(", " + ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS, "")
+						.replace(", " + ApplicationConstants.ObservationLocators.CONFIRMED_DIAGNOSIS, "")
+						.replace(", " + ApplicationConstants.ObservationLocators.PRESUMED_DIAGNOSIS, "")
+						.trim();
+
+				obs.setDiagnosisList(valueCoded);
+
+				Concept concept = conceptDataService.getByExactName(valueCoded,
+						new QueryOptions.Builder().customRepresentation(RestConstants.Representations.DIAGNOSIS_CONCEPT).build());
+				if (concept != null) {
+					valueCoded = concept.getValue();
+				}
+			}
+
+			base.getBaseDiagnosisView().createEncounterDiagnosis(obs, obs.getDisplay(),
+					valueCoded, ++count == encounter.getObs().size());
 		}
 	}
 
@@ -143,49 +171,6 @@ public class BaseDiagnosisPresenter {
 				base.setLoading(false);
 			}
 		});
-	}
-
-	private void getObservation(Observation obs, Encounter encounter, IBaseDiagnosisFragment base) {
-		if (obs.getUuid() == null) {
-			logger.e("Observation UUID empty on Base Diagnosis; Observation: " +
-					StringUtils.toJson(obs));
-			return;
-		}
-
-		QueryOptions options = new QueryOptions.Builder()
-				.customRepresentation(RestConstants.Representations.OBSERVATION)
-				.build();
-
-		obsDataService
-				.getByUuid(obs.getUuid(), options, new DataService.GetCallback<Observation>() {
-					@Override
-					public void onCompleted(Observation entity) {
-						if (entity != null) {
-							obsUuids.add(entity.getUuid());
-							String valueCoded = obs.getValueCodedName();
-
-							if (valueCoded == null
-									&& entity.getDisplay().contains(ApplicationConstants.ObservationLocators.DIAGNOSES)
-									&& obs.getDisplay() != null) {
-								valueCoded = obs.getDisplay();
-								valueCoded = valueCoded
-										.replace(ApplicationConstants.ObservationLocators.DIAGNOSES + ":", "")
-										.replaceAll(",", "")
-										.trim();
-								entity.setDiagnosisList(valueCoded);
-							}
-
-							base.getBaseDiagnosisView().createEncounterDiagnosis(entity, entity.getDisplay(),
-									valueCoded, obsUuids.size() == encounter.getObs().size());
-						}
-					}
-
-					@Override
-					public void onError(Throwable t) {
-						logger.e(TAG, "Error getting Observation: " + t.getLocalizedMessage(), t);
-						base.getBaseDiagnosisView().showTabSpinner(false);
-					}
-				});
 	}
 
 	private void cancelRunningRequest(boolean cancel) {
