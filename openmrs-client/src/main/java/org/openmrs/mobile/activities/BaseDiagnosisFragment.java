@@ -274,7 +274,10 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 				encounterDiagnosis.setCertainty(checkObsCertainty(observation.getDisplay()));
 				encounterDiagnosis.setDisplay(observation.getDiagnosisList());
 				if (StringUtils.notEmpty(conceptNameId)) {
-					encounterDiagnosis.setDiagnosis(ApplicationConstants.DiagnosisStrings.CONCEPT_UUID + conceptNameId);
+					if (!conceptNameId.contains("Concept")) {
+						conceptNameId = ApplicationConstants.DiagnosisStrings.CONCEPT_UUID + conceptNameId;
+					}
+					encounterDiagnosis.setDiagnosis(conceptNameId);
 				} else {
 					encounterDiagnosis.setDiagnosis(ApplicationConstants.DiagnosisStrings.NON_CODED +
 							observation.getDiagnosisList());
@@ -282,7 +285,10 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 							observation.getDiagnosisList());
 				}
 
-				if (diagnosis.contains(ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS)) {
+				// diagnosis can have 'primary' or 'secondary' in the name.
+				String order = diagnosis.replace(observation.getDiagnosisList(), "");
+
+				if (order.contains(ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS)) {
 					encounterDiagnosis.setOrder(ApplicationConstants.DiagnosisStrings.PRIMARY_ORDER);
 					primaryDiagnoses.add(encounterDiagnosis);
 
