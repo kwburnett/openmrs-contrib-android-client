@@ -54,4 +54,13 @@ public class ConceptDataService extends BaseDataService<Concept, ConceptDbServic
 				() -> dbService.getByName(searchQuery, options),
 				() -> restService.findConcept(searchQuery, options, pagingInfo));
 	}
+
+	public Concept getByExactName(@NonNull String searchQuery, @Nullable QueryOptions options) {
+		List<Concept> concepts = dbService.getByExactName(searchQuery, options);
+		if (!concepts.isEmpty()) {
+			return concepts.get(0);
+		}
+
+		return null;
+	}
 }
