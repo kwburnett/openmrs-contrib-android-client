@@ -430,6 +430,7 @@ public abstract class ApplicationConstants {
 
 			public static class VisitDashboard {
 
+				public static final String REFRESHING_ALL_DATA = "Refreshing All Data";
 				public static final String REFRESHING_BASE_DATA = "Refreshing Base Data";
 				public static final String REFRESH_DEPENDENT_DATA = "Refresh Dependent Data";
 				public static final String REFRESH_ERROR = "Refresh Error";

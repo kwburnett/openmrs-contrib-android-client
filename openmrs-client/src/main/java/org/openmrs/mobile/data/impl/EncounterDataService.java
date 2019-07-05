@@ -4,13 +4,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.openmrs.mobile.data.BaseDataService;
+import org.openmrs.mobile.data.DatabaseHelper;
 import org.openmrs.mobile.data.PagingInfo;
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.db.impl.EncounterDbService;
-import org.openmrs.mobile.data.db.impl.ObsDbService;
 import org.openmrs.mobile.data.rest.impl.EncounterRestServiceImpl;
 import org.openmrs.mobile.models.Encounter;
 import org.openmrs.mobile.models.Observation;
+import org.openmrs.mobile.models.Observation_Table;
 import org.openmrs.mobile.models.SyncAction;
 
 import java.util.List;
@@ -21,11 +22,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class EncounterDataService extends BaseDataService<Encounter, EncounterDbService, EncounterRestServiceImpl> {
 
-	private ObsDbService observationDbService;
+	private DatabaseHelper databaseHelper;
 
 	@Inject
-	public EncounterDataService(ObsDbService observationDbService) {
-		this.observationDbService = observationDbService;
+	public EncounterDataService(DatabaseHelper databaseHelper) {
+		this.databaseHelper = databaseHelper;
 	}
 
 	public void getByVisit(@NonNull String visitUuid, @Nullable QueryOptions options, @Nullable PagingInfo pagingInfo,
@@ -82,11 +83,7 @@ public class EncounterDataService extends BaseDataService<Encounter, EncounterDb
 
 	private void deleteVoidedObservationsFromEncounter(Encounter entity) {
 		if (!entity.getObs().isEmpty()) {
-			for (Observation observation : entity.getObs()) {
-				if (observation.getVoided() == true) {
-					observationDbService.delete(observation);
-				}
-			}
+			databaseHelper.diffDelete(Observation.class, Observation_Table.encounter_uuid.eq(entity.getUuid()), entity.getObs());
 		}
 	}
 }

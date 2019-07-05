@@ -1,5 +1,6 @@
 package org.openmrs.mobile.data.sync.impl;
 
+import org.greenrobot.eventbus.EventBus;
 import org.openmrs.mobile.data.db.impl.PatientDbService;
 import org.openmrs.mobile.data.db.impl.PersonDbService;
 import org.openmrs.mobile.data.db.impl.VisitDbService;
@@ -7,8 +8,10 @@ import org.openmrs.mobile.data.db.impl.VisitPhotoDbService;
 import org.openmrs.mobile.data.db.impl.VisitTaskDbService;
 import org.openmrs.mobile.data.rest.impl.PatientRestServiceImpl;
 import org.openmrs.mobile.data.sync.BasePushProvider;
+import org.openmrs.mobile.event.PatientRefreshEvent;
 import org.openmrs.mobile.models.Patient;
 import org.openmrs.mobile.models.PersonAttribute;
+import org.openmrs.mobile.models.SyncLog;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitPhoto;
 import org.openmrs.mobile.models.VisitTask;
@@ -22,17 +25,19 @@ public class PatientPushProvider extends BasePushProvider<Patient, PatientDbServ
 	private VisitDbService visitDbService;
 	private VisitTaskDbService visitTaskDbService;
 	private VisitPhotoDbService visitPhotoDbService;
+	private EventBus eventBus;
 
 	@Inject
 	public PatientPushProvider(PatientDbService patientDbService, PatientRestServiceImpl patientRestService,
 			PersonDbService personDbService, VisitDbService visitDbService, VisitTaskDbService visitTaskDbService,
-			VisitPhotoDbService visitPhotoDbService) {
+			VisitPhotoDbService visitPhotoDbService, EventBus eventBus) {
 		super(patientDbService, patientRestService);
 
 		this.personDbService = personDbService;
 		this.visitDbService = visitDbService;
 		this.visitTaskDbService = visitTaskDbService;
 		this.visitPhotoDbService = visitPhotoDbService;
+		this.eventBus = eventBus;
 	}
 
 	@Override
@@ -61,7 +66,9 @@ public class PatientPushProvider extends BasePushProvider<Patient, PatientDbServ
 			visitPhotoDbService.saveAll(visitPhotos);
 		}
 
-		if (!originalEntity.getPerson().getUuid().equalsIgnoreCase(restEntity.getPerson().getUuid())) {
+		if (originalEntity.getPerson() != null && originalEntity.getPerson().getUuid() != null
+				&& restEntity.getPerson() != null && restEntity.getPerson().getUuid() != null
+				&& !originalEntity.getPerson().getUuid().equalsIgnoreCase(restEntity.getPerson().getUuid())) {
 			personDbService.update(originalEntity.getPerson().getUuid(), restEntity.getPerson());
 		}
 
@@ -81,6 +88,16 @@ public class PatientPushProvider extends BasePushProvider<Patient, PatientDbServ
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	protected void postProcess(Patient originalEntity, Patient restEntity, SyncLog syncLog) {
+		super.postProcess(originalEntity, restEntity, syncLog);
+
+		// update patient dashboard uuid
+		if (eventBus != null) {
+			eventBus.post(new PatientRefreshEvent(null, restEntity.getUuid()));
 		}
 	}
 }

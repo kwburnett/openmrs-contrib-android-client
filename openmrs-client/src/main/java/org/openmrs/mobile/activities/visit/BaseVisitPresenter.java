@@ -121,6 +121,9 @@ public abstract class BaseVisitPresenter extends BasePresenter implements VisitC
 			case ApplicationConstants.EventMessages.DataRefresh.REFRESH_UNAVAILABLE:
 				visitDashboardPageView.displayRefreshingData(false);
 				break;
+			case ApplicationConstants.EventMessages.DataRefresh.VisitDashboard.REFRESHING_ALL_DATA:
+				dataRefreshWasRequested();
+				break;
 			default:
 				break;
 		}

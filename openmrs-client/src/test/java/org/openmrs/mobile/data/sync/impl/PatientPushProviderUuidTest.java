@@ -3,6 +3,7 @@ package org.openmrs.mobile.data.sync.impl;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import org.greenrobot.eventbus.EventBus;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.openmrs.mobile.data.ModelAsserters;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
 public class PatientPushProviderUuidTest extends PushProviderUuidTest<Patient> {
 	@Mock PatientPushProvider patientPushProvider;
 	@Mock PatientRestServiceImpl patientRestService;
+	@Mock EventBus eventBus;
 
 	@Override
 	public void before() {
@@ -54,7 +56,7 @@ public class PatientPushProviderUuidTest extends PushProviderUuidTest<Patient> {
 		patientPushProvider = new PatientPushProvider(new PatientDbService(repository), patientRestService,
 				new PersonDbService(repository), new VisitDbService(repository),
 				new VisitTaskDbService(repository),
-				new VisitPhotoDbService(repository));
+				new VisitPhotoDbService(repository), new EventBus());
 	}
 
 	@Override

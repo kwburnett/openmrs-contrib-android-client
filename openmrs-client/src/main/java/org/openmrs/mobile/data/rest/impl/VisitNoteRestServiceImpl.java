@@ -5,11 +5,14 @@ import com.google.gson.GsonBuilder;
 
 import org.openmrs.mobile.data.rest.BaseRestService;
 import org.openmrs.mobile.data.rest.retrofit.VisitNoteRestService;
+import org.openmrs.mobile.models.EncounterDiagnosis;
 import org.openmrs.mobile.models.VisitNote;
 import org.openmrs.mobile.utilities.ApplicationConstants;
 import org.openmrs.mobile.utilities.strategy.CustomExclusionStrategy;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -43,7 +46,7 @@ public class VisitNoteRestServiceImpl extends BaseRestService<VisitNote, VisitNo
 		params.put("visitId", visitNote.getVisit().getUuid());
 		params.put("returnUrl", visitNote.getReturnUrl());
 		params.put("closeAfterSubmission", visitNote.getCloseAfterSubmission());
-		params.put("encounterDiagnoses", gson.toJson(visitNote.getEncounterDiagnoses()));
+		params.put("encounterDiagnoses", gson.toJson(validateEncounterDiagnoses(visitNote.getEncounterDiagnoses())));
 		params.put("encounterId", visitNote.getEncounter() != null ? visitNote.getEncounter().getUuid() :
 				ApplicationConstants.EMPTY_STRING);
 		params.put("w1", visitNote.getW1());
@@ -51,12 +54,23 @@ public class VisitNoteRestServiceImpl extends BaseRestService<VisitNote, VisitNo
 		params.put("w5", visitNote.getW5());
 		params.put("w10", visitNote.getW10() != null ? visitNote.getW10() : ApplicationConstants.EMPTY_STRING);
 		params.put("w12", visitNote.getW12() != null ? visitNote.getW12() : ApplicationConstants.EMPTY_STRING);
+		params.put("basePatientSummary", params.get("w10"));
 
 		if (visitNote.getObservation() != null) {
 			params.put("obs", visitNote.getObservation().getUuid());
-			params.put("basePatientSummary", visitNote.getObservation().getDiagnosisNote());
 		}
 
 		return restService.save(buildRestRequestPath(), params);
+	}
+
+	private List<EncounterDiagnosis> validateEncounterDiagnoses(List<EncounterDiagnosis> diagnoses) {
+		for (Iterator<EncounterDiagnosis> iterator = diagnoses.iterator(); iterator.hasNext();) {
+			EncounterDiagnosis diagnosis = iterator.next();
+			if (diagnosis.getDiagnosis() == null || diagnosis.getDiagnosis().equalsIgnoreCase("")) {
+				iterator.remove();
+			}
+		}
+
+		return diagnoses;
 	}
 }

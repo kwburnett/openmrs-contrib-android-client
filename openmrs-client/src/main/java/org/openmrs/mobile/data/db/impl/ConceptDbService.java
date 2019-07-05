@@ -53,4 +53,15 @@ public class ConceptDbService extends BaseDbService<Concept> implements DbServic
 								.where(ConceptName_Table.name.like(search)))
 		));
 	}
+
+	public List<Concept> getByExactName(@NonNull String conceptName, @Nullable QueryOptions options) {
+		checkNotNull(conceptName);
+
+		return executeQuery(options, null, (f) -> f.where(
+				Concept_Table.name_uuid.in(
+						SQLite.select(ConceptName_Table.uuid)
+								.from(ConceptName.class)
+								.where(ConceptName_Table.name.eq(conceptName)))
+		));
+	}
 }

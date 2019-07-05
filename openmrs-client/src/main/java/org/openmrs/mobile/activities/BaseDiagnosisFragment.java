@@ -219,8 +219,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	public void setSearchDiagnoses(List<Concept> diagnoses) {
 		if (context != null) {
 			CustomDiagnosesDropdownAdapter adapter =
-					new CustomDiagnosesDropdownAdapter(context, android.R.layout.simple_spinner_dropdown_item,
-							diagnoses);
+					new CustomDiagnosesDropdownAdapter(context, android.R.layout.simple_spinner_dropdown_item, diagnoses);
 			filterOutExistingDiagnoses(diagnoses);
 			searchDiagnosis.setAdapter(adapter);
 			searchDiagnosis.showDropDown();
@@ -275,7 +274,10 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 				encounterDiagnosis.setCertainty(checkObsCertainty(observation.getDisplay()));
 				encounterDiagnosis.setDisplay(observation.getDiagnosisList());
 				if (StringUtils.notEmpty(conceptNameId)) {
-					encounterDiagnosis.setDiagnosis(ApplicationConstants.DiagnosisStrings.CONCEPT_UUID + conceptNameId);
+					if (!conceptNameId.contains("Concept")) {
+						conceptNameId = ApplicationConstants.DiagnosisStrings.CONCEPT_UUID + conceptNameId;
+					}
+					encounterDiagnosis.setDiagnosis(conceptNameId);
 				} else {
 					encounterDiagnosis.setDiagnosis(ApplicationConstants.DiagnosisStrings.NON_CODED +
 							observation.getDiagnosisList());
@@ -283,7 +285,10 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 							observation.getDiagnosisList());
 				}
 
-				if (diagnosis.contains(ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS)) {
+				// diagnosis can have 'primary' or 'secondary' in the name.
+				String order = diagnosis.replace(observation.getDiagnosisList(), "");
+
+				if (order.contains(ApplicationConstants.ObservationLocators.PRIMARY_DIAGNOSIS)) {
 					encounterDiagnosis.setOrder(ApplicationConstants.DiagnosisStrings.PRIMARY_ORDER);
 					primaryDiagnoses.add(encounterDiagnosis);
 
@@ -420,7 +425,7 @@ public abstract class BaseDiagnosisFragment<T extends BasePresenterContract>
 	protected VisitNote createVisitNote(Encounter encounter, String clinicalNote, Visit visit) {
 		List<EncounterDiagnosis> encounterDiagnoses = new ArrayList<>();
 		VisitNote visitNote = new VisitNote();
-		visitNote.setUuid(visit.getUuid());
+		visitNote.setUuid(visit.getUuid() + "_" + visit.getPatient().getUuid());
 		visitNote.setPersonId(visit.getPatient().getUuid());
 		visitNote.setHtmlFormId(ApplicationConstants.EncounterTypeEntity.VISIT_NOTE_FORM_ID);
 		visitNote.setCreateVisit("false");
