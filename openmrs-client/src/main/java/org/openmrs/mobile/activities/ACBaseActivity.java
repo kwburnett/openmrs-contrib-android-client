@@ -14,7 +14,10 @@
 package org.openmrs.mobile.activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -70,6 +73,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	private OpenMRS instance = OpenMRS.getInstance();
 	private ActionBarDrawerToggle toggle;
 	private boolean loading;
+	private BroadcastReceiver networkStateReceiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +86,13 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		intitializeNavigationDrawer();
 
 		authorizationManager = openMRS.getAuthorizationManager();
+
+		networkStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				openMRS.getNetworkUtils().startSamplingConnectivity();
+			}
+		};
 	}
 
 	@Override
@@ -97,12 +108,16 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		} else if (!activityIsLoginActivity) {
 			authorizationManager.trackUserInteraction();
 		}
+
+		registerReceiver(networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		openMRS.getNetworkUtils().stopSamplingConnectivity();
+
+		unregisterReceiver(networkStateReceiver);
 	}
 
 	@Override
