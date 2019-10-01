@@ -28,7 +28,11 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void v(String tag, String msg) {
-		Crashlytics.log(Log.VERBOSE, tag, msg);
+		try {
+			Crashlytics.log(Log.VERBOSE, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -38,8 +42,12 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void v(String tag, String msg, Throwable throwable) {
-		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.VERBOSE, tag, msg);
+		try {
+			Crashlytics.logException(throwable);
+			Crashlytics.log(Log.VERBOSE, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -49,7 +57,11 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void d(String tag, String msg) {
-		Crashlytics.log(Log.DEBUG, tag, msg);
+		try {
+			Crashlytics.log(Log.DEBUG, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -59,8 +71,12 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void d(String tag, String msg, Throwable throwable) {
-		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.DEBUG, tag, msg);
+		try {
+			Crashlytics.logException(throwable);
+			Crashlytics.log(Log.DEBUG, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -70,7 +86,11 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void i(String tag, String msg) {
-		Crashlytics.log(Log.INFO, tag, msg);
+		try {
+			Crashlytics.log(Log.INFO, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -80,8 +100,12 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void i(String tag, String msg, Throwable throwable) {
-		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.INFO, tag, msg);
+		try {
+			Crashlytics.logException(throwable);
+			Crashlytics.log(Log.INFO, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -91,7 +115,11 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void w(String tag, String msg) {
-		Crashlytics.log(Log.WARN, tag, msg);
+		try {
+			Crashlytics.log(Log.WARN, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -101,8 +129,12 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void w(String tag, String msg, Throwable throwable) {
-		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.WARN, tag, msg);
+		try {
+			Crashlytics.logException(throwable);
+			Crashlytics.log(Log.WARN, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -112,7 +144,11 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void e(String tag, String msg) {
-		Crashlytics.log(Log.ERROR, tag, msg);
+		try {
+			Crashlytics.log(Log.ERROR, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
@@ -122,17 +158,29 @@ public class CrashlyticsLogger implements Logger {
 
 	@Override
 	public void e(String tag, String msg, Throwable throwable) {
-		Crashlytics.logException(throwable);
-		Crashlytics.log(Log.ERROR, tag, msg);
+		try {
+			Crashlytics.logException(throwable);
+			Crashlytics.log(Log.ERROR, tag, msg);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
 	public void e(Throwable throwable) {
-		Crashlytics.logException(throwable);
+		try {
+			Crashlytics.logException(throwable);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 
 	@Override
 	public void setUser(String user) {
-		Crashlytics.setUserIdentifier(user);
+		try {
+			Crashlytics.setUserIdentifier(user);
+		} catch(IllegalStateException ex) {
+			// crashlytics not initialized.
+		}
 	}
 }
