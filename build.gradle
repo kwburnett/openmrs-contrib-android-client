@@ -10,7 +10,7 @@ buildscript {
 
 	dependencies {
 		// Upgrade this to 3.3.0+ whenever https://issuetracker.google.com/issues/116408637 is fixed for Crashlytics
-		classpath 'com.android.tools.build:gradle:3.3.2'
+		classpath 'com.android.tools.build:gradle:4.0.0'
 	}
 }
 
