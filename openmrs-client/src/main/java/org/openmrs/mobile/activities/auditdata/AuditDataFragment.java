@@ -1620,7 +1620,8 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 	private Encounter getVisitEncounter(List<Observation> observationsToVoid, List<Observation> observations) {
 		if (visitEncounter != null) {
 			setObservations(visitEncounter, observationsToVoid, observations);
-			 return visitEncounter;
+			setEncounterDateToMatchTheVisit(visit, visitEncounter);
+			return visitEncounter;
 		}
 
 		//create location instance
@@ -1654,16 +1655,12 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		encounter.setEncounterType(auditFormEncounterType);
 		encounter.setDisplay(AUDITDATA);
 
+		encounter.setDateCreated(new Date());
+		encounter.setEncounterDatetime(new Date());
 		if (visit != null) {
 			encounter.setVisit(visit);
 			// set startdatetime == visit startdatetime
-			if (visit.getStartDatetime() != null) {
-				if (encounter.getEncounterDatetime() == null ||
-						encounter.getEncounterDatetime().before(visit.getStartDatetime())) {
-					encounter.setDateCreated(visit.getStartDatetime());
-					encounter.setEncounterDatetime(visit.getStartDatetime());
-				}
-			}
+			setEncounterDateToMatchTheVisit(visit, encounter);
 
 			if (visit.getPatient() != null) {
 				encounter.setPatient(visit.getPatient());
@@ -1671,6 +1668,14 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		}
 
 		return encounter;
+	}
+
+	private void setEncounterDateToMatchTheVisit(Visit visit, Encounter encounter) {
+		if (visit != null && visit.getStartDatetime() != null && encounter != null &&
+				visit.getStartDatetime() != encounter.getEncounterDatetime()) {
+			encounter.setDateCreated(visit.getStartDatetime());
+			encounter.setEncounterDatetime(visit.getStartDatetime());
+		}
 	}
 
 	private void setObservations(Encounter encounter, List<Observation> observationsToVoid, List<Observation> observations) {
