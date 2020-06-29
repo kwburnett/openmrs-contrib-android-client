@@ -1657,16 +1657,11 @@ public class AuditDataFragment extends ACBaseFragment<AuditDataContract.Presente
 		if (visit != null) {
 			encounter.setVisit(visit);
 			// set startdatetime == visit startdatetime
-			if (visit.getStartDatetime() != null){
-				if (encounter.getEncounterDatetime() != null) {
-					if (encounter.getEncounterDatetime().before(visit.getStartDatetime())){
-						encounter.setDateCreated(visit.getStartDatetime());
-						encounter.setEncounterDatetime(visit.getStartDatetime());
-					}
-				} else {
-					Date startDate = new Date();
-					encounter.setDateCreated(startDate);
-					encounter.setEncounterDatetime(startDate);
+			if (visit.getStartDatetime() != null) {
+				if (encounter.getEncounterDatetime() == null ||
+						encounter.getEncounterDatetime().before(visit.getStartDatetime())) {
+					encounter.setDateCreated(visit.getStartDatetime());
+					encounter.setEncounterDatetime(visit.getStartDatetime());
 				}
 			}
 
