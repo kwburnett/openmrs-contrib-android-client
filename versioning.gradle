@@ -47,8 +47,8 @@ ext {
 		track
 	}
 	minSdkVersion = 16
-	targetSdkVersion = 26
+	targetSdkVersion = 28
 	// The compile version cannot be less than the targetSdkVersion
-	compileSdkVersion = 26
+	compileSdkVersion = 28
 	supportLibVersion = "27.1.1"
 }
