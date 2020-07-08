@@ -34,6 +34,18 @@ ext {
 
 		(major * 1000000) + (minor * 10000) + (patch * 100) + candidate
 	}
+	playTrack = {
+		// The rules are as follows:
+		//      -"-SNAPSHOT" and "-RC" will deploy to the 'beta' track
+		//      -everything else will deploy to 'production'
+
+		def (major, minor, patch) = VERSION.toLowerCase().replaceAll('-', '').tokenize('.')
+		def track = "production"
+		if (patch.endsWith("snapshot") || patch.endsWith("rc")) {
+			track = "beta";
+		}
+		track
+	}
 	minSdkVersion = 16
 	targetSdkVersion = 26
 	// The compile version cannot be less than the targetSdkVersion
