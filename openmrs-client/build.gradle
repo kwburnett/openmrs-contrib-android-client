@@ -38,7 +38,7 @@ if (keystorePropertiesFile.exists()) {
 
 // Set the credential path so the app can build locally if not defined in the keystore
 def credentialFile = rootDir.toString() + "/unused-credential-file.json"
-if (keystoreProperties[CREDENTIAL_FILE] != null && keystoreProperties[CREDENTIAL_FILE].toString().length > 0) {
+if (keystoreProperties[CREDENTIAL_FILE] != null && keystoreProperties[CREDENTIAL_FILE].toString().length() > 0) {
 	credentialFile = keystoreProperties[CREDENTIAL_FILE];
 }
 
