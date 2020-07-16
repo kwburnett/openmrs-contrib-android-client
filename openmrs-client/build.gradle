@@ -144,7 +144,7 @@ dependencies {
 	implementation 'org.apache.httpcomponents:httpcore:4.4.4'
 	implementation 'org.apache.httpcomponents:httpmime:4.5.2'
 	implementation 'net.zetetic:android-database-sqlcipher:3.5.7@aar'
-	implementation 'com.squareup.okhttp3:logging-interceptor:3.2.0'
+	implementation 'com.squareup.okhttp3:logging-interceptor:3.4.0'
 	implementation 'joda-time:joda-time:2.0'
 	implementation 'com.github.hotchemi:permissionsdispatcher:2.3.1'
 	implementation 'com.github.clans:fab:1.6.4'
