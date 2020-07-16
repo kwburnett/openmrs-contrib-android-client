@@ -13,7 +13,7 @@
  */
 package org.openmrs.mobile.activities.patientlist;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import org.openmrs.mobile.activities.BasePresenterContract;
 import org.openmrs.mobile.activities.BaseView;
 import org.openmrs.mobile.models.PatientList;

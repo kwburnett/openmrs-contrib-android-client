@@ -15,8 +15,8 @@
 package org.openmrs.mobile.utilities;
 
 import android.graphics.Typeface;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.widget.AppCompatButton;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.widget.AppCompatButton;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;

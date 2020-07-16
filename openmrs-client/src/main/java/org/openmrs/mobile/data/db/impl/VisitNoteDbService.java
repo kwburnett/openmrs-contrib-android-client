@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.db.impl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Method;
@@ -15,8 +15,6 @@ import org.openmrs.mobile.models.Resource;
 import org.openmrs.mobile.models.Visit;
 import org.openmrs.mobile.models.VisitNote;
 import org.openmrs.mobile.models.VisitNote_Table;
-
-import java.util.List;
 
 import javax.inject.Inject;
 

@@ -13,7 +13,7 @@
  */
 package org.openmrs.mobile.activities.patientlist;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;

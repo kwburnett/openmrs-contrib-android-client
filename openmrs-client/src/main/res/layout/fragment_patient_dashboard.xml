@@ -43,20 +43,20 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" />
 
-		<android.support.v4.widget.SwipeRefreshLayout
+		<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 				android:layout_below="@id/patientHeader"
 				android:paddingTop="0dp"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:id="@+id/patientVisitsSwipeRefreshView">
 		
-			<android.support.v7.widget.RecyclerView
+			<androidx.recyclerview.widget.RecyclerView
 					android:paddingTop="0dp"
 					android:id="@+id/patientVisitsRecyclerView"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content" />
 
-		</android.support.v4.widget.SwipeRefreshLayout>
+		</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 		
 		<TextView
 				android:visibility="gone"

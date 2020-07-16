@@ -1,7 +1,7 @@
 package org.openmrs.mobile.activities;
 
-import android.support.design.widget.TextInputEditText;
-import android.support.v7.widget.RecyclerView;
+import com.google.android.material.textfield.TextInputEditText;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;

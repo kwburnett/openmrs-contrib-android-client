@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.sync;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.openmrs.mobile.application.Logger;
 import org.openmrs.mobile.application.OpenMRS;

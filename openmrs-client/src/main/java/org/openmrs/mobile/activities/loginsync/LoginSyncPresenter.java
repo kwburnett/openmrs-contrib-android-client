@@ -4,7 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.os.SystemClock;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.SyncEvent;
