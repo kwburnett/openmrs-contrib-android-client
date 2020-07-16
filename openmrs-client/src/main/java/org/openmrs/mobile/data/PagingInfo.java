@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * This class contains the paging information used by the entity services to paginate results. Both page and pageSize are

@@ -1,7 +1,7 @@
 package org.openmrs.mobile.data.rest.impl;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.rest.BaseRestService;

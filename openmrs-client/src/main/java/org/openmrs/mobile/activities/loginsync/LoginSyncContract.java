@@ -1,7 +1,6 @@
 package org.openmrs.mobile.activities.loginsync;
 
-import android.app.Activity;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import org.openmrs.mobile.activities.BasePresenterContract;
 import org.openmrs.mobile.activities.BaseView;
 import org.openmrs.mobile.event.SyncEvent;

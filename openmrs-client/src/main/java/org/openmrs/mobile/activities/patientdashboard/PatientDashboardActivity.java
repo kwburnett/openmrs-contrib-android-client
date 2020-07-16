@@ -16,7 +16,7 @@ package org.openmrs.mobile.activities.patientdashboard;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
+import androidx.core.view.GravityCompat;
 import android.view.Menu;
 
 import org.openmrs.mobile.R;

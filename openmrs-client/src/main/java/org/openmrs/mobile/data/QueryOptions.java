@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.openmrs.mobile.data.rest.RestConstants;
 import org.openmrs.mobile.utilities.StringUtils;

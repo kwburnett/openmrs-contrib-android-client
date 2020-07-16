@@ -21,7 +21,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
-import android.support.multidex.MultiDex;
+import androidx.multidex.MultiDex;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import net.sqlcipher.database.SQLiteDatabase;

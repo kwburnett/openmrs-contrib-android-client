@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.sync;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -11,24 +11,15 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.openmrs.mobile.data.db.DbService;
-import org.openmrs.mobile.data.db.impl.RecordInfoDbService;
 import org.openmrs.mobile.data.rest.RestService;
 import org.openmrs.mobile.models.BaseOpenmrsAuditableObject;
 import org.openmrs.mobile.models.PullSubscription;
 import org.openmrs.mobile.models.RecordInfo;
-import org.openmrs.mobile.models.Results;
-
-import java.util.Arrays;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class AdaptiveSubscriptionProviderTest<E extends BaseOpenmrsAuditableObject,

@@ -15,8 +15,8 @@ package org.openmrs.mobile.activities.patientlist;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.view.GravityCompat;
+import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 
 import android.view.Menu;
 import android.view.MenuItem;
