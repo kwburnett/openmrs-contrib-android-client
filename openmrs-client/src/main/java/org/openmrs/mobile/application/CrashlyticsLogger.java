@@ -15,11 +15,35 @@
 package org.openmrs.mobile.application;
 
 import android.util.Log;
-import com.crashlytics.android.Crashlytics;
+
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class CrashlyticsLogger implements Logger {
 
 	private static final String TAG = "Banda Health";
+	private FirebaseCrashlytics crashlytics = FirebaseCrashlytics.getInstance();
+
+	private String constructLogString(int logLevel, String tag, String message) {
+		String messageLogLevelPrefix;
+		switch (logLevel) {
+			case Log.DEBUG:
+				messageLogLevelPrefix = "D/";
+				break;
+			case Log.VERBOSE:
+				messageLogLevelPrefix = "V/";
+				break;
+			case Log.WARN:
+				messageLogLevelPrefix = "W/";
+				break;
+			case Log.ERROR:
+				messageLogLevelPrefix = "E/";
+				break;
+			default:
+				messageLogLevelPrefix = "I/";
+				break;
+		}
+		return messageLogLevelPrefix + tag + ": " + message;
+	}
 
 	@Override
 	public void v(String msg) {
@@ -29,7 +53,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void v(String tag, String msg) {
 		try {
-			Crashlytics.log(Log.VERBOSE, tag, msg);
+			crashlytics.log(constructLogString(Log.VERBOSE, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -43,8 +67,8 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void v(String tag, String msg, Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
-			Crashlytics.log(Log.VERBOSE, tag, msg);
+			crashlytics.recordException(throwable);
+			crashlytics.log(constructLogString(Log.VERBOSE, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -58,7 +82,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void d(String tag, String msg) {
 		try {
-			Crashlytics.log(Log.DEBUG, tag, msg);
+			crashlytics.log(constructLogString(Log.DEBUG, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -72,8 +96,8 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void d(String tag, String msg, Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
-			Crashlytics.log(Log.DEBUG, tag, msg);
+			crashlytics.recordException(throwable);
+			crashlytics.log(constructLogString(Log.DEBUG, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -87,7 +111,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void i(String tag, String msg) {
 		try {
-			Crashlytics.log(Log.INFO, tag, msg);
+			crashlytics.log(constructLogString(Log.INFO, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -101,8 +125,8 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void i(String tag, String msg, Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
-			Crashlytics.log(Log.INFO, tag, msg);
+			crashlytics.recordException(throwable);
+			crashlytics.log(constructLogString(Log.INFO, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -116,7 +140,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void w(String tag, String msg) {
 		try {
-			Crashlytics.log(Log.WARN, tag, msg);
+			crashlytics.log(constructLogString(Log.WARN, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -130,8 +154,8 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void w(String tag, String msg, Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
-			Crashlytics.log(Log.WARN, tag, msg);
+			crashlytics.recordException(throwable);
+			crashlytics.log(constructLogString(Log.WARN, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -145,7 +169,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void e(String tag, String msg) {
 		try {
-			Crashlytics.log(Log.ERROR, tag, msg);
+			crashlytics.log(constructLogString(Log.ERROR, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -159,8 +183,8 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void e(String tag, String msg, Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
-			Crashlytics.log(Log.ERROR, tag, msg);
+			crashlytics.recordException(throwable);
+			crashlytics.log(constructLogString(Log.ERROR, tag, msg));
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -169,7 +193,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void e(Throwable throwable) {
 		try {
-			Crashlytics.logException(throwable);
+			crashlytics.recordException(throwable);
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}
@@ -178,7 +202,7 @@ public class CrashlyticsLogger implements Logger {
 	@Override
 	public void setUser(String user) {
 		try {
-			Crashlytics.setUserIdentifier(user);
+			crashlytics.setUserId(user);
 		} catch(IllegalStateException ex) {
 			// crashlytics not initialized.
 		}

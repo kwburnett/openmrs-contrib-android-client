@@ -52,7 +52,7 @@
 				tools:textColor="@color/color_primary_dark"
 				android:layout_marginBottom="@dimen/nav_title_margin"/>
 
-		<android.support.v7.widget.RecyclerView
+		<androidx.recyclerview.widget.RecyclerView
 				android:id="@+id/syncSelectionModelRecyclerView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"

@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import okhttp3.Call;
 import okhttp3.Callback;

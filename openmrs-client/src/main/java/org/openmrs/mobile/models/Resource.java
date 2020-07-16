@@ -9,7 +9,7 @@
  */
 package org.openmrs.mobile.models;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.google.common.base.Supplier;
 import com.google.gson.annotations.Expose;

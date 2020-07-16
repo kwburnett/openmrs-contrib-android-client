@@ -2,7 +2,7 @@ package org.openmrs.mobile.activities.syncselection;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.GravityCompat;
+import androidx.core.view.GravityCompat;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.ACBaseActivity;
 import org.openmrs.mobile.activities.loginsync.LoginSyncActivity;
