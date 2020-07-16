@@ -304,7 +304,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		// get snackbar view
 		View snackbarView = snackbar.getView();
 		// change snackbar text color
-		int snackbarTextId = android.support.design.R.id.snackbar_text;
+		int snackbarTextId = com.google.android.material.R.id.snackbar_text;
 		TextView textView = (TextView)snackbarView.findViewById(snackbarTextId);
 		textView.setTextColor(colorWhite);
 		// change snackbar background
