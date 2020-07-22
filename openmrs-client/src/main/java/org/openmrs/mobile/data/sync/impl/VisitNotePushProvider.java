@@ -1,5 +1,6 @@
 package org.openmrs.mobile.data.sync.impl;
 
+import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.data.db.impl.EncounterDbService;
 import org.openmrs.mobile.data.db.impl.ObsDbService;
 import org.openmrs.mobile.data.db.impl.VisitNoteDbService;
@@ -19,7 +20,7 @@ public class VisitNotePushProvider extends BasePushProvider<VisitNote, VisitNote
 
 	@Inject
 	public VisitNotePushProvider(VisitNoteDbService dbService, VisitNoteRestServiceImpl restService,
-			ObsDbService obsDbService, EncounterDbService encounterDbService) {
+	                             ObsDbService obsDbService, EncounterDbService encounterDbService) {
 		super(dbService, restService);
 
 		this.restService = restService;
@@ -30,7 +31,7 @@ public class VisitNotePushProvider extends BasePushProvider<VisitNote, VisitNote
 	@Override
 	protected void deleteLocalRelatedRecords(VisitNote originalEntity, VisitNote restEntity) {
 	}
-	
+
 	@Override
 	protected Call<VisitNote> update(VisitNote entity) {
 		return restService.save(entity);
@@ -38,8 +39,21 @@ public class VisitNotePushProvider extends BasePushProvider<VisitNote, VisitNote
 
 	@Override
 	protected void postProcess(VisitNote originalEntity, VisitNote restEntity, SyncLog syncLog) {
+		if (restEntity == null) {
+			// Something went wrong during the save, so don't do anything further
+			OpenMRS openMRS = OpenMRS.getInstance();
+			if (openMRS != null && openMRS.getLogger() != null) {
+				if (originalEntity.getEncounter() != null) {
+					openMRS.getLogger().e("There was an error saving the visit note: '" +
+							originalEntity.getEncounter().getDisplay());
+				} else {
+					openMRS.getLogger().e("There was an error saving the visit note.");
+				}
+			}
+			return;
+		}
 		// void existing obs
-		if(originalEntity.getEncounter() != null) {
+		if (originalEntity.getEncounter() != null) {
 			obsDbService.removeLocalObservationsNotFoundInREST(originalEntity.getEncounter());
 		}
 		// save new obs
