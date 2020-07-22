@@ -1,10 +1,14 @@
 package org.openmrs.mobile.activities.loginsync;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import android.os.SystemClock;
+
 import androidx.annotation.Nullable;
+
 import org.openmrs.mobile.activities.BasePresenter;
 import org.openmrs.mobile.application.OpenMRS;
 import org.openmrs.mobile.event.SyncEvent;
@@ -25,12 +29,14 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	private double entitiesPushed;
 	private double entitiesPulled;
 	private String currentDownloadingSubscription;
-	private Timer networkConnectivityCheckTimer;
-	private @Nullable Boolean networkConnectionIsFast;
+	private ScheduledExecutorService networkConnectivityCheckScheduler;
+	private ScheduledFuture<?> networkConnectivityCheckScheduledTask;
+	private @Nullable
+	Boolean networkConnectionIsFast;
 	private boolean arePushing = false;
 	private boolean arePulling = false;
 	private boolean trimHasBeenCompleted = false;
-	private TimerTask measureConnectivityTimerTask;
+	private Runnable measureConnectivityTask;
 
 	private final int DELAY = 500;
 	private long dataSyncStartTime = 0;
@@ -183,28 +189,37 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	public void startMeasuringConnectivity() {
 		networkConnectionIsFast = null;
 
-		measureConnectivityTimerTask = new TimerTask() {
-			@Override
-			public void run() {
-				Boolean previousConnectionSpeedIsFast = networkConnectionIsFast;
-				determineNetworkConnectionSpeed();
-				if (previousConnectionSpeedIsFast == null
-						|| (previousConnectionSpeedIsFast && !networkConnectionIsFast)
-						|| (!previousConnectionSpeedIsFast && networkConnectionIsFast)) {
-					view.runOnUIThread(() -> notifyViewToUpdateConnectionDisplay());
-				}
+		measureConnectivityTask = () -> {
+			Boolean previousConnectionSpeedIsFast = networkConnectionIsFast;
+			determineNetworkConnectionSpeed();
+			if (previousConnectionSpeedIsFast == null
+					|| (previousConnectionSpeedIsFast && !networkConnectionIsFast)
+					|| (!previousConnectionSpeedIsFast && networkConnectionIsFast)) {
+				view.runOnUIThread(() -> notifyViewToUpdateConnectionDisplay());
 			}
 		};
-		if (networkConnectivityCheckTimer == null) {
-			networkConnectivityCheckTimer = new Timer();
+		if (networkConnectivityCheckScheduler == null) {
+			networkConnectivityCheckScheduler = Executors.newScheduledThreadPool(1);
 		}
 		dataSyncStartTime = SystemClock.elapsedRealtime();
-		networkConnectivityCheckTimer.schedule(measureConnectivityTimerTask, DELAY, DELAY);
+		try {
+			if (networkConnectivityCheckScheduledTask != null) {
+				networkConnectivityCheckScheduledTask.cancel(true);
+			}
+			networkConnectivityCheckScheduledTask = networkConnectivityCheckScheduler
+					.schedule(measureConnectivityTask, DELAY, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			openMRS.getLogger().e(e.getMessage(), e);
+		}
 	}
 
 	private void determineNetworkConnectionSpeed() {
 		try {
-			double averageNetworkSpeed = openMRS.getNetworkUtils().getCurrentConnectionSpeed();
+			Double averageNetworkSpeed = openMRS.getNetworkUtils().getCurrentConnectionSpeed();
+			if (averageNetworkSpeed == null) {
+				networkConnectionIsFast = false;
+				return;
+			}
 
 			double estimatedTimeUntilDownloadCompletes = AVERAGE_NUMBER_OF_PATIENTS_TO_SYNC
 					* AVERAGE_SIZE_OF_PATIENT_PAYLOAD_IN_KB
@@ -253,6 +268,8 @@ public class LoginSyncPresenter extends BasePresenter implements LoginSyncContra
 	}
 
 	public void stopMeasuringConnectivity() {
-		measureConnectivityTimerTask.cancel();
+		if (networkConnectivityCheckScheduledTask != null && !networkConnectivityCheckScheduledTask.isCancelled()) {
+			networkConnectivityCheckScheduledTask.cancel(true);
+		}
 	}
 }

@@ -1,3 +1,3 @@
-Version 1.7.0:
+Version 1.7.1:
 
-- This updates several app dependencies and enables logging of crashes
+- Minor bug fixes to handle offline functionality and spotty internet
