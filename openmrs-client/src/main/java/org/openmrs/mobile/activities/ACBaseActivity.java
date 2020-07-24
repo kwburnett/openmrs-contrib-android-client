@@ -22,18 +22,18 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,8 +43,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
 import org.openmrs.mobile.R;
 import org.openmrs.mobile.activities.dialog.CustomFragmentDialog;
 import org.openmrs.mobile.activities.findpatientrecord.FindPatientRecordActivity;
@@ -78,7 +76,6 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Fabric.with(this, new Crashlytics());
 		setContentView(R.layout.activity_acbase);
 		fragmentManager = getSupportFragmentManager();
 		frameLayout = (FrameLayout)findViewById(R.id.content_frame);
@@ -304,7 +301,7 @@ public abstract class ACBaseActivity extends AppCompatActivity implements Naviga
 		// get snackbar view
 		View snackbarView = snackbar.getView();
 		// change snackbar text color
-		int snackbarTextId = android.support.design.R.id.snackbar_text;
+		int snackbarTextId = com.google.android.material.R.id.snackbar_text;
 		TextView textView = (TextView)snackbarView.findViewById(snackbarTextId);
 		textView.setTextColor(colorWhite);
 		// change snackbar background

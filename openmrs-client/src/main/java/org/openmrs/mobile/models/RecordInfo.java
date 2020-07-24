@@ -1,13 +1,12 @@
 package org.openmrs.mobile.models;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.Table;
 
 import org.openmrs.mobile.data.db.AppDatabase;
-import org.openmrs.mobile.utilities.DateUtils;
 
 import java.util.Date;
 

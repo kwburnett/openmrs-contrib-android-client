@@ -16,7 +16,7 @@ package org.openmrs.mobile.activities.addeditvisit;
 import static org.openmrs.mobile.utilities.ApplicationConstants.EncounterTypeDisplays.AUDITDATA;
 import static org.openmrs.mobile.utilities.ApplicationConstants.toastMessages.SAVE_VISIT_END_DATE_ERROR;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.widget.Spinner;
 
 import org.openmrs.mobile.activities.BasePresenter;

@@ -50,12 +50,13 @@ public class PatientTrimProvider {
 	@Inject
 	public PatientTrimProvider(PatientDbService patientDbService, VisitDbService visitDbService,
 			VisitNoteDbService visitNoteDbService, VisitPhotoDbService visitPhotoDbService,
-			VisitTaskDbService visitTaskDbService, Repository repository) {
+			VisitTaskDbService visitTaskDbService, EncounterDbService encounterDbService, Repository repository) {
 		this.patientDbService = patientDbService;
 		this.visitDbService = visitDbService;
 		this.visitNoteDbService = visitNoteDbService;
 		this.visitPhotoDbService = visitPhotoDbService;
 		this.visitTaskDbService = visitTaskDbService;
+		this.encounterDbService = encounterDbService;
 		this.repository = repository;
 	}
 

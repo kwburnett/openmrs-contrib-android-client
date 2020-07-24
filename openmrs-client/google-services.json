@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "143806258589",
+    "firebase_url": "https://bh-inpatient-medicine.firebaseio.com",
+    "project_id": "bh-inpatient-medicine",
+    "storage_bucket": "bh-inpatient-medicine.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:143806258589:android:ddf28e0cfba9ae7cb1a374",
+        "android_client_info": {
+          "package_name": "org.openmrs.bandahealth.im"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "143806258589-q9rt22njqp3be2cl29kmajg2s3m5t3o3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMpe9dEmfKxmIZhOCaK_xmf7yvNfCCH6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "143806258589-q9rt22njqp3be2cl29kmajg2s3m5t3o3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

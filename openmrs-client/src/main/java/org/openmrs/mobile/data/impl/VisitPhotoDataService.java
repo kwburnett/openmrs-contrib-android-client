@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.impl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.openmrs.mobile.data.BaseDataService;
 import org.openmrs.mobile.data.DataService;

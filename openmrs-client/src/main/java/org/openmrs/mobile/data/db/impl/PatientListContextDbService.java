@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.db.impl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 

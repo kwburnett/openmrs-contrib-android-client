@@ -1,6 +1,6 @@
 package org.openmrs.mobile.data.sync.impl;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.openmrs.mobile.data.QueryOptions;
 import org.openmrs.mobile.data.db.impl.PatientDbService;

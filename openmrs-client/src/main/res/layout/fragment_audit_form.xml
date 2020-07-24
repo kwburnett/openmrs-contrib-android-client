@@ -53,7 +53,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent">
 
-			<android.support.v7.widget.CardView
+			<androidx.cardview.widget.CardView
 					card_view:cardBackgroundColor="@android:color/white"
 					card_view:cardElevation="2dp"
 					android:layout_marginEnd="10dp"
@@ -77,7 +77,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content">
 
-					<android.support.v7.widget.AppCompatSpinner
+					<androidx.appcompat.widget.AppCompatSpinner
 							android:id="@+id/inpatient_service_type"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -127,7 +127,7 @@
 
 					</RadioGroup>
 
-					<android.support.v7.widget.AppCompatSpinner
+					<androidx.appcompat.widget.AppCompatSpinner
 							android:id="@+id/classification_of_death_type"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -280,7 +280,7 @@
 
 					</RadioGroup>
 
-					<android.support.design.widget.TextInputLayout
+					<com.google.android.material.textfield.TextInputLayout
 							android:id="@+id/cd4TextInputLayout"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -297,7 +297,7 @@
 								android:layout_height="wrap_content"
 								android:hint="@string/cd4"
 								android:inputType="number" />
-					</android.support.design.widget.TextInputLayout>
+					</com.google.android.material.textfield.TextInputLayout>
 
 
 					<TextView
@@ -346,7 +346,7 @@
 
 					</RadioGroup>
 
-					<android.support.design.widget.TextInputLayout
+					<com.google.android.material.textfield.TextInputLayout
 							android:id="@+id/hba1cTextLayout"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -363,7 +363,7 @@
 								android:layout_height="wrap_content"
 								android:hint="@string/hba1c"
 								android:inputType="numberDecimal" />
-					</android.support.design.widget.TextInputLayout>
+					</com.google.android.material.textfield.TextInputLayout>
 
 					<TextView
 							android:id="@+id/invalidHba1cError"
@@ -850,7 +850,7 @@
 									android:checked="false" />
 						</RadioGroup>
 
-						<android.support.design.widget.TextInputLayout
+						<com.google.android.material.textfield.TextInputLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:layout_marginLeft="10dp"
@@ -865,9 +865,9 @@
 									android:layout_height="wrap_content"
 									android:hint="@string/first_heart_rate"
 									android:inputType="number" />
-						</android.support.design.widget.TextInputLayout>
+						</com.google.android.material.textfield.TextInputLayout>
 
-						<android.support.design.widget.TextInputLayout
+						<com.google.android.material.textfield.TextInputLayout
 								android:layout_width="match_parent"
 								android:layout_height="match_parent"
 								android:layout_marginLeft="10dp"
@@ -899,9 +899,9 @@
 									android:textStyle="normal"
 									android:visibility="gone" />
 
-						</android.support.design.widget.TextInputLayout>
+						</com.google.android.material.textfield.TextInputLayout>
 
-						<android.support.design.widget.TextInputLayout
+						<com.google.android.material.textfield.TextInputLayout
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:layout_marginLeft="10dp"
@@ -933,7 +933,7 @@
 									android:textStyle="normal"
 									android:visibility="gone" />
 
-						</android.support.design.widget.TextInputLayout>
+						</com.google.android.material.textfield.TextInputLayout>
 
 						<TextView
 								android:text="@string/intubation_at_first_gcs"
@@ -1098,7 +1098,7 @@
 
 					</RadioGroup>
 
-					<android.support.v7.widget.AppCompatButton
+					<androidx.appcompat.widget.AppCompatButton
 							android:id="@+id/submitConfirm"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
@@ -1113,7 +1113,7 @@
 							android:text="@string/save_audit_data"
 							style="@style/Widget.AppCompat.Button.Borderless" />
 				</LinearLayout>
-			</android.support.v7.widget.CardView>
+			</androidx.cardview.widget.CardView>
 		</ScrollView>
 
 	</LinearLayout>

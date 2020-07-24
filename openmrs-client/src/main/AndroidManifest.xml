@@ -28,9 +28,6 @@
 			android:roundIcon="@drawable/ic_launcher"
 			android:supportsRtl="true"
 			android:theme="@style/AppTheme">
-		<meta-data
-				android:name="io.fabric.ApiKey"
-				android:value="d71f84388da22e60b0b848873eaede7b76bc8972"/>
 		<activity
 				android:name=".activities.patientlist.PatientListActivity"
 				android:label="@string/app_name"
@@ -79,7 +76,7 @@
 		          android:screenOrientation="portrait"/>
 
 		<provider
-			android:name="android.support.v4.content.FileProvider"
+			android:name="androidx.core.content.FileProvider"
 		    android:authorities="org.openmrs.mobile.bandahealth.im.fileprovider"
 		    android:exported="false"
 		    android:grantUriPermissions="true">
