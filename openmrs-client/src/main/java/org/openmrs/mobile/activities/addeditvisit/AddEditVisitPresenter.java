@@ -119,7 +119,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 				.getByUuid(patientUuid, QueryOptions.FULL_REP, new DataService.GetCallback<Patient>() {
 					@Override
 					public void onCompleted(Patient entity) {
-						if (StringUtils.isNullOrEmpty(visitUuid)) {
+						if (visitUuid != null && visitUuid.isEmpty()) {
 							// start visit
 							visit.setPatient(entity);
 							visit.setStartDatetime(new Date());
@@ -128,7 +128,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 							loadVisitAttributeTypes();
 						} else {
 							// edit visit
-							loadVisit(visitUuid);
+							loadVisit();
 						}
 					}
 
@@ -140,8 +140,7 @@ public class AddEditVisitPresenter extends BasePresenter implements AddEditVisit
 				});
 	}
 
-	private void loadVisit(@NonNull String visitUuid) {
-		checkNotNull(visitUuid);
+	private void loadVisit() {
 		visitDataService.getByUuid(visitUuid, QueryOptions.FULL_REP, new DataService.GetCallback<Visit>() {
 			@Override
 			public void onCompleted(Visit entity) {
