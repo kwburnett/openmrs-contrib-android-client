@@ -75,6 +75,18 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 
 	private Class<E> entityClass;
 
+	private Dealer<E> defaultDBDealer = new Dealer<E>() {
+		@Override
+		public void reject() {
+			logger.e("DB Data was rejected");
+		}
+
+		@Override
+		public E get() {
+			throw new UnsupportedOperationException("defaultDBDealer doesn't support this method");
+		}
+	};
+
 	@Override
 	public void getByUuid(@NonNull String uuid, @Nullable QueryOptions options, @NonNull GetCallback<E> callback) {
 		checkNotNull(uuid);
@@ -108,18 +120,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 		checkNotNull(callback);
 
 		executeMultipleCallback(callback, options, pagingInfo,
-				new Dealer<List<E>>() {
-					@Override
-					public void reject() {
-						// Do nothing, because we don't know what data should've been returned
-						logger.e("DB Data was rejected");
-					}
-
-					@Override
-					public List<E> get() {
-						return dbService.getAll(options, pagingInfo);
-					}
-				},
+				() -> dbService.getAll(options, pagingInfo),
 				() -> restService.getAll(options, pagingInfo));
 	}
 
@@ -133,7 +134,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<E>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
@@ -157,7 +158,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<E>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
@@ -211,7 +212,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 		Dealer<E> dbDealer = new Dealer<E>() {
 			@Override
 			public void reject() {
-				logger.e("DB Data was rejected");
+				defaultDBDealer.reject();
 			}
 
 			@Override
@@ -264,7 +265,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<E>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
@@ -302,7 +303,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<T>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
@@ -330,7 +331,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<List<E>>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
@@ -363,7 +364,7 @@ public abstract class BaseDataService<E extends BaseOpenmrsObject, DS extends Ba
 				new Dealer<List<E>>() {
 					@Override
 					public void reject() {
-						logger.e("DB Data was rejected");
+						defaultDBDealer.reject();
 					}
 
 					@Override
