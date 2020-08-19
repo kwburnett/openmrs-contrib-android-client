@@ -1,6 +1,7 @@
 package org.openmrs.mobile.utilities;
 
 import org.openmrs.mobile.annotation.Validate;
+import org.openmrs.mobile.application.OpenMRS;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -9,6 +10,9 @@ import java.util.List;
  * This class hold methods to work with data in objects, typically via reflection
  */
 public class DataUtil {
+
+	private final static OpenMRS openMRS = OpenMRS.getInstance();
+
 	/**
 	 * Check if all fields on an entity or a list of entities marked with the @Validate annotation are valid
 	 *
@@ -38,7 +42,11 @@ public class DataUtil {
 			}
 		} catch (Exception ex) {
 			// There was an error somewhere, but don't hold up the code
-			System.out.println(ex.getMessage());
+			if (openMRS != null && openMRS.getLogger() != null) {
+				openMRS.getLogger().e(ex);
+			} else {
+				System.out.println(ex.getMessage());
+			}
 		}
 		return true;
 	}
@@ -65,6 +73,9 @@ public class DataUtil {
 			}
 		} catch (Exception ex) {
 			// There was an error somewhere, so assume entity isn't valid
+			if (openMRS != null && openMRS.getLogger() != null) {
+				openMRS.getLogger().e(ex);
+			}
 			return true;
 		}
 		return false;
